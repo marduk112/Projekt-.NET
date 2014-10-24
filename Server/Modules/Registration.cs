@@ -3,24 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Common;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace Server.Modules
 {
-    static class LoginAndRegistration
+    //example
+    public static class Registration
     {
-        public static void loginAndRegistration(bool isLogin = true)
+        public static void registration()
         {
             var factory = new ConnectionFactory() {HostName = "localhost"};
             using (var connection = factory.CreateConnection())
             {
                 using (var channel = connection.CreateModel())
                 {
-                    channel.QueueDeclare("reglogServer", false, false, false, null);
+                    channel.QueueDeclare("registrationServer", false, false, false, null);
                     channel.BasicQos(0, 1, false);
                     var consumer = new QueueingBasicConsumer(channel);
-                    channel.BasicConsume("reglogServer", false, consumer);
+                    channel.BasicConsume("registrationServer", false, consumer);
                     Console.WriteLine(" [x] Awaiting RPC requests");
 
                     while (true)
@@ -35,8 +37,8 @@ namespace Server.Modules
 
                         try
                         {
-                            message = Encoding.UTF8.GetString(body);
-                            response = isLogin ? login() : register();
+                            message = (String)JSONPayloadSerializer.Deserialize(body);
+                            response = register();
                         }
                         catch (Exception e)
                         {
@@ -54,10 +56,6 @@ namespace Server.Modules
             }
         }
 
-        private static bool login()
-        {
-            //XML to LINQ
-        }
         private static bool register()
         {
             //XML to LINQ

@@ -10,7 +10,7 @@ namespace Common
 {
     public static class JSONPayloadSerializer
     {
-        public static byte[] Serialize(MessageDTO dto)
+        public static byte[] Serialize(Object dto)
         {
             using (var stream = new MemoryStream())
             {
@@ -19,11 +19,11 @@ namespace Common
             }
         }
 
-        public static MessageDTO Deserialize(byte[] data)
+        public static Object Deserialize(byte[] data)
         {
             using (var stream = new MemoryStream(data))
             {
-                var serializer = JsonSerializer.DeserializeFromStream<MessageDTO>(stream);
+                var serializer = JsonSerializer.DeserializeFromStream<Object>(stream);
                 return serializer;
             }
         }
