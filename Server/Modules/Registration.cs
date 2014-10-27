@@ -59,6 +59,7 @@ namespace Server.Modules
         private static bool register()
         {
             //XML to LINQ
+            return false;
         }
 
         private static string message;
