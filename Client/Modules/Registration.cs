@@ -1,20 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Common;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace Server.Modules
+namespace Client.Modules
 {
     //example
     public class Registration
     {
         public Registration()
         {
-            var factory = new ConnectionFactory() { HostName = "localhost" };
+            var factory = new ConnectionFactory {HostName = Const.HostName, Port = AmqpTcpEndpoint.DefaultAmqpSslPort};
             connection = factory.CreateConnection();
             channel = connection.CreateModel();
             replyQueueName = channel.QueueDeclare();
@@ -22,22 +19,26 @@ namespace Server.Modules
             channel.BasicConsume(replyQueueName, true, consumer);
         }
         //this method returns result of Registration.register from server
-        public string registration()
+        public CreateUserResponse registration(string login, string password)
         {
+            createUserReq = new CreateUserReq();
             var corrId = Guid.NewGuid().ToString();
             var props = channel.CreateBasicProperties();
             props.ReplyTo = replyQueueName;
             props.CorrelationId = corrId;
 
-            var messageBytes = Encoding.UTF8.GetBytes(message);//message forward login and password
+            createUserReq.Login = login;
+            createUserReq.Password = password;
+
+            var messageBytes = createUserReq.Serialize();//message forward login and password
             channel.BasicPublish("", "registrationServer", props, messageBytes);
 
             while (true)
             {
-                var ea = (BasicDeliverEventArgs)consumer.Queue.Dequeue();
+                var ea = consumer.Queue.Dequeue();
                 if (ea.BasicProperties.CorrelationId == corrId)
                 {
-                    return Encoding.UTF8.GetString(ea.Body);
+                    return (CreateUserResponse)(ea.Body).Deserialize();
                 }
             }
         }
@@ -46,10 +47,11 @@ namespace Server.Modules
             connection.Close();
         }
 
-        private static string message;
+        private static string message = "fg";
         private IConnection connection;
         private IModel channel;
         private string replyQueueName;
         private QueueingBasicConsumer consumer;
+        private CreateUserReq createUserReq;
     }
 }

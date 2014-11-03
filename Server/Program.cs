@@ -13,14 +13,9 @@ namespace Server
         static void Main(string[] args)
         {
             //example
-            Thread registerThread = new Thread(Registration.registration) {IsBackground = true};
-            registerThread.Start();
-
-            var readLine = Console.ReadLine();
-            while (readLine != null && !readLine.Equals("koniec"))
-            {
-                
-            }
+            Console.WriteLine(" [x] Awaiting RPC requests");
+            Registration.registration();
+            Console.WriteLine(" [x] Awaiting RPC requests");
         }
     }
 }

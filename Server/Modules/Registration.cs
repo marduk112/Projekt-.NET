@@ -14,7 +14,8 @@ namespace Server.Modules
     {
         public static void registration()
         {
-            var factory = new ConnectionFactory() {HostName = "localhost"};
+            var factory = new ConnectionFactory() {HostName = Const.HostName};
+            //factory.Port = AmqpTcpEndpoint.DefaultAmqpSslPort;
             using (var connection = factory.CreateConnection())
             {
                 using (var channel = connection.CreateModel())
@@ -23,11 +24,10 @@ namespace Server.Modules
                     channel.BasicQos(0, 1, false);
                     var consumer = new QueueingBasicConsumer(channel);
                     channel.BasicConsume("registrationServer", false, consumer);
-                    Console.WriteLine(" [x] Awaiting RPC requests");
 
                     while (true)
                     {
-                        bool response = false;
+                        CreateUserResponse response = new CreateUserResponse();
                         var ea = consumer.Queue.Dequeue();
 
                         var body = ea.Body;
@@ -37,17 +37,17 @@ namespace Server.Modules
 
                         try
                         {
-                            message = (String)JSONPayloadSerializer.Deserialize(body);
-                            response = register();
+                            message = (CreateUserReq)body.Deserialize();
+                            response = correctRegister();
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine(" [.] " + e.Message);
-                            response = false;
+                            //Console.WriteLine(" [.] " + e.Message);
+                            response = incorrectRegister();
                         }
                         finally
                         {
-                            var responseBytes = Encoding.UTF8.GetBytes(response.ToString());
+                            var responseBytes = response.Serialize();
                             channel.BasicPublish("", props.ReplyTo, replyProps, responseBytes);
                             channel.BasicAck(ea.DeliveryTag, false);
                         }
@@ -56,12 +56,22 @@ namespace Server.Modules
             }
         }
 
-        private static bool register()
+        private static CreateUserResponse correctRegister()
         {
             //XML to LINQ
-            return false;
+            CreateUserResponse createUserResponse = new CreateUserResponse();
+            createUserResponse.Status = Status.OK;
+            return createUserResponse;
         }
 
-        private static string message;
+        private static CreateUserResponse incorrectRegister()
+        {
+            CreateUserResponse createUserResponse = new CreateUserResponse();
+            createUserResponse.Status = Status.Error;
+            createUserResponse.Message = "Incorrect register";
+            return createUserResponse;
+        }
+
+        private static CreateUserReq message;
     }
 }
