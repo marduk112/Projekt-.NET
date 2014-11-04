@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
 using Common;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -42,8 +45,7 @@ namespace Server.Modules
                         }
                         catch (Exception e)
                         {
-                            //Console.WriteLine(" [.] " + e.Message);
-                            response = incorrectRegister();
+                            response = incorrectRegister("Incorrect registration");
                         }
                         finally
                         {
@@ -58,17 +60,58 @@ namespace Server.Modules
 
         private static CreateUserResponse correctRegister()
         {
+            CreateUserResponse createUserResponse;
+            XDocument xmlDoc;
+            //load users list from XML file
+            if (!File.Exists(Const.FileNameToRegAndLogin))
+            {
+                File.Create(Const.FileNameToRegAndLogin);
+                xmlDoc = XDocument.Load(Const.FileNameToRegAndLogin);
+                xmlDoc.Add(new XElement("Users"));
+            }
+            else
+                xmlDoc = XDocument.Load(Const.FileNameToRegAndLogin);
             //XML to LINQ
-            CreateUserResponse createUserResponse = new CreateUserResponse();
-            createUserResponse.Status = Status.OK;
+            var users = from user in xmlDoc.Descendants("User")
+                let login = user.Element("Login")
+                where login != null
+                //let password = user.Element("Password")
+                //where password != null
+                select new
+                        {
+                            Login = login.Value,
+                            //Password = password.Value,
+                        };
+            //Is user exist
+            bool isExist = users.Any(user => user.Login.Equals(message.Login));
+            if (isExist)
+            {
+                createUserResponse = new CreateUserResponse();
+                createUserResponse.Status = Status.NotAuthenticated;
+                createUserResponse.Message = "User with login " + message.Login + "  exist";
+            }
+            else
+            {
+                createUserResponse = new CreateUserResponse();
+                createUserResponse.Status = Status.OK;
+                createUserResponse.Message = "Successful registration";
+                var xElement = xmlDoc.Element("Users");
+                if (xElement != null)
+                    xElement.Add(new XElement("User", new XElement("Login", message.Login),
+                        new XElement("Password", message.Password)));
+                else
+                    return incorrectRegister("Error");
+                xmlDoc.Save(Const.FileNameToRegAndLogin);
+            }
+            xmlDoc = null;
             return createUserResponse;
         }
 
-        private static CreateUserResponse incorrectRegister()
+        private static CreateUserResponse incorrectRegister(string error)
         {
             CreateUserResponse createUserResponse = new CreateUserResponse();
             createUserResponse.Status = Status.Error;
-            createUserResponse.Message = "Incorrect register";
+            createUserResponse.Message = error;
             return createUserResponse;
         }
 

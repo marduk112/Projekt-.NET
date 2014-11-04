@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Security.Cryptography;
 using System.Text;
 using Common;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 
 namespace Client.Modules
 {
@@ -21,14 +21,18 @@ namespace Client.Modules
         //this method returns result of Registration.register from server
         public CreateUserResponse registration(string login, string password)
         {
-            createUserReq = new CreateUserReq();
+            CreateUserReq createUserReq = new CreateUserReq();
             var corrId = Guid.NewGuid().ToString();
             var props = channel.CreateBasicProperties();
             props.ReplyTo = replyQueueName;
             props.CorrelationId = corrId;
 
             createUserReq.Login = login;
-            createUserReq.Password = password;
+            //encrypt password with SHA1 algorithm
+            using (SHA1Managed sha1 = new SHA1Managed())
+            {
+                createUserReq.Password = Encoding.UTF8.GetString(sha1.ComputeHash(Encoding.UTF8.GetBytes(password)));
+            }
 
             var messageBytes = createUserReq.Serialize();//message forward login and password
             channel.BasicPublish("", "registrationServer", props, messageBytes);
@@ -42,16 +46,14 @@ namespace Client.Modules
                 }
             }
         }
-        public void Close()
+        public void closeConnection()
         {
             connection.Close();
         }
-
-        private static string message = "fg";
+        
         private IConnection connection;
         private IModel channel;
         private string replyQueueName;
         private QueueingBasicConsumer consumer;
-        private CreateUserReq createUserReq;
     }
 }
