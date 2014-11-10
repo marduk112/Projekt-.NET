@@ -46,7 +46,7 @@ namespace Common
     {
         Online,
         Offline,
-        Afk,
+        Afk,//away from keyboard
     }
 
     public class User
@@ -81,13 +81,17 @@ namespace Common
     {
         public string Recipient { get; set; }
         public string Message { get; set; }
-        public Attachment Attachment { get; set; }
+        public List<Attachment> Attachment { get; set; }
         //Server
         public DateTimeOffset SendTime { get; set; }
     }
 
     public class MessageResponse : Response
     {
+        public string Recipient { get; set; }
+        public List<Attachment> Attachment { get; set; }
+        //Server
+        public DateTimeOffset SendTime { get; set; }
     }
 
 
@@ -120,5 +124,7 @@ namespace Common
 
     public class ActivityResponse : Response
     {
+        public bool IsWriting { get; set; }
+        public string Recipient { get; set; }
     }
 }

@@ -112,8 +112,11 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Modules\Activity.cs" />
     <Compile Include="Modules\Login.cs" />
+    <Compile Include="Modules\Messages.cs" />
     <Compile Include="Modules\Registration.cs" />
+    <Compile Include="Modules\UsersList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

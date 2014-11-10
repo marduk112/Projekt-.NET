@@ -36,15 +36,13 @@ namespace Client.Modules
 
             var messageBytes = createUserReq.Serialize();//message forward login and password
             channel.BasicPublish("", "registrationServer", props, messageBytes);
-
-            while (true)
+           
+            var ea = consumer.Queue.Dequeue();
+            if (ea.BasicProperties.CorrelationId == corrId)
             {
-                var ea = consumer.Queue.Dequeue();
-                if (ea.BasicProperties.CorrelationId == corrId)
-                {
-                    return (CreateUserResponse)(ea.Body).Deserialize();
-                }
+                return (CreateUserResponse)(ea.Body).Deserialize();
             }
+            
         }
         public void closeConnection()
         {

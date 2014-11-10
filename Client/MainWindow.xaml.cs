@@ -28,7 +28,7 @@ namespace Client
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Registration reg = new Registration();
+            var reg = new Registration();
             reg.registration("co","co");
         }
     }
