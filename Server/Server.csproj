@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="Modules\Login.cs" />
     <Compile Include="Modules\Registration.cs" />
+    <Compile Include="Modules\UsersList.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

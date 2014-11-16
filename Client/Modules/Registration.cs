@@ -11,7 +11,7 @@ namespace Client.Modules
     {
         public Registration()
         {
-            var factory = new ConnectionFactory {HostName = Const.HostName, Port = AmqpTcpEndpoint.DefaultAmqpSslPort};
+            var factory = new ConnectionFactory {HostName = Const.HostName};
             connection = factory.CreateConnection();
             channel = connection.CreateModel();
             replyQueueName = channel.QueueDeclare();
@@ -21,30 +21,32 @@ namespace Client.Modules
         //this method returns result of Registration.register from server
         public CreateUserResponse registration(string login, string password)
         {
-            CreateUserReq createUserReq = new CreateUserReq();
+            var createUserReq = new CreateUserReq();
             var corrId = Guid.NewGuid().ToString();
             var props = channel.CreateBasicProperties();
             props.ReplyTo = replyQueueName;
             props.CorrelationId = corrId;
 
             createUserReq.Login = login;
-            //encrypt password with SHA1 algorithm
-            using (SHA1Managed sha1 = new SHA1Managed())
+            //encrypt password with SHA256 algorithm
+            using (var sha1 = new SHA256Managed())
             {
                 createUserReq.Password = Encoding.UTF8.GetString(sha1.ComputeHash(Encoding.UTF8.GetBytes(password)));
             }
 
             var messageBytes = createUserReq.Serialize();//message forward login and password
-            channel.BasicPublish("", "registrationServer", props, messageBytes);
+            channel.BasicPublish("", "regLogServer", props, messageBytes);
            
             var ea = consumer.Queue.Dequeue();
-            if (ea.BasicProperties.CorrelationId == corrId)
+            while (true)
             {
-                return (CreateUserResponse)(ea.Body).Deserialize();
+                if (ea.BasicProperties.CorrelationId == corrId)
+                {
+                    return (ea.Body).Deserialize() as CreateUserResponse;
+                }
             }
-            
         }
-        public void closeConnection()
+        public void CloseConnection()
         {
             connection.Close();
         }

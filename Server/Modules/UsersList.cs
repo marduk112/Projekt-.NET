@@ -4,48 +4,42 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml;
 using System.Xml.Linq;
 using Common;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 
 namespace Server.Modules
 {
-    //example
-    public static class Registration
+    public static class UsersList
     {
-        public static void registration()
+        public static void usersList()
         {
-            var factory = new ConnectionFactory() {HostName = Const.HostName};
+            var factory = new ConnectionFactory() { HostName = Const.HostName };
             //factory.Port = AmqpTcpEndpoint.DefaultAmqpSslPort;
             using (var connection = factory.CreateConnection())
             {
                 using (var channel = connection.CreateModel())
                 {
-                    channel.QueueDeclare("regLogServer", false, false, false, null);
+                    channel.QueueDeclare("UsersListServer", false, false, false, null);
                     channel.BasicQos(0, 1, false);
                     var consumer = new QueueingBasicConsumer(channel);
-                    channel.BasicConsume("regLogServer", false, consumer);
-
+                    channel.BasicConsume("UsersListServer", false, consumer);
                     while (true)
                     {
-                        var response = new CreateUserResponse();
+                        var response = new UserListResponse();
                         var ea = consumer.Queue.Dequeue();
-
                         var body = ea.Body;
                         var props = ea.BasicProperties;
                         var replyProps = channel.CreateBasicProperties();
                         replyProps.CorrelationId = props.CorrelationId;
-
                         try
                         {
-                            message = body.Deserialize() as CreateUserReq;
-                            response = correctRegister();
+                            message = body.Deserialize() as UserListReq;
+                            response = GetUserList();
                         }
                         catch (Exception e)
                         {
-                            response = incorrectRegister("Incorrect registration");
+                            response = ErrorUserListResponseResponse("Error");
                         }
                         finally
                         {
@@ -57,10 +51,9 @@ namespace Server.Modules
                 }
             }
         }
-
-        private static CreateUserResponse correctRegister()
+        private static UserListResponse GetUserList()
         {
-            CreateUserResponse createUserResponse;
+            var userListResponse = new UserListResponse();
             XDocument xmlDoc;
             //load users list from XML file
             if (!Directory.Exists("Databases"))
@@ -75,40 +68,29 @@ namespace Server.Modules
                 xmlDoc = XDocument.Load(Const.FileNameToRegAndLogin);
             //XML to LINQ
             var users = from user in xmlDoc.Descendants("User")
-                let login = user.Element("Login")
-                where !login.IsEmpty
-                select new
+                        let login = user.Element("Login")
+                        where !login.IsEmpty && login.Value != message.Login
+                        select new
                         {
                             Login = login.Value,
                         };
-            //Is user exist
-            bool isExist = users.Any(user => user.Login.Equals(message.Login));
-            if (isExist)
+            foreach (var user in users.Select(login => new User()))
             {
-                return incorrectRegister("User with login " + message.Login + " exist");
+                user.Login = user.Login;
+                userListResponse.Users.Add(user);
+                userListResponse.Status = Status.OK;
+                userListResponse.Message = "Correct downloaded users list";
             }
-            createUserResponse = new CreateUserResponse();
-            createUserResponse.Status = Status.OK;
-            createUserResponse.Message = "Successful registration";
-            var xElement = xmlDoc.Element("Users");
-            if (xElement != null)
-                xElement.Add(new XElement("User", new XElement("Login", message.Login),
-                    new XElement("Password", message.Password)));
-            else
-                return incorrectRegister("Error");
-            xmlDoc.Save(Const.FileNameToRegAndLogin);
-            xmlDoc = null;
-            return createUserResponse;
+            return userListResponse;
         }
-
-        private static CreateUserResponse incorrectRegister(string error)
+        private static UserListResponse ErrorUserListResponseResponse(string error)
         {
-            var createUserResponse = new CreateUserResponse();
-            createUserResponse.Status = Status.Error;
-            createUserResponse.Message = error;
-            return createUserResponse;
+            var userListResponse = new UserListResponse();
+            userListResponse.Status = Status.Error;
+            userListResponse.Message = error;
+            return userListResponse;
         }
 
-        private static CreateUserReq message;
+        private static UserListReq message;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ServiceModel.Channels;
 using Common;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -15,15 +16,16 @@ namespace Client.Modules
             {
                 using (var channel = connection.CreateModel())
                 {
-                    channel.ExchangeDeclare("messages", "topic");
-                    channel.QueueDeclare("Messages", true, false, false, null);
-                    var routingKey = sender + "." + recipient;
+                    channel.ExchangeDeclare("messages", "topic", true);
+                    var routingKey = recipient;
                     var body = message.Serialize();
-                    channel.BasicPublish("messages", routingKey, null, body);
+                    var properties = channel.CreateBasicProperties();
+                    properties.SetPersistent(true);
+                    channel.BasicPublish("messages", routingKey, properties, body);
                 }
             }
         }
-
+        //every user has queue for message response
         public MessageResponse ReceiveMessage(string login)
         {
             var factory = new ConnectionFactory() {HostName = Const.HostName};
@@ -31,20 +33,20 @@ namespace Client.Modules
             {
                 using (var channel = connection.CreateModel())
                 {
-                    channel.ExchangeDeclare("messages", "topic");
-                    var queueName = "Messages";
-                    channel.QueueBind(queueName, "messages", "*." + login + ".*");
+                    channel.ExchangeDeclare("messages", "topic", true);
+                    var queueName = channel.QueueDeclare();
+                    channel.QueueBind(queueName, "messages", login);
                     var consumer = new QueueingBasicConsumer(channel);
                     channel.BasicConsume(queueName, true, consumer);
-                        var ea = (BasicDeliverEventArgs) consumer.Queue.Dequeue();
-                        var body = ea.Body;
-                        var message = body.Deserialize() as MessageReq;
-                        var messageResponse = new MessageResponse();
-                        messageResponse.Message = message.Message;
-                        messageResponse.Attachment = message.Attachment;
-                        messageResponse.Recipient = message.Recipient;
-                        messageResponse.SendTime = message.SendTime;
-                        messageResponse.Status = Status.OK;
+                    var ea = (BasicDeliverEventArgs) consumer.Queue.Dequeue();
+                    var body = ea.Body;
+                    var message = body.Deserialize() as MessageReq;
+                    var messageResponse = new MessageResponse();
+                    messageResponse.Message = message.Message;
+                    messageResponse.Attachment = message.Attachment;
+                    messageResponse.Recipient = message.Login;
+                    messageResponse.SendTime = message.SendTime;
+                    messageResponse.Status = Status.OK;
                     return messageResponse;
                 }
             }
