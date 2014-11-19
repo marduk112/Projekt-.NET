@@ -28,7 +28,7 @@ namespace Client.Modules
             props.CorrelationId = corrId;
 
             createUserReq.Login = login;
-            //encrypt password with SHA256 algorithm
+            //encrypt password with SHA256Cng algorithm
             using (var sha = new SHA256Cng())
             {
                 var hash = sha.ComputeHash(Encoding.UTF8.GetBytes(password));

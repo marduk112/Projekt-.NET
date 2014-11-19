@@ -34,7 +34,7 @@ namespace Client.Modules
             {
                 var hash = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
                 authRequest.Password = string.Empty;
-                foreach (byte x in hash)
+                foreach (var x in hash)
                 {
                     authRequest.Password += String.Format("{0:x2}", x);
                 }
