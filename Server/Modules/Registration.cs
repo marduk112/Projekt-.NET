@@ -45,6 +45,7 @@ namespace Server.Modules
                         catch (Exception e)
                         {
                             response = incorrectRegister("Incorrect registration");
+                            Console.WriteLine(e.Message);
                         }
                         finally
                         {
@@ -66,16 +67,15 @@ namespace Server.Modules
                 Directory.CreateDirectory("Databases");
             if (!File.Exists(Const.FileNameToRegAndLogin))
             {
-                File.Create(Const.FileNameToRegAndLogin);
+                File.AppendAllText(Const.FileNameToRegAndLogin, "<Users>\n</Users>");
                 xmlDoc = XDocument.Load(Const.FileNameToRegAndLogin);
-                xmlDoc.Add(new XElement("Users"));
             }
             else
                 xmlDoc = XDocument.Load(Const.FileNameToRegAndLogin);
             //XML to LINQ
             var users = from user in xmlDoc.Descendants("User")
                 let login = user.Element("Login")
-                where !login.IsEmpty
+                where login != null
                 select new
                         {
                             Login = login.Value,
@@ -90,13 +90,13 @@ namespace Server.Modules
             createUserResponse.Status = Status.OK;
             createUserResponse.Message = "Successful registration";
             var xElement = xmlDoc.Element("Users");
+            
             if (xElement != null)
                 xElement.Add(new XElement("User", new XElement("Login", message.Login),
                     new XElement("Password", message.Password)));
             else
                 return incorrectRegister("Error");
             xmlDoc.Save(Const.FileNameToRegAndLogin);
-            xmlDoc = null;
             return createUserResponse;
         }
 

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using Common;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -27,7 +29,16 @@ namespace Client.Modules
             props.CorrelationId = corrId;
 
             authRequest.Login = login;
-            authRequest.Password = password;
+            //encrypt password with SHA256Cng algorithm
+            using (var sha = new SHA256Cng())
+            {
+                var hash = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
+                authRequest.Password = string.Empty;
+                foreach (byte x in hash)
+                {
+                    authRequest.Password += String.Format("{0:x2}", x);
+                }
+            }
 
             var messageBytes = authRequest.Serialize();//message forward login and password
             channel.BasicPublish("login", "regLogServer", props, messageBytes);

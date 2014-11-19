@@ -29,11 +29,15 @@ namespace Client.Modules
 
             createUserReq.Login = login;
             //encrypt password with SHA256 algorithm
-            using (var sha1 = new SHA256Managed())
+            using (var sha = new SHA256Cng())
             {
-                createUserReq.Password = Encoding.UTF8.GetString(sha1.ComputeHash(Encoding.UTF8.GetBytes(password)));
+                var hash = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
+                createUserReq.Password = string.Empty;
+                foreach (var x in hash)
+                {
+                    createUserReq.Password += String.Format("{0:x2}", x);
+                }
             }
-
             var messageBytes = createUserReq.Serialize();//message forward login and password
             channel.BasicPublish("", "regLogServer", props, messageBytes);
            

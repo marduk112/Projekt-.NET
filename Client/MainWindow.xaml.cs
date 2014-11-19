@@ -1,17 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows;
 using Client.Modules;
 
 namespace Client
@@ -29,7 +16,8 @@ namespace Client
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             var reg = new Registration();
-            reg.registration("co","co");
+            var response = reg.registration(loginTextBox.Text, passwordTextBox.Text);
+            MessageBox.Show(response.Message);
         }
     }
 }
