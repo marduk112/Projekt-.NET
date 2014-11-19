@@ -1,9 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.ServiceModel.Channels;
 using Common;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Framing.Impl.v0_9;
+using ServiceStack.Text;
 
 namespace Client.Modules
 {
@@ -40,7 +42,7 @@ namespace Client.Modules
                     channel.BasicConsume(queueName, true, consumer);
                     var ea = (BasicDeliverEventArgs) consumer.Queue.Dequeue();
                     var body = ea.Body;
-                    var message = body.Deserialize() as MessageReq;
+                    var message = body.DeserializeMessageReq();
                     var messageResponse = new MessageResponse();
                     messageResponse.Message = message.Message;
                     messageResponse.Attachment = message.Attachment;
@@ -51,5 +53,7 @@ namespace Client.Modules
                 }
             }
         }
+
+        
     }
 }

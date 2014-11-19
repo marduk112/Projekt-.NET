@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
 using Common;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using ServiceStack.Text;
 
 namespace Client.Modules
 {
@@ -35,7 +37,7 @@ namespace Client.Modules
                 var ea = consumer.Queue.Dequeue();
                 if (ea.BasicProperties.CorrelationId == corrId)
                 {
-                    return (ea.Body).Deserialize() as AuthResponse;
+                    return ea.Body.DeserializeAuthResponse();
                 }
             }
         }

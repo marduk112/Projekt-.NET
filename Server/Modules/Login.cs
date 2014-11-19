@@ -31,7 +31,7 @@ namespace Server.Modules
                         replyProps.CorrelationId = props.CorrelationId;
                         try
                         {
-                            message = body.Deserialize() as AuthRequest;
+                            message = body.DeserializeAuthRequest();
                             response = correctAuthentication();
                         }
                         catch (Exception e)

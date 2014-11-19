@@ -42,7 +42,7 @@ namespace Client.Modules
             {
                 if (ea.BasicProperties.CorrelationId == corrId)
                 {
-                    return (ea.Body).Deserialize() as CreateUserResponse;
+                    return ea.Body.DeserializeCreateUserResponse();
                 }
             }
         }

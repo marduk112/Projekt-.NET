@@ -40,7 +40,7 @@ namespace Server.Modules
 
                         try
                         {
-                            message = body.Deserialize() as CreateUserReq;
+                            message = body.DeserializeCreateUserReq();
                             response = correctRegister();
                         }
                         catch (Exception e)

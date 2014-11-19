@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using Common;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using ServiceStack.Text;
 
 namespace Client.Modules
 {
@@ -44,7 +46,7 @@ namespace Client.Modules
                     channel.BasicConsume(queueName, true, consumer);
                         var ea = (BasicDeliverEventArgs) consumer.Queue.Dequeue();
                         var body = ea.Body;
-                        var message = body.Deserialize() as ActivityReq;
+                        var message = body.DeserializeActivityReq();
                         var activityResponse = new ActivityResponse();
                         activityResponse.Recipient = message.Login;
                         activityResponse.Status = Status.OK;

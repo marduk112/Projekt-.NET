@@ -14,13 +14,60 @@ namespace Common
                 return stream.GetBuffer();
             }
         }
-
-        public static Object Deserialize(this byte[] data)
+        public static MessageReq DeserializeMessageReq(this byte[] data)
         {
             using (var stream = new MemoryStream(data))
             {
-                var serializer = JsonSerializer.DeserializeFromStream<Object>(stream);
-                return serializer;
+                return JsonSerializer.DeserializeFromStream<MessageReq>(stream);
+            }
+        }
+        public static AuthResponse DeserializeAuthResponse(this byte[] data)
+        {
+            using (var stream = new MemoryStream(data))
+            {
+                return JsonSerializer.DeserializeFromStream<AuthResponse>(stream);
+            }
+        }
+        public static ActivityReq DeserializeActivityReq(this byte[] data)
+        {
+            using (var stream = new MemoryStream(data))
+            {
+                return JsonSerializer.DeserializeFromStream<ActivityReq>(stream);
+            }
+        }
+        public static CreateUserResponse DeserializeCreateUserResponse(this byte[] data)
+        {
+            using (var stream = new MemoryStream(data))
+            {
+                return JsonSerializer.DeserializeFromStream<CreateUserResponse>(stream);
+            }
+        }
+        public static UserListResponse DeserializeUserListResponse(this byte[] data)
+        {
+            using (var stream = new MemoryStream(data))
+            {
+                return JsonSerializer.DeserializeFromStream<UserListResponse>(stream);
+            }
+        }
+        public static AuthRequest DeserializeAuthRequest(this byte[] data)
+        {
+            using (var stream = new MemoryStream(data))
+            {
+                return JsonSerializer.DeserializeFromStream<AuthRequest>(stream);
+            }
+        }
+        public static CreateUserReq DeserializeCreateUserReq(this byte[] data)
+        {
+            using (var stream = new MemoryStream(data))
+            {
+                return JsonSerializer.DeserializeFromStream<CreateUserReq>(stream);
+            }
+        }
+        public static UserListReq DeserializeUserListReq(this byte[] data)
+        {
+            using (var stream = new MemoryStream(data))
+            {
+                return JsonSerializer.DeserializeFromStream<UserListReq>(stream);
             }
         }
     }

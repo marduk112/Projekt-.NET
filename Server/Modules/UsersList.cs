@@ -34,7 +34,7 @@ namespace Server.Modules
                         replyProps.CorrelationId = props.CorrelationId;
                         try
                         {
-                            message = body.Deserialize() as UserListReq;
+                            message = body.DeserializeUserListReq();
                             response = GetUserList();
                         }
                         catch (Exception e)

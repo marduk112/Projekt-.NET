@@ -36,7 +36,7 @@ namespace Client.Modules
                 var ea = consumer.Queue.Dequeue();
                 if (ea.BasicProperties.CorrelationId == corrId)
                 {
-                    return (ea.Body).Deserialize() as UserListResponse;
+                    return (ea.Body).DeserializeUserListResponse();
                 }
             }
         }
