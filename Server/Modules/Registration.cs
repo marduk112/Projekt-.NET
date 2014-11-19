@@ -18,7 +18,6 @@ namespace Server.Modules
         public static void registration()
         {
             var factory = new ConnectionFactory() {HostName = Const.HostName};
-            //factory.Port = AmqpTcpEndpoint.DefaultAmqpSslPort;
             using (var connection = factory.CreateConnection())
             {
                 using (var channel = connection.CreateModel())

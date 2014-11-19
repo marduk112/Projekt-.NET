@@ -4,7 +4,6 @@ using System.ServiceModel.Channels;
 using Common;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using RabbitMQ.Client.Framing.Impl.v0_9;
 using ServiceStack.Text;
 
 namespace Client.Modules
