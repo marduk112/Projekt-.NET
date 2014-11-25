@@ -37,10 +37,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\RabbitMQ.Client.3.4.0\lib\net35\RabbitMQ.Client.dll</HintPath>
     </Reference>
-    <Reference Include="ServiceStack.Text, Version=4.0.33.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ServiceStack.Text.4.0.33\lib\net40\ServiceStack.Text.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -55,6 +51,8 @@
   <ItemGroup>
     <Compile Include="Modules\Login.cs" />
     <Compile Include="Modules\Registration.cs" />
+    <Compile Include="Modules\RegistrationService.cs" />
+    <Compile Include="Modules\ServiceFactory.cs" />
     <Compile Include="Modules\UsersList.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

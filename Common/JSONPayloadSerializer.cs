@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using ServiceStack.Text;
 
@@ -68,6 +69,13 @@ namespace Common
             using (var stream = new MemoryStream(data))
             {
                 return JsonSerializer.DeserializeFromStream<UserListReq>(stream);
+            }
+        }
+        public static PresenceStatusNotification DeserializePresenceStatusNotification(this byte[] data)
+        {
+            using (var stream = new MemoryStream(data))
+            {
+                return JsonSerializer.DeserializeFromStream<PresenceStatusNotification>(stream);
             }
         }
     }

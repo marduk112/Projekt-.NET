@@ -39,7 +39,7 @@ namespace Client.Modules
                 }
             }
             var messageBytes = createUserReq.Serialize();//message forward login and password
-            channel.BasicPublish("", "regLogServer", props, messageBytes);
+            channel.BasicPublish("", "regServer", props, messageBytes);
            
             var ea = consumer.Queue.Dequeue();
             while (true)

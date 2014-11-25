@@ -24,10 +24,11 @@ namespace Common
         public string Password { get; set; }
     }
 
+    //to determine
     public enum Status
     {
-        OK,
         Error,
+        OK,
         NotAuthenticated,
     }
 
@@ -42,10 +43,11 @@ namespace Common
     {
     }
 
+    //to determine
     public enum PresenceStatus
     {
-        Online,
         Offline,
+        Online,
         Afk,//away from keyboard
     }
 

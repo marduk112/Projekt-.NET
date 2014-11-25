@@ -14,8 +14,9 @@ namespace Server
         {
             //example
             Console.WriteLine(" [x] Awaiting RPC requests");
-            Registration.registration();
-            Console.WriteLine(" [x] Awaiting RPC requests");
+            new Thread(Login.login).Start();
+            new Thread(Registration.registration).Start();
+            Console.ReadKey();
         }
     }
 }

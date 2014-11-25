@@ -1,10 +1,6 @@
-﻿using System;
-using System.IO;
-using System.ServiceModel.Channels;
-using Common;
+﻿using Common;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using ServiceStack.Text;
 
 namespace Client.Modules
 {

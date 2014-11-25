@@ -1,5 +1,9 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Controls;
 using Client.Modules;
+using Common;
+using PresenceStatus = Common.PresenceStatus;
 
 namespace Client
 {
@@ -11,13 +15,38 @@ namespace Client
         public MainWindow()
         {
             InitializeComponent();
+            _loginWindow.Show();
+            _loginWindow.Closing += loginWindow_Closing;
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private LoginWindow _loginWindow = new LoginWindow();
+        private readonly User _user = new User();
+        private Dictionary<string, PresenceStatus> _friends = new Dictionary<string, PresenceStatus>(); 
+        private void loginWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            var reg = new Registration();
-            var response = reg.registration(loginTextBox.Text, passwordTextBox.Text);
-            MessageBox.Show(response.Message);
+            if (_loginWindow.AuthResponse.Status != Status.OK) return;
+            this.IsEnabled = true;
+            LoginOutButton.Content = "Logout";
+            _user.Login = _loginWindow.Login;
+            _user.Status = PresenceStatus.Online;
+            _loginWindow = null;
+        }
+
+        private void LoginOutButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (LoginOutButton.Content.Equals("Login"))
+                _loginWindow.Show();
+            //must add logout
+            if (!LoginOutButton.Content.Equals("Logout")) return;
+            LoginOutButton.Content = "Login";
+            this.IsEnabled = false;
+            _loginWindow = new LoginWindow();
+            _loginWindow.Show();
+        }
+
+        private void MainWindow1_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            _loginWindow.Close();
         }
     }
 }

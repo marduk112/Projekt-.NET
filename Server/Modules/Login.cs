@@ -16,10 +16,10 @@ namespace Server.Modules
             {
                 using (var channel = connection.CreateModel())
                 {
-                    channel.QueueDeclare("regLogServer", false, false, false, null);
+                    channel.QueueDeclare("loginServer", false, false, false, null);
                     channel.BasicQos(0, 1, false);
                     var consumer = new QueueingBasicConsumer(channel);
-                    channel.BasicConsume("regLogServer", false, consumer);
+                    channel.BasicConsume("loginServer", false, consumer);
 
                     while (true)
                     {
@@ -86,7 +86,7 @@ namespace Server.Modules
             }
             else
             {
-                IncorrectAuthentication("Wrong login or password");
+                authResponse = IncorrectAuthentication("Wrong login or password");
             }
             xmlDoc = null;
             return authResponse;

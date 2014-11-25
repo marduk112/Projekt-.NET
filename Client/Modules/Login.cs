@@ -1,11 +1,8 @@
 ﻿using System;
-using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using Common;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using ServiceStack.Text;
 
 namespace Client.Modules
 {
@@ -41,7 +38,7 @@ namespace Client.Modules
             }
 
             var messageBytes = authRequest.Serialize();//message forward login and password
-            channel.BasicPublish("login", "regLogServer", props, messageBytes);
+            channel.BasicPublish("", "loginServer", props, messageBytes);
 
             while (true)
             {

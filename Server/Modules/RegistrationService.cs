@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 using Common;
 using RabbitMQ.Client;
-using ServiceStack.Text;
 
 namespace Server.Modules
 {
@@ -24,10 +20,10 @@ namespace Server.Modules
             {
                 using (var channel = connection.CreateModel())
                 {
-                    channel.QueueDeclare("regLogServer", false, false, false, null);
+                    channel.QueueDeclare("regServer", false, false, false, null);
                     channel.BasicQos(0, 1, false);
                     var consumer = new QueueingBasicConsumer(channel);
-                    channel.BasicConsume("regLogServer", false, consumer);
+                    channel.BasicConsume("regServer", false, consumer);
 
                     while (_work)
                     {
@@ -114,7 +110,5 @@ namespace Server.Modules
             createUserResponse.Message = error;
             return createUserResponse;
         }
-
-        
     }
 }
