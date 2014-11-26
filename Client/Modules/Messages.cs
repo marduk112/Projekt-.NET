@@ -48,7 +48,5 @@ namespace Client.Modules
                 }
             }
         }
-
-        
     }
 }

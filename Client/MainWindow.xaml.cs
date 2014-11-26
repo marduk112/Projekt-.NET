@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
-using Client.Modules;
+﻿using System.Windows;
+using Client.Notifies;
 using Common;
 using PresenceStatus = Common.PresenceStatus;
 
@@ -21,7 +19,8 @@ namespace Client
 
         private LoginWindow _loginWindow = new LoginWindow();
         private readonly User _user = new User();
-        private Dictionary<string, PresenceStatus> _friends = new Dictionary<string, PresenceStatus>(); 
+        private FriendsCollection _friendsCollection = new FriendsCollection();
+        private MessagesCollection _messagesCollection = new MessagesCollection();
         private void loginWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (_loginWindow.AuthResponse.Status != Status.OK) return;
@@ -31,7 +30,6 @@ namespace Client
             _user.Status = PresenceStatus.Online;
             _loginWindow = null;
         }
-
         private void LoginOutButton_Click(object sender, RoutedEventArgs e)
         {
             if (LoginOutButton.Content.Equals("Login"))
@@ -43,7 +41,6 @@ namespace Client
             _loginWindow = new LoginWindow();
             _loginWindow.Show();
         }
-
         private void MainWindow1_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             _loginWindow.Close();
