@@ -38,6 +38,9 @@
       <HintPath>..\packages\RabbitMQ.Client.3.4.0\lib\net35\RabbitMQ.Client.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Collections.Immutable">
+      <HintPath>..\packages\Microsoft.Bcl.Immutable.1.0.34\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -49,7 +52,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data Access\IUsersListDataAccess.cs" />
+    <Compile Include="Data Access\MessageHistorySQL.cs" />
+    <Compile Include="Data Access\UsersPresenceStatus.cs" />
     <Compile Include="Modules\Login.cs" />
+    <Compile Include="Modules\MessageHistory.cs" />
     <Compile Include="Modules\Registration.cs" />
     <Compile Include="Modules\RegistrationService.cs" />
     <Compile Include="Modules\ServiceFactory.cs" />

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -7,19 +9,25 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Common;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using Server.Data_Access;
 
 namespace Server.Modules
 {
-    public static class UsersList
+    public class UsersList
     {
-        public static void usersList()
+        public UsersList(IUsersListDataAccess dataAccess)
         {
             var factory = new ConnectionFactory() { HostName = Const.HostName };
-            //factory.Port = AmqpTcpEndpoint.DefaultAmqpSslPort;
-            using (var connection = factory.CreateConnection())
-            {
-                using (var channel = connection.CreateModel())
-                {
+            connection = factory.CreateConnection();
+            _dataAccess = dataAccess;
+            _usersPresenceStatus.CollectionChanged += _usersPresenceStatus_CollectionChanged;
+        }
+
+        //send all users lisy
+        public void usersList()
+        {
+            var channel = connection.CreateModel();
                     channel.QueueDeclare("UsersListServer", false, false, false, null);
                     channel.BasicQos(0, 1, false);
                     var consumer = new QueueingBasicConsumer(channel);
@@ -48,10 +56,46 @@ namespace Server.Modules
                             channel.BasicAck(ea.DeliveryTag, false);
                         }
                     }
+        }
+        //send friends list with presence status(from database)
+        public void friendsList()
+        {
+            var channel = connection.CreateModel();
+            channel.QueueDeclare("FriendsListServer", false, false, false, null);
+            channel.BasicQos(0, 1, false);
+            var consumer = new QueueingBasicConsumer(channel);
+            channel.BasicConsume("FriendsListServer", false, consumer);
+            while (true)
+            {
+                var response = new UserListResponse();
+                channel.ExchangeDeclare("FriendsListServer", "topic", true);
+                var queueName = channel.QueueDeclare();
+                //channel.QueueBind(queueName, "FriendsListServer", userListReq.Login);
+                channel.BasicConsume(queueName, true, consumer);
+                var ea = (BasicDeliverEventArgs)consumer.Queue.Dequeue();
+                var body = ea.Body;
+                try
+                {
+                    message = body.DeserializeUserListReq();
+                    response = GetFriendsList(message.Login);
+                }
+                catch (Exception e)
+                {
+                    response = ErrorUserListResponseResponse("Error");
+                }
+                finally
+                {
+                    var responseBytes = response.Serialize();
+                    channel.BasicPublish("UsersStatus", "Server", null, responseBytes);
                 }
             }
         }
-        private static UserListResponse GetUserList()
+        //get friends and their presence status for user with nick=nick
+        private UserListResponse GetFriendsList(string nick)
+        {
+            throw new NotImplementedException();
+        }
+        private UserListResponse GetUserList()
         {
             var userListResponse = new UserListResponse();
             XDocument xmlDoc;
@@ -60,9 +104,8 @@ namespace Server.Modules
                 Directory.CreateDirectory("Databases");
             if (!File.Exists(Const.FileNameToRegAndLogin))
             {
-                File.Create(Const.FileNameToRegAndLogin);
+                File.AppendAllText(Const.FileNameToRegAndLogin, "<Users>\n</Users>");
                 xmlDoc = XDocument.Load(Const.FileNameToRegAndLogin);
-                xmlDoc.Add(new XElement("Users"));
             }
             else
                 xmlDoc = XDocument.Load(Const.FileNameToRegAndLogin);
@@ -83,7 +126,7 @@ namespace Server.Modules
             }
             return userListResponse;
         }
-        private static UserListResponse ErrorUserListResponseResponse(string error)
+        private UserListResponse ErrorUserListResponseResponse(string error)
         {
             var userListResponse = new UserListResponse();
             userListResponse.Status = Status.Error;
@@ -91,6 +134,44 @@ namespace Server.Modules
             return userListResponse;
         }
 
-        private static UserListReq message;
+        private void GetUserPresenceStatus()
+        {
+            var channel = connection.CreateModel();
+            channel.ExchangeDeclare("UsersStatus", "topic");
+            var consumer = new QueueingBasicConsumer(channel);
+            var queueName = channel.QueueDeclare();
+            channel.BasicConsume(queueName, true, consumer);
+            var ea = (BasicDeliverEventArgs)consumer.Queue.Dequeue();
+            var body = ea.Body;
+            var message = body.DeserializeUser();
+            _usersPresenceStatus.Add(message.Login, message.Status);
+        }
+
+        //topic is a user nick whose presence status has changed
+        private void _usersPresenceStatus_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action != NotifyCollectionChangedAction.Remove)
+            {
+                var channel = connection.CreateModel();
+                channel.ExchangeDeclare("UsersStatus", "topic");
+                var queueName = channel.QueueDeclare();
+                foreach (var user in _usersPresenceStatus.ReturnDictionary().Keys)
+                {
+                    channel.QueueBind(queueName, "UsersStatus", user, null);
+                    var temp = new User {Login = user, Status = _usersPresenceStatus.ReturnDictionary()[user]};
+                    channel.BasicPublish("UsersStatus", user, null, temp.Serialize());
+                    if (temp.Status == PresenceStatus.Offline)
+                    {
+                        channel.QueueUnbind(queueName, "UsersStatus", user, null);
+                        _usersPresenceStatus.Remove(temp.Login);
+                    }
+                }
+            }
+        }
+
+        private UserListReq message;
+        private IConnection connection;
+        private IUsersListDataAccess _dataAccess;
+        private UsersPresenceStatus _usersPresenceStatus = new UsersPresenceStatus();
     }
 }

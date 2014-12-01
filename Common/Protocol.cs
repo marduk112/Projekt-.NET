@@ -27,8 +27,8 @@ namespace Common
     //to determine
     public enum Status
     {
-        Error,
         OK,
+        Error,
         NotAuthenticated,
     }
 
@@ -46,8 +46,8 @@ namespace Common
     //to determine
     public enum PresenceStatus
     {
-        Offline,
         Online,
+        Offline,
         Afk,//away from keyboard
     }
 
@@ -83,7 +83,7 @@ namespace Common
     {
         public string Recipient { get; set; }
         public string Message { get; set; }
-        public List<Attachment> Attachment { get; set; }
+        public Attachment Attachment { get; set; }
         //Server
         public DateTimeOffset SendTime { get; set; }
     }
@@ -91,7 +91,7 @@ namespace Common
     public class MessageResponse : Response
     {
         public string Recipient { get; set; }
-        public List<Attachment> Attachment { get; set; }
+        public Attachment Attachment { get; set; }
         //Server
         public DateTimeOffset SendTime { get; set; }
     }

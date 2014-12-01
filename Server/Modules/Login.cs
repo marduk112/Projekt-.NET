@@ -59,9 +59,8 @@ namespace Server.Modules
                 Directory.CreateDirectory("Databases");
             if (!File.Exists(Const.FileNameToRegAndLogin))
             {
-                File.Create(Const.FileNameToRegAndLogin);
+                File.AppendAllText(Const.FileNameToRegAndLogin, "<Users>\n</Users>");
                 xmlDoc = XDocument.Load(Const.FileNameToRegAndLogin);
-                xmlDoc.Add(new XElement("Users"));
             }
             else
                 xmlDoc = XDocument.Load(Const.FileNameToRegAndLogin);

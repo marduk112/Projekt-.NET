@@ -22,6 +22,13 @@ namespace Common
                 return JsonSerializer.DeserializeFromStream<MessageReq>(stream);
             }
         }
+        public static MessageResponse DeserializeMessageResponse(this byte[] data)
+        {
+            using (var stream = new MemoryStream(data))
+            {
+                return JsonSerializer.DeserializeFromStream<MessageResponse>(stream);
+            }
+        }
         public static AuthResponse DeserializeAuthResponse(this byte[] data)
         {
             using (var stream = new MemoryStream(data))
@@ -76,6 +83,13 @@ namespace Common
             using (var stream = new MemoryStream(data))
             {
                 return JsonSerializer.DeserializeFromStream<PresenceStatusNotification>(stream);
+            }
+        }
+        public static User DeserializeUser(this byte[] data)
+        {
+            using (var stream = new MemoryStream(data))
+            {
+                return JsonSerializer.DeserializeFromStream<User>(stream);
             }
         }
     }

@@ -15,6 +15,7 @@ namespace Client
             InitializeComponent();
             _loginWindow.Show();
             _loginWindow.Closing += loginWindow_Closing;
+            _user.Status = PresenceStatus.Offline;
         }
 
         private LoginWindow _loginWindow = new LoginWindow();
