@@ -32,7 +32,8 @@ namespace Client
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             var login = new Login();
-            AuthResponse = login.LoginAuthRequestResponse(LoginTextBox.Text, PasswordTextBox.Password);
+            var authRequest = new AuthRequest {Login = LoginTextBox.Text, Password = PasswordTextBox.Password};
+            AuthResponse = login.LoginAuthRequestResponse(authRequest);
             MessageBox.Show(AuthResponse.Message);
             if (AuthResponse.Status != Status.OK) return;
             Login = LoginTextBox.Text;

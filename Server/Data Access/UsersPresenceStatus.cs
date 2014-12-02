@@ -30,6 +30,12 @@ namespace Server.Data_Access
         {
             return _dictionary;
         }
+
+        public User GetUser(string nick)
+        {
+            var user = new User {Login = nick, Status = _dictionary[nick]};
+            return user;
+        }
         //synchronized sorted dictionary
         private readonly ImmutableSortedDictionary<string, PresenceStatus> _dictionary = ImmutableSortedDictionary.Create<string, PresenceStatus>();
     }

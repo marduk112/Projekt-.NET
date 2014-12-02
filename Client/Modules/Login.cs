@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlTypes;
 using System.Security.Cryptography;
 using System.Text;
 using Common;
@@ -8,54 +9,45 @@ namespace Client.Modules
 {
     public class Login
     {
-        public Login()
+        public AuthResponse LoginAuthRequestResponse(AuthRequest authRequest)
         {
-            var factory = new ConnectionFactory { HostName = Const.HostName};
-            connection = factory.CreateConnection();
-            channel = connection.CreateModel();
-            replyQueueName = channel.QueueDeclare();
-            consumer = new QueueingBasicConsumer(channel);
-            channel.BasicConsume(replyQueueName, true, consumer);
-        }
-        public AuthResponse LoginAuthRequestResponse(string login, string password)
-        {
-            var authRequest = new AuthRequest();
-            var corrId = Guid.NewGuid().ToString();
-            var props = channel.CreateBasicProperties();
-            props.ReplyTo = replyQueueName;
-            props.CorrelationId = corrId;
-
-            authRequest.Login = login;
-            //encrypt password with SHA256Cng algorithm
-            using (var sha = new SHA256Cng())
+            var factory = new ConnectionFactory { HostName = Const.HostName };
+            using (var connection = factory.CreateConnection())
             {
-                var hash = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
-                authRequest.Password = string.Empty;
-                foreach (var x in hash)
+                using (var channel = connection.CreateModel())
                 {
-                    authRequest.Password += String.Format("{0:x2}", x);
+                    replyQueueName = channel.QueueDeclare();
+                    consumer = new QueueingBasicConsumer(channel);
+                    channel.BasicConsume(replyQueueName, true, consumer);
+                    var corrId = Guid.NewGuid().ToString();
+                    var props = channel.CreateBasicProperties();
+                    props.ReplyTo = replyQueueName;
+                    props.CorrelationId = corrId;
+                    
+                    //encrypt password with SHA256Cng algorithm
+                    using (var sha = new SHA256Cng())
+                    {
+                        var hash = sha.ComputeHash(Encoding.UTF8.GetBytes(authRequest.Password));
+                        authRequest.Password = null;
+                        var stringBuilder = new StringBuilder();
+                        foreach (var x in hash)
+                            stringBuilder.Append(String.Format("{0:x2}", x));
+                        authRequest.Password = stringBuilder.ToString();
+                    }
+
+                    var messageBytes = authRequest.Serialize(); //message forward login and password
+                    channel.BasicPublish("", "loginServer", props, messageBytes);
+
+                    while (true)
+                    {
+                        var ea = consumer.Queue.Dequeue();
+                        if (ea.BasicProperties.CorrelationId == corrId)
+                            return ea.Body.DeserializeAuthResponse();
+                    }
                 }
             }
-
-            var messageBytes = authRequest.Serialize();//message forward login and password
-            channel.BasicPublish("", "loginServer", props, messageBytes);
-
-            while (true)
-            {
-                var ea = consumer.Queue.Dequeue();
-                if (ea.BasicProperties.CorrelationId == corrId)
-                {
-                    return ea.Body.DeserializeAuthResponse();
-                }
-            }
-        }
-        public void Close()
-        {
-            connection.Close();
         }
         
-        private IConnection connection;
-        private IModel channel;
         private string replyQueueName;
         private QueueingBasicConsumer consumer;
     }

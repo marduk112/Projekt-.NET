@@ -38,6 +38,7 @@
   <ItemGroup>
     <Compile Include="Const.cs" />
     <Compile Include="Interfaces\IMessageHistoryDataAccess.cs" />
+    <Compile Include="Interfaces\IUsersListDataAccess.cs" />
     <Compile Include="JSONPayloadSerializer.cs" />
     <Compile Include="Main1.cs" />
     <Compile Include="Protocol.cs" />

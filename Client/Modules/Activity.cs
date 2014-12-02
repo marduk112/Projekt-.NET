@@ -1,51 +1,84 @@
-﻿using Common;
+﻿using System;
+using Common;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace Client.Modules
 {
-    public class Activity
+    public class Activity : IDisposable
     {
-        public void ActivityReq(string login, bool isWriting, string recipient)
+        public Activity(string login)
         {
             var factory = new ConnectionFactory() { HostName = Const.HostName };
-            using (var connection = factory.CreateConnection())
-            {
-                using (var channel = connection.CreateModel())
-                {
-                    channel.ExchangeDeclare("activity", "topic");
-                    var activityReq = new ActivityReq();
-                    activityReq.IsWriting = isWriting;
-                    activityReq.Login = login;
-                    activityReq.Recipient = recipient;
-                    var body = activityReq.Serialize();
-                    channel.BasicPublish("activity", "Activity."+recipient, null, body);
-                }
-            }
+            connection = factory.CreateConnection();
+            channel = connection.CreateModel();
+            queueName = channel.QueueDeclare();
+            channel.QueueBind(queueName, "activity", "Activity." + login);
+            channel.ExchangeDeclare("activity", "topic");
+            consumer = new QueueingBasicConsumer(channel);
+            channel.BasicConsume(queueName, true, consumer);
+        }
+
+        public void ActivityReq(ActivityReq activityReq)
+        {
+            var body = activityReq.Serialize();
+            channel.BasicPublish("activity", "Activity."+activityReq.Recipient, null, body);
         }
 
         public ActivityResponse ActivityResponse(string login)
         {
-            var factory = new ConnectionFactory() { HostName = Const.HostName };
-            using (var connection = factory.CreateConnection())
-            {
-                using (var channel = connection.CreateModel())
-                {
-                    channel.ExchangeDeclare("activity", "topic");
-                    var queueName = channel.QueueDeclare();
-                    channel.QueueBind(queueName, "activity", "Activity." + login);
-                    var consumer = new QueueingBasicConsumer(channel);
-                    channel.BasicConsume(queueName, true, consumer);
-                    var ea = (BasicDeliverEventArgs) consumer.Queue.Dequeue();
-                    var body = ea.Body;
-                    var message = body.DeserializeActivityReq();
-                    var activityResponse = new ActivityResponse();
-                    activityResponse.Recipient = message.Login;
-                    activityResponse.Status = Status.OK;
-                    activityResponse.IsWriting = message.IsWriting;
-                    return activityResponse;
-                }
-            }
+            var ea = (BasicDeliverEventArgs) consumer.Queue.Dequeue();
+            var body = ea.Body;
+            var message = body.DeserializeActivityReq();
+            var activityResponse = new ActivityResponse();
+            activityResponse.Recipient = message.Login;
+            activityResponse.Status = Status.OK;
+            activityResponse.IsWriting = message.IsWriting;
+            return activityResponse;
         }
+
+        //Implement IDisposable.
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+            if (disposing)
+            {
+                // Free other state (managed objects).
+                queueName = null;
+            }
+            // Free your own state (unmanaged objects).
+            // Set large fields to null.
+            CloseConnection();
+            channel.Dispose();
+            connection.Dispose();
+            channel = null;
+            connection = null;
+            consumer = null;
+            _disposed = true;
+        }
+
+        // Use C# destructor syntax for finalization code.
+        ~Activity()
+        {
+            // Simply call Dispose(false).
+            Dispose (false);
+        }
+
+        private void CloseConnection()
+        {
+            channel.Close();
+            connection.Close();
+        }
+        private bool _disposed = false;
+        private IModel channel;
+        private IConnection connection;
+        private string queueName;
+        private QueueingBasicConsumer consumer;
     }
 }

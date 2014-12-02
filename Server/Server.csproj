@@ -52,8 +52,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data Access\IUsersListDataAccess.cs" />
     <Compile Include="Data Access\MessageHistorySQL.cs" />
+    <Compile Include="Data Access\UsersListSQL.cs" />
     <Compile Include="Data Access\UsersPresenceStatus.cs" />
     <Compile Include="Modules\Login.cs" />
     <Compile Include="Modules\MessageHistory.cs" />

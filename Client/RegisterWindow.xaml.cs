@@ -31,7 +31,10 @@ namespace Client
             if (PasswordRepeatTextBox.Password == PasswordTextBox.Password)
             {
                 var register = new Registration();
-                var response = register.registration(LoginTextBox.Text, PasswordTextBox.Password);
+                var createUserReq = new CreateUserReq();
+                createUserReq.Login = LoginTextBox.Text;
+                createUserReq.Password = PasswordTextBox.Password;
+                var response = register.registration(createUserReq);
                 MessageBox.Show(response.Message);
                 if (response.Status == Status.OK)
                     this.Close();

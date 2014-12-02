@@ -76,7 +76,7 @@ namespace Server.Modules
                             Password = password.Value,
                         };
             //Is authenticated
-            bool isAuth = users.Any(user => user.Login.Equals(message.Login) && user.Password.Equals(message.Password));
+            bool isAuth = users.Any(user => (user.Login.Equals(message.Login) && user.Password.Equals(message.Password)));
             if (isAuth)
             {
                 authResponse.Status = Status.OK;

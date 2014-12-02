@@ -6,9 +6,7 @@ using System.Threading.Tasks;
 
 namespace Server.Data_Access
 {
-    //method which have access to database
-    public interface IUsersListDataAccess
+    public class UsersListSQL : IUsersListDataAccess
     {
-        //get all users list, friends list from database
     }
 }
