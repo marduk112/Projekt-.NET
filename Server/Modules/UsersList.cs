@@ -11,6 +11,7 @@ using Common;
 using Common.Interfaces;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using Server.Data_Access;
 
 namespace Server.Modules
 {
@@ -27,34 +28,34 @@ namespace Server.Modules
         public void usersList()
         {
             var channel = connection.CreateModel();
-                    channel.QueueDeclare("UsersListServer", false, false, false, null);
-                    channel.BasicQos(0, 1, false);
-                    var consumer = new QueueingBasicConsumer(channel);
-                    channel.BasicConsume("UsersListServer", false, consumer);
-                    while (true)
-                    {
-                        var response = new UserListResponse();
-                        var ea = consumer.Queue.Dequeue();
-                        var body = ea.Body;
-                        var props = ea.BasicProperties;
-                        var replyProps = channel.CreateBasicProperties();
-                        replyProps.CorrelationId = props.CorrelationId;
-                        try
-                        {
-                            var message = body.DeserializeUserListReq();
-                            response = GetUserList(message.Login);//connect with database
-                        }
-                        catch (Exception e)
-                        {
-                            response = ErrorUserListResponse("Error");
-                        }
-                        finally
-                        {
-                            var responseBytes = response.Serialize();
-                            channel.BasicPublish("", props.ReplyTo, replyProps, responseBytes);
-                            channel.BasicAck(ea.DeliveryTag, false);
-                        }
-                    }
+            channel.QueueDeclare("UsersListServer", false, false, false, null);
+            channel.BasicQos(0, 1, false);
+            var consumer = new QueueingBasicConsumer(channel);
+            channel.BasicConsume("UsersListServer", false, consumer);
+            while (true)
+            {
+                var response = new UserListResponse();
+                var ea = consumer.Queue.Dequeue();
+                var body = ea.Body;
+                var props = ea.BasicProperties;
+                var replyProps = channel.CreateBasicProperties();
+                replyProps.CorrelationId = props.CorrelationId;
+                try
+                {
+                    var message = body.DeserializeUserListReq();
+                    response = GetUserList(message.Login);//connect with database
+                }
+                catch (Exception e)
+                {
+                    response = ErrorUserListResponse("Error");
+                }
+                finally
+                {
+                    var responseBytes = response.Serialize();
+                    channel.BasicPublish("", props.ReplyTo, replyProps, responseBytes);
+                    channel.BasicAck(ea.DeliveryTag, false);
+                }
+            }
         }
         //send friends list with presence status(from _userPresenceStatus)
         public void FriendsList()

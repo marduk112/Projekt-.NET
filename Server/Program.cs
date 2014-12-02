@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Server.Modules;
+using Topshelf;
 
 namespace Server
 {
@@ -14,8 +16,16 @@ namespace Server
         {
             //example
             Console.WriteLine(" [x] Awaiting RPC requests");
-            new Thread(Login.login).Start();
-            new Thread(Registration.registration).Start();
+            var services = ServiceFactory.ReturnServices();
+            foreach (var service in services)
+            {
+                new Thread(() =>
+                {
+                    service().Run();
+                }).Start();
+                Thread.Sleep(500); //It doesn't work without it
+            }
+
             Console.ReadKey();
         }
     }

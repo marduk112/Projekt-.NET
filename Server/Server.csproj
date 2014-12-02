@@ -55,7 +55,9 @@
     <Compile Include="Data Access\MessageHistorySQL.cs" />
     <Compile Include="Data Access\UsersListSQL.cs" />
     <Compile Include="Data Access\UsersPresenceStatus.cs" />
+    <Compile Include="Modules\IServicable.cs" />
     <Compile Include="Modules\Login.cs" />
+    <Compile Include="Modules\LoginService.cs" />
     <Compile Include="Modules\MessageHistory.cs" />
     <Compile Include="Modules\Registration.cs" />
     <Compile Include="Modules\RegistrationService.cs" />
