@@ -8,9 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Common;
+using Common.Interfaces;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using Server.Data_Access;
 
 namespace Server.Modules
 {
