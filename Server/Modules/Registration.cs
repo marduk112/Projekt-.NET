@@ -13,9 +13,15 @@ using RabbitMQ.Client.Events;
 namespace Server.Modules
 {
     //example
-    public static class Registration
+    public class Registration
     {
-        public static void registration()
+
+        public Registration()
+        {
+            _work = true;
+        }
+
+        public void registration()
         {
             var factory = new ConnectionFactory() {HostName = Const.HostName};
             using (var connection = factory.CreateConnection())
@@ -27,7 +33,7 @@ namespace Server.Modules
                     var consumer = new QueueingBasicConsumer(channel);
                     channel.BasicConsume("regServer", false, consumer);
 
-                    while (true)
+                    while (_work)
                     {
                         var response = new CreateUserResponse();
                         var ea = consumer.Queue.Dequeue();
@@ -58,7 +64,7 @@ namespace Server.Modules
             }
         }
 
-        private static CreateUserResponse correctRegister()
+        private CreateUserResponse correctRegister()
         {
             CreateUserResponse createUserResponse;
             XDocument xmlDoc;
@@ -100,7 +106,7 @@ namespace Server.Modules
             return createUserResponse;
         }
 
-        private static CreateUserResponse incorrectRegister(string error)
+        private CreateUserResponse incorrectRegister(string error)
         {
             var createUserResponse = new CreateUserResponse();
             createUserResponse.Status = Status.Error;
@@ -108,6 +114,7 @@ namespace Server.Modules
             return createUserResponse;
         }
 
-        private static CreateUserReq message;
+        private CreateUserReq message;
+        public bool _work { get; set; }
     }
 }

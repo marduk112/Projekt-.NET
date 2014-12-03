@@ -67,6 +67,7 @@
     <Compile Include="Modules\MessageHistory.cs" />
     <Compile Include="Modules\Registration.cs" />
     <Compile Include="Modules\RegistrationService.cs" />
+    <Compile Include="Modules\Service.cs" />
     <Compile Include="Modules\ServiceFactory.cs" />
     <Compile Include="Modules\UsersList.cs" />
     <Compile Include="Program.cs" />
