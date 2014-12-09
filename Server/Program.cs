@@ -16,7 +16,16 @@ namespace Server
         {
             //example
             Console.WriteLine(" [x] Awaiting RPC requests");
-            ServiceFactory.CreateService().Run();
+            var services = ServiceFactory.ReturnServices();
+            foreach (var service in services)
+            {
+                new Thread(() =>
+                {
+                    service().Run();
+                }).Start();
+                Thread.Sleep(500); //It doesn't work without it
+            }
+
             Console.ReadKey();
         }
     }

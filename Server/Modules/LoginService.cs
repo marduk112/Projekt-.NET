@@ -14,6 +14,7 @@ namespace Server.Modules
     class LoginService : IServicable
     {
         private bool _work;
+        //private readonly Thread _task;
 
         public void Start()
         {

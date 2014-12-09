@@ -41,25 +41,6 @@ namespace Server.Modules
             return host;
         }
 
-        public static Host CreateService()
-        {
-            var host = HostFactory.New(x =>
-            {
-                x.Service<Service>(s =>
-                {
-                    s.ConstructUsing(name => new Service());
-                    s.WhenStopped(tc => tc.Stop());
-                    s.WhenStarted(tc => tc.Start());
-                });
-                x.StartManually();
-                x.RunAsLocalService();
-                x.SetDescription("Test service");
-                x.SetDisplayName("TestService");
-                x.SetServiceName("TestService");
-            });
-            return host;
-        }
-
         public static ICollection<Func<Host>> ReturnServices()
         {
             List<Func<Host>> servicesList = new List<Func<Host>>();
