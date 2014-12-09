@@ -9,12 +9,13 @@ namespace Client.Modules
     {
         public Activity(string login)
         {
+            this.login = login;
             var factory = new ConnectionFactory() { HostName = Const.HostName };
             connection = factory.CreateConnection();
             channel = connection.CreateModel();
+            channel.ExchangeDeclare("activity", "topic");
             queueName = channel.QueueDeclare();
             channel.QueueBind(queueName, "activity", "Activity." + login);
-            channel.ExchangeDeclare("activity", "topic");
             consumer = new QueueingBasicConsumer(channel);
             channel.BasicConsume(queueName, true, consumer);
         }
@@ -25,7 +26,7 @@ namespace Client.Modules
             channel.BasicPublish("activity", "Activity."+activityReq.Recipient, null, body);
         }
 
-        public ActivityResponse ActivityResponse(string login)
+        public ActivityResponse ActivityResponse()
         {
             var ea = (BasicDeliverEventArgs) consumer.Queue.Dequeue();
             var body = ea.Body;
@@ -76,6 +77,7 @@ namespace Client.Modules
             connection.Close();
         }
         private bool _disposed = false;
+        private string login;
         private IModel channel;
         private IConnection connection;
         private string queueName;

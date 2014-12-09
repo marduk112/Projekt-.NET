@@ -1,4 +1,7 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.Threading;
+using System.Windows;
+using Client.Modules;
 using Client.Notifies;
 using Common;
 using PresenceStatus = Common.PresenceStatus;
@@ -22,6 +25,7 @@ namespace Client
         private readonly User _user = new User();
         private FriendsCollection _friendsCollection = new FriendsCollection();
         private MessagesCollection _messagesCollection = new MessagesCollection();
+        private List<Thread> threadsList = new List<Thread>();
         private void loginWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (_loginWindow.AuthResponse.Status != Status.OK) return;
@@ -30,6 +34,17 @@ namespace Client
             _user.Login = _loginWindow.Login;
             _user.Status = PresenceStatus.Online;
             _loginWindow = null;
+            var thread = new Thread(() =>
+            {
+                var activity = new Activity(_user.Login);
+                while (true)
+                {
+                    var activityResponse = activity.ActivityResponse();
+                    //add info; activity status
+                }
+            }) { IsBackground = true };
+            threadsList.Add(thread);
+            thread.Start();
         }
         private void LoginOutButton_Click(object sender, RoutedEventArgs e)
         {
