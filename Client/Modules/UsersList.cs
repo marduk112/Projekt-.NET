@@ -35,7 +35,7 @@ namespace Client.Modules
             }
         }
 
-        public UserListResponse FriendsListWithPresenceStatusReqResponse(UserListReq userListReq)
+        public UserListResponse GetFriendsListWithPresenceStatus(UserListReq userListReq)
         {
             var factory = new ConnectionFactory { HostName = Const.HostName };
             using (var connection = factory.CreateConnection())

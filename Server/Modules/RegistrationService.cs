@@ -11,8 +11,10 @@ namespace Server.Modules
 {
     class RegistrationService : IServicable
     {
-        private bool _work;
+        
         private CreateUserReq message;
+        private volatile bool _work;
+
 
         public void Start()
         {
