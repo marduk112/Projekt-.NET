@@ -232,8 +232,7 @@ namespace Client
 
         private void txtMessageWindow_TextChanged(object sender, TextChangedEventArgs e)
         {
-            
-            foreach (var emote in _emoticons.Keys)
+            /*foreach (var emote in _emoticons.Keys)
             {
                 while (txtMessageWindow.Text.Contains(emote))
                 {
@@ -242,7 +241,7 @@ namespace Client
                     Clipboard.SetImage(_emoticons[emote]);
                     txtMessageWindow.Paste();
                 }
-            }
+            }*/
         }
         
     }
