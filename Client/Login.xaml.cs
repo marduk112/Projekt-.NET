@@ -96,6 +96,8 @@ namespace Client
             {
                 Const.User.Login = txtLogin.Text;
                 Const.User.Status = Common.PresenceStatus.Online;
+                var req = new Modules.PresenceStatus();
+                req.SendPresenceStatus(Const.User);
                 new Chat().Show();
                 this.Close();
             }

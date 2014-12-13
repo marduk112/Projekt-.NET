@@ -83,6 +83,7 @@
       <DependentUpon>Contacts.xaml</DependentUpon>
     </Compile>
     <Compile Include="Modules\Activity.cs" />
+    <Compile Include="Modules\EmoticonMapper.cs" />
     <Compile Include="Modules\Login.cs" />
     <Compile Include="Modules\Messages.cs" />
     <Compile Include="Modules\PresenceStatus.cs" />
@@ -98,6 +99,12 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resource.resx</DependentUpon>
     </Compile>
+    <Compile Include="RichTextBoxEmoticons\EmoticonCollection.cs" />
+    <Compile Include="RichTextBoxEmoticons\EmoticonMapper.cs" />
+    <Compile Include="RichTextBoxEmoticons\RichTextBoxExt.cs" />
+    <Compile Include="RichTextBoxEmoticons\RichTextBoxHelper.cs" />
+    <Compile Include="RichTextBoxEmoticons\RTBNavigationService.cs" />
+    <Compile Include="RichTextBoxEmoticons\WordBreaker.cs" />
     <Page Include="Chat.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -1,21 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Threading;
 using Client.Modules;
 using Client.Notifies;
-using Client.Properties;
 using Common;
 
 namespace Client
@@ -28,6 +19,16 @@ namespace Client
         public Chat()
         {
             InitializeComponent();
+            imAngel.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
+            imAshamed.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
+            imCry.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
+            imHeart.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
+            imKiss.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
+            imMad.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
+            imScared.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
+            imSmile.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
+            imSurprised.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
+            imTongue.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
             this.rtxtDialogueWindow.Document.Blocks.Clear();
             var thread = new Thread(() =>
             {
@@ -52,14 +53,39 @@ namespace Client
             _threadsList.Add(thread2);
             thread.Start();
             thread2.Start();
-            //add other emoticons
-            _emoticons.Add(":)", new BitmapImage(new Uri("/Image/smile.png", UriKind.Relative)));
+            _emoticonsDictionary.Add(":)", imSmile);
+        }
+
+        void Emoticon_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            var emoticon = sender as Image;
+            if (emoticon.Equals(imSmile))
+                TxtMessageWindow.AppendText(" :) ");
+            if (emoticon.Equals(imAngel))
+                TxtMessageWindow.AppendText(" O:) ");
+            if (emoticon.Equals(imCry))
+                TxtMessageWindow.AppendText(" :'( ");
+            if (emoticon.Equals(imHeart))
+                TxtMessageWindow.AppendText(" <3 ");
+            if (emoticon.Equals(imMad))
+                TxtMessageWindow.AppendText(" >:( ");
+            if (emoticon.Equals(imSurprised))
+                TxtMessageWindow.AppendText(" :o ");
+            if (emoticon.Equals(imTongue))
+                TxtMessageWindow.AppendText(" :P ");
+            if (emoticon.Equals(imKiss))
+                TxtMessageWindow.AppendText(" :* ");
+            if (emoticon.Equals(imAshamed))
+                TxtMessageWindow.AppendText(" 😊 ");
+            if (emoticon.Equals(imScared))
+                TxtMessageWindow.AppendText(" 😨 ");
         }
         
         private FriendsCollection _friendsCollection = new FriendsCollection();
         private MessagesCollection _messagesCollection = new MessagesCollection();
         private List<Thread> _threadsList = new List<Thread>();
-        private readonly Dictionary<string, BitmapImage> _emoticons = new Dictionary<string, BitmapImage>();
+        private Dictionary<string, Image> _emoticonsDictionary = new Dictionary<string, Image>();
+        //private readonly Dictionary<string, Image> _emoticons = new Dictionary<string, Image>();
         private void btnClose_Click(object sender, RoutedEventArgs e)
         {
             //send presence status as offline
@@ -135,10 +161,9 @@ namespace Client
             Microsoft.Win32.OpenFileDialog openfiledialog = new Microsoft.Win32.OpenFileDialog();
             openfiledialog.Filter = "All files (*.*)|*.*";
             openfiledialog.AddExtension = true;
-            openfiledialog.Multiselect = true;
+            openfiledialog.Multiselect = false;
             openfiledialog.ShowDialog();
-            string[] filenames = openfiledialog.FileNames;
-            
+            var filename = openfiledialog.FileName;
         }
 
         private void btnClose_Click2(object sender, RoutedEventArgs e)
@@ -176,73 +201,62 @@ namespace Client
 
         private void btnSend_Click(object sender, RoutedEventArgs e)
         {
-            MessageForm(new DateTimeOffset().LocalDateTime, txtMessageWindow.Text);
-            this.txtMessageWindow.Clear();
+            var textRange = new TextRange(
+                TxtMessageWindow.Document.ContentStart,
+                TxtMessageWindow.Document.ContentEnd
+                );
+            MessageForm(new DateTimeOffset().LocalDateTime, textRange.Text);
+            TxtMessageWindow.Document.Blocks.Clear();
             var message = new MessageReq();
             message.Login = Const.User.Login;
-            message.Message = txtMessageWindow.Text;
+            message.Message = textRange.Text;
             //message.Recipient =
             message.SendTime = new DateTimeOffset().LocalDateTime;
-            Task.Factory.StartNew(() =>
+            /*Task.Factory.StartNew(() =>
             {
                 var s = new Messages(Const.User.Login);
                 s.SendMessage(message);
-            });
+            });*/
         }
 
         private void MessageForm(DateTimeOffset dateTime, string message)
         {
-            Paragraph date = new Paragraph(new Run(DateTime.Now.ToString()));
+            var date = new Paragraph(new Run(DateTime.Now.ToString()));
             Paragraph p;
             date.FontWeight = FontWeights.Bold;
             date.TextAlignment = TextAlignment.Right;
             this.rtxtDialogueWindow.Document.Blocks.Add(date);
-            this.rtxtDialogueWindow.Document.Blocks.Add(p = new Paragraph(new Run(txtMessageWindow.Text)));
-            p.Foreground = this.txtMessageWindow.Foreground;
-            p.FontFamily = this.txtMessageWindow.FontFamily;
-            p.FontSize = this.txtMessageWindow.FontSize;
-            p.FontStyle = this.txtMessageWindow.FontStyle;
-            p.FontWeight = this.txtMessageWindow.FontWeight;
+            this.rtxtDialogueWindow.Document.Blocks.Add(p = new Paragraph(new Run(message)));
+            p.Foreground = TxtMessageWindow.Foreground;
+            p.FontFamily = this.TxtMessageWindow.FontFamily;
+            p.FontSize = this.TxtMessageWindow.FontSize;
+            p.FontStyle = this.TxtMessageWindow.FontStyle;
+            p.FontWeight = this.TxtMessageWindow.FontWeight;
         }
 
         private void IfCheckedI(object sender, RoutedEventArgs e)
         {
-            this.txtMessageWindow.FontStyle = FontStyles.Italic;
+            this.TxtMessageWindow.FontStyle = FontStyles.Italic;
         }
 
         private void IfCheckedB(object sender, RoutedEventArgs e)
         {
-            this.txtMessageWindow.FontWeight = FontWeights.Bold;
+            this.TxtMessageWindow.FontWeight = FontWeights.Bold;
         }
 
         private void IfUncheckedB(object sender, RoutedEventArgs e)
         {
-            this.txtMessageWindow.FontWeight = FontWeights.Normal;
+            this.TxtMessageWindow.FontWeight = FontWeights.Normal;
         }
 
         private void IfUncheckedI(object sender, RoutedEventArgs e)
         {
-            this.txtMessageWindow.FontStyle = FontStyles.Normal;
+            this.TxtMessageWindow.FontStyle = FontStyles.Normal;
         }
 
         private void ClearDialWindow_Click(object sender, RoutedEventArgs e)
         {
             this.rtxtDialogueWindow.Document.Blocks.Clear();
         }
-
-        private void txtMessageWindow_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            /*foreach (var emote in _emoticons.Keys)
-            {
-                while (txtMessageWindow.Text.Contains(emote))
-                {
-                    var index = txtMessageWindow.Text.IndexOf(emote);
-                    txtMessageWindow.Select(index, emote.Length);
-                    Clipboard.SetImage(_emoticons[emote]);
-                    txtMessageWindow.Paste();
-                }
-            }*/
-        }
-        
     }
 }
