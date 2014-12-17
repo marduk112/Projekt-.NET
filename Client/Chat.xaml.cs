@@ -30,12 +30,18 @@ namespace Client
             imSurprised.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
             imTongue.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
             this.rtxtDialogueWindow.Document.Blocks.Clear();
+
+            SynchronizationContext ctx = SynchronizationContext.Current;
             var thread = new Thread(() =>
             {
                 var activity = new Activity(Const.User.Login);
                 while (true)
                 {
                     var activityResponse = activity.ActivityResponse();
+                    ctx.Post(_ =>
+                    {
+                        //ten kod jest wykonany w watku UI
+                    }, null);
                     //add info; activity status
                 }
             }) { IsBackground = true };
