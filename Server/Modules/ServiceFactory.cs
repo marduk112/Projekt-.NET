@@ -53,9 +53,9 @@ namespace Server.Modules
                 });
                 x.StartManually();
                 x.RunAsLocalService();
-                x.SetDescription("Test service");
-                x.SetDisplayName("TestService");
-                x.SetServiceName("TestService");
+                x.SetDescription("One service that runs all other services");
+                x.SetDisplayName("OneToRuleThemAllService");
+                x.SetServiceName("OneToRuleThemAll");
             });
             return host;
         }
