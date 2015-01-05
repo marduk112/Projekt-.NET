@@ -13,8 +13,11 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Threading;
+using Autofac;
+using Client.Interfaces;
 using Client.Modules;
 using Common;
+using RabbitMQ.Client;
 
 namespace Client
 {
@@ -90,14 +93,30 @@ namespace Client
         {
             //(new Contacts()).Show();
             var request = new AuthRequest {Login = txtLogin.Text, Password = pswbPassword.Password};
-            var authentication = new Login();
-            var response = authentication.LoginAuthRequestResponse(request);
+            AuthResponse response;
+
+            var builder = new ContainerBuilder();
+            builder.Register(_ => new ConnectionFactory { HostName = Const.HostName }).As<IConnectionFactory>();
+            builder.RegisterType<Login>().As<ILogin>();
+            builder.RegisterType<Modules.PresenceStatus>().As<IPresenceStatus>();
+            var container = builder.Build();
+            using (var scope = container.BeginLifetimeScope())
+            {
+                var writer = scope.Resolve<ILogin>();
+                response = writer.LoginAuthRequestResponse(request);
+            }
+           
             if (response.Status == Status.OK)
             {
                 Const.User.Login = txtLogin.Text;
                 Const.User.Status = Common.PresenceStatus.Online;
-                var req = new Modules.PresenceStatus();
-                req.SendPresenceStatus(Const.User);
+                
+                using (var scope = container.BeginLifetimeScope())
+                {
+                    var writer = scope.Resolve<IPresenceStatus>();
+                    writer.SendPresenceStatus(Const.User);
+                }
+
                 new Chat().Show();
                 this.Close();
             }

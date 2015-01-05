@@ -7,10 +7,13 @@ namespace Client.Modules
 {
     public class UsersList
     {
+        public UsersList(IConnectionFactory factory)
+        {
+            _factory = factory;
+        }
         public UserListResponse UserListReqResponse(UserListReq userListReq)
         {
-            var factory = new ConnectionFactory { HostName = Const.HostName };
-            using (var connection = factory.CreateConnection())
+            using (var connection = _factory.CreateConnection())
             {
                 using (var channel = connection.CreateModel())
                 {
@@ -37,8 +40,7 @@ namespace Client.Modules
 
         public UserListResponse GetFriendsListWithPresenceStatus(UserListReq userListReq)
         {
-            var factory = new ConnectionFactory { HostName = Const.HostName };
-            using (var connection = factory.CreateConnection())
+            using (var connection = _factory.CreateConnection())
             {
                 using (var channel = connection.CreateModel())
                 {
@@ -62,5 +64,7 @@ namespace Client.Modules
                 }
             }
         }
+
+        private IConnectionFactory _factory;
     }
 }

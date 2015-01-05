@@ -5,9 +5,12 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Threading;
+using Autofac;
+using Client.Interfaces;
 using Client.Modules;
 using Client.Notifies;
 using Common;
+using RabbitMQ.Client;
 
 namespace Client
 {
@@ -29,37 +32,19 @@ namespace Client
             imSmile.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
             imSurprised.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
             imTongue.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
-            this.rtxtDialogueWindow.Document.Blocks.Clear();
-
-            SynchronizationContext ctx = SynchronizationContext.Current;
-            var thread = new Thread(() =>
-            {
-                var activity = new Activity(Const.User.Login);
-                while (true)
-                {
-                    var activityResponse = activity.ActivityResponse();
-                    ctx.Post(_ =>
-                    {
-                        //ten kod jest wykonany w watku UI
-                    }, null);
-                    //add info; activity status
-                }
-            }) { IsBackground = true };
-            var thread2 = new Thread(() =>
-            {
-                var message = new Messages(Const.User.Login);
-                while (true)
-                {
-                    var response = message.ReceiveMessage();
-                    //add message to rtxtDialogueWindow
-                    MessageForm(response.SendTime, response.Message);
-                }
-            }) { IsBackground = true };
-            _threadsList.Add(thread);
-            _threadsList.Add(thread2);
-            thread.Start();
-            thread2.Start();
-            _emoticonsDictionary.Add(":)", imSmile);
+            rtxtDialogueWindow.Document.Blocks.Clear();
+            friendsList.DataContext = _friendsCollection;
+            var ctx = SynchronizationContext.Current;
+            /*var u = new User();
+            u.Login = "d";
+            u.Status = Common.PresenceStatus.Online;
+            _friendsCollection.Friends.Add(u);
+            u = new User();
+            u.Login = "d";
+            u.Status = Common.PresenceStatus.Online;
+            _friendsCollection.Friends.Add(u);*/
+            //StartListeningThread(ctx);
+            //DownloadFriendsList();
         }
 
         void Emoticon_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -87,21 +72,68 @@ namespace Client
                 TxtMessageWindow.AppendText(" 😨 ");
         }
         
-        private FriendsCollection _friendsCollection = new FriendsCollection();
-        private MessagesCollection _messagesCollection = new MessagesCollection();
-        private List<Thread> _threadsList = new List<Thread>();
-        private Dictionary<string, Image> _emoticonsDictionary = new Dictionary<string, Image>();
-        //private readonly Dictionary<string, Image> _emoticons = new Dictionary<string, Image>();
+        private readonly FriendsCollection _friendsCollection = new FriendsCollection();
+        private Dictionary<string, MessagesCollection> _messagesCollection = new Dictionary<string, MessagesCollection>();
+        private Thread _thread;
+        public string RecipientNick { get; private set; }
+
+        private void DownloadFriendsList()
+        {
+            var builder = new ContainerBuilder();
+            builder.Register(_ => new ConnectionFactory { HostName = Const.HostName }).As<IConnectionFactory>();
+            builder.RegisterType<UsersList>().As<IUsersList>();
+            var container = builder.Build();
+            using (var scope = container.BeginLifetimeScope())
+            {
+                var reqUserList = new UserListReq { Login = Const.User.Login };
+                var response = scope.Resolve<IUsersList>();
+                foreach (var user in response.GetFriendsListWithPresenceStatus(reqUserList).Users)
+                {
+                    _friendsCollection.Friends.Add(user);
+                }
+            }
+            
+        }
+        private void StartListeningThread(SynchronizationContext ctx)
+        {
+            _thread = new Thread(() =>
+            {
+                Listening.Start();
+                while (true)
+                {
+                    var activityResponse = Listening.ListeningActivity();
+                    ctx.Post(_ =>
+                    {
+                        //ten kod jest wykonany w watku UI
+                    }, null);
+                    var presenceStatusResponse = Listening.ListeningPresenceStatus();
+                    ctx.Post(_ => _friendsCollection.Friends.Add(presenceStatusResponse), null);
+                    var messageResponse = Listening.ListeningMessages();
+                    ctx.Post(_ =>
+                    {
+                        //ten kod jest wykonany w watku UI
+
+                    }, null);
+                    //add info; activity status
+                }
+            }) { IsBackground = true };
+        }
         private void btnClose_Click(object sender, RoutedEventArgs e)
         {
             //send presence status as offline
             Const.User.Status = Common.PresenceStatus.Offline;
-            var request = new Modules.PresenceStatus();
-            request.SendPresenceStatus(Const.User);
-            foreach (var thread in _threadsList)
+
+            var builder = new ContainerBuilder();
+            builder.Register(c => new ConnectionFactory { HostName = Const.HostName }).As<IConnectionFactory>();
+            builder.RegisterType<Modules.PresenceStatus>().As<IPresenceStatus>();
+            var container = builder.Build();
+            using (var scope = container.BeginLifetimeScope())
             {
-                thread.Abort();
+                var writer = scope.Resolve<IPresenceStatus>();
+                writer.SendPresenceStatus(Const.User);
             }
+
+            //_thread.Abort();
             Close();
         }
 
@@ -213,16 +245,22 @@ namespace Client
                 );
             MessageForm(new DateTimeOffset().LocalDateTime, textRange.Text);
             TxtMessageWindow.Document.Blocks.Clear();
-            var message = new MessageReq();
-            message.Login = Const.User.Login;
-            message.Message = textRange.Text;
-            //message.Recipient =
-            message.SendTime = new DateTimeOffset().LocalDateTime;
-            /*Task.Factory.StartNew(() =>
+            var message = new MessageReq
             {
-                var s = new Messages(Const.User.Login);
-                s.SendMessage(message);
-            });*/
+                Login = Const.User.Login,
+                Message = textRange.Text,
+                Recipient = RecipientNick,
+                SendTime = new DateTimeOffset().LocalDateTime
+            };
+            var builder = new ContainerBuilder();
+            builder.Register(c => new ConnectionFactory { HostName = Const.HostName }).As<IConnectionFactory>();
+            builder.RegisterType<Messages>().As<IMessages>();
+            var container = builder.Build();
+            using (var scope = container.BeginLifetimeScope())
+            {
+                var writer = scope.Resolve<IMessages>();
+                writer.SendMessage(message);
+            }
         }
 
         private void MessageForm(DateTimeOffset dateTime, string message)
@@ -263,6 +301,28 @@ namespace Client
         private void ClearDialWindow_Click(object sender, RoutedEventArgs e)
         {
             this.rtxtDialogueWindow.Document.Blocks.Clear();
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            var contact = new Contacts();
+            contact.FriendsCollection(_friendsCollection);
+            contact.Show();
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (friendsList.SelectedIndex != -1)
+                _friendsCollection.Friends.RemoveAt(friendsList.SelectedIndex);
+        }
+
+        private void friendsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (friendsList.SelectedIndex == -1) return;
+            var item = (User) friendsList.SelectedItem;
+            RecipientNick = item.Login;
+            if (_messagesCollection.ContainsKey(item.Login))
+                rtxtDialogueWindow.DataContext = _messagesCollection[item.Login];
         }
     }
 }

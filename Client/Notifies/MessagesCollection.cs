@@ -1,46 +1,110 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using Client.Annotations;
 using Common;
+using Microsoft.Practices.Prism.Commands;
 
 namespace Client.Notifies
 {
     //to determube
-    public sealed class MessagesCollection : INotifyCollectionChanged
+    public sealed class MessagesCollection : INotifyPropertyChanged
     {
-        public event NotifyCollectionChangedEventHandler CollectionChanged;
-        public void Add(string nick, MessageNotification message)
+        public event PropertyChangedEventHandler PropertyChanged;
+        public ObservableCollection<MessageNotification> Messages { get; set; }
+        public DelegateCommand AddMessage { get; private set; }
+
+        public MessagesCollection()
         {
-            if (!_dictionary.ContainsKey(nick))
-                _dictionary.Add(nick, new SortedSet<MessageNotification>(new Comparator()));
-            _dictionary[nick].Add(message);
-            if (CollectionChanged != null)
-                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add));
-        }
-        public void Remove(string nick)
-        {
-            _dictionary.Remove(nick);
-            if (CollectionChanged != null)
-                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove));
-        }
-        public SortedSet<MessageNotification> GetConversationWith(string nick)
-        {
-            return _dictionary[nick];
-        }
-        public void AddConversationWith(string nick, ICollection<MessageNotification> message)
-        {
-            _dictionary[nick].UnionWith(message);
+            Messages = new ObservableCollection<MessageNotification>();
+            AddMessage = new DelegateCommand(Add);
         }
 
-        private readonly ImmutableDictionary<string, SortedSet<MessageNotification>> _dictionary = ImmutableDictionary.Create<string, SortedSet<MessageNotification>>();
+        public string Sender
+        {
+            get { return _sender; }
+            set
+            {
+                _sender = value;
+                OnPropertyChanged();
+                AddMessage.RaiseCanExecuteChanged();
+            }
+        }
+        public string Recipient
+        {
+            get { return _recipient; }
+            set
+            {
+                _recipient = value;
+                OnPropertyChanged();
+                AddMessage.RaiseCanExecuteChanged();
+            }
+        }
+        public string Message
+        {
+            get { return _message; }
+            set
+            {
+                _message = value;
+                OnPropertyChanged();
+                AddMessage.RaiseCanExecuteChanged();
+            }
+        }
+        public DateTimeOffset SendTime
+        {
+            get { return _sendTime; }
+            set
+            {
+                _sendTime = value;
+                OnPropertyChanged();
+                AddMessage.RaiseCanExecuteChanged();
+            }
+        }
+        public Attachment Attachment
+        {
+            get { return _attachment; }
+            set
+            {
+                _attachment = value;
+                OnPropertyChanged();
+                AddMessage.RaiseCanExecuteChanged();
+            }
+        }
+        [NotifyPropertyChangedInvocator]
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            var handler = PropertyChanged;
+            if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void Add()
+        {
+            var message = new MessageNotification
+            {
+                Attachment = Attachment,
+                Message = Message,
+                Recipient = Recipient,
+                SendTime = SendTime,
+                Sender = Sender
+            };
+            Messages.Add(message);
+        }
+
+        private string _sender;
+        private string _recipient;
+        private string _message;
+        private DateTimeOffset _sendTime;
+        private Attachment _attachment;
     }
 
-    internal class Comparator : IComparer<MessageNotification>
+    /*internal class Comparator : IComparer<MessageNotification>
     {
         public int Compare(MessageNotification x, MessageNotification y)
         {
             return x.SendTime.CompareTo(y.SendTime);
         }
-    }
+    }*/
 }

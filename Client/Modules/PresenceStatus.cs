@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Client.Interfaces;
 using Common;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -11,11 +12,11 @@ using RabbitMQ.Client.Events;
 namespace Client.Modules
 {
     //to determine
-    public class PresenceStatus : IDisposable
+    public class PresenceStatus : IPresenceStatus
     {
-        public PresenceStatus()
+        public PresenceStatus(IConnectionFactory factory)
         {
-            var factory = new ConnectionFactory { HostName = Const.HostName };
+            //var factory = new ConnectionFactory { HostName = Const.HostName };
             connection = factory.CreateConnection();
             channel = connection.CreateModel();
             channel.ExchangeDeclare("UsersStatus", "topic");
@@ -32,15 +33,14 @@ namespace Client.Modules
             //channel.BasicPublish("UsersStatus", message.Login, null, messageBytes);
         }
 
-        public User ReceiveUserPresenceStatus()
+        public User ReceiveUserPresenceStatus(int timeout)
         {
-            while (true)
-            {
-                var ea = (BasicDeliverEventArgs)consumer.Queue.Dequeue();
-                var body = ea.Body;
-                var message = body.DeserializeUser();
-                return message;
-            }
+            BasicDeliverEventArgs ea;
+            if (!consumer.Queue.Dequeue(timeout, out ea))
+                return null;
+            var body = ea.Body;
+            var message = body.DeserializeUser();
+            return message;
         }
 
         public void AddFriendToListenPresenceStatus(string nick)

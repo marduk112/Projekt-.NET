@@ -11,7 +11,11 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Autofac;
+using Client.Interfaces;
+using Client.Modules;
 using Common;
+using RabbitMQ.Client;
 
 namespace Client
 {
@@ -60,8 +64,18 @@ namespace Client
             if (pswbPasswordReg.Password.Equals(pswbPasswordRegRepeat.Password))
             {
                 var request = new CreateUserReq {Login = txtLogin1.Text, Password = pswbPasswordReg.Password};
-                var registration = new Modules.Registration();
-                var response = registration.registration(request);
+
+                CreateUserResponse response;
+                var builder = new ContainerBuilder();
+                builder.Register(_ => new ConnectionFactory { HostName = Const.HostName }).As<IConnectionFactory>();
+                builder.RegisterType<Registration>().As<IRegistration>();
+                var container = builder.Build();
+                using (var scope = container.BeginLifetimeScope())
+                {
+                    var writer = scope.Resolve<IRegistration>();
+                    response = writer.registration(request);
+                }
+                
                 if (response.Status == Status.OK)
                     Close();
                 else

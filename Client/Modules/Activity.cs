@@ -1,16 +1,17 @@
 ﻿using System;
+using Client.Interfaces;
 using Common;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace Client.Modules
 {
-    public class Activity : IDisposable
+    public class Activity : IActivity
     {
-        public Activity(string login)
+        public Activity(IConnectionFactory factory)
         {
-            this.login = login;
-            var factory = new ConnectionFactory() { HostName = Const.HostName };
+            this.login = Const.User.Login;
+            //var factory = new ConnectionFactory() { HostName = Const.HostName };
             connection = factory.CreateConnection();
             channel = connection.CreateModel();
             channel.ExchangeDeclare("activity", "topic");
@@ -26,9 +27,11 @@ namespace Client.Modules
             channel.BasicPublish("activity", "Activity."+activityReq.Recipient, null, body);
         }
 
-        public ActivityResponse ActivityResponse()
+        public ActivityResponse ActivityResponse(int timeout)
         {
-            var ea = (BasicDeliverEventArgs) consumer.Queue.Dequeue();
+            BasicDeliverEventArgs ea;
+            if (!consumer.Queue.Dequeue(timeout, out ea))
+                return null;
             var body = ea.Body;
             var message = body.DeserializeActivityReq();
             var activityResponse = new ActivityResponse();

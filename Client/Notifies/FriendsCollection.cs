@@ -1,33 +1,82 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using Client.Annotations;
 using Common;
+using Microsoft.Practices.Prism.Commands;
 
 namespace Client.Notifies
 {
-    public sealed class FriendsCollection : INotifyCollectionChanged
+    public sealed class FriendsCollection : INotifyPropertyChanged
     {
-        public event NotifyCollectionChangedEventHandler CollectionChanged;
-        public void Add(string nick, PresenceStatus status)
+        public FriendsCollection()
         {
-            _dictionary.Add(nick, status);
-            if (CollectionChanged != null)
+            Friends = new ObservableCollection<User>();
+            AddFriend = new DelegateCommand(Add);
+            DeleteFriend = new DelegateCommand(Delete);
+        }
+
+        public string Login
+        {
+            get { return _login; }
+            set
             {
-                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add));
+                _login = value;
+                OnPropertyChanged();
+                AddFriend.RaiseCanExecuteChanged();
+                DeleteFriend.RaiseCanExecuteChanged();
             }
         }
-        public void Remove(string nick)
+
+        public PresenceStatus Status
         {
-            _dictionary.Remove(nick);
-            if (CollectionChanged != null)
+            get { return _status; }
+            set
             {
-                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove));
+                _status = value;
+                OnPropertyChanged();
+                AddFriend.RaiseCanExecuteChanged();
+                DeleteFriend.RaiseCanExecuteChanged();
             }
         }
-        public ImmutableSortedDictionary<string, PresenceStatus> ToSortedSet()
+
+        public DelegateCommand AddFriend { get; private set; }
+        public DelegateCommand DeleteFriend { get; private set; }
+        public ObservableCollection<User> Friends { get; private set; }
+        public event PropertyChangedEventHandler PropertyChanged;
+       
+        [NotifyPropertyChangedInvocator]
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            return _dictionary;
+            var handler = PropertyChanged;
+            if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
         }
-        //synchronized sorted dictionary
-        private readonly ImmutableSortedDictionary<string, PresenceStatus> _dictionary = ImmutableSortedDictionary.Create<string, PresenceStatus>();
+
+        private void Add()
+        {
+            var friend = new User {Login = Login, Status = Status};
+            foreach (var item in Friends.Where(item => item.Login.Equals(Login)))
+            {
+                Friends.Remove(item);
+                break;
+            }
+            Friends.Add(friend);
+        }
+
+        private void Delete()
+        {
+            var friend = new User { Login = Login, Status = Status };
+            Friends.Remove(friend);
+        }
+
+        private string _login;
+        private PresenceStatus _status;
+
+        
+        
     }
 }

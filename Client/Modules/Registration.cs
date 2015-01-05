@@ -9,11 +9,14 @@ namespace Client.Modules
     //example
     public class Registration
     {
+        public Registration(IConnectionFactory factory)
+        {
+            _factory = factory;
+        }
         //this method returns result of Registration.register from server
         public CreateUserResponse registration(CreateUserReq createUserReq)
         {
-            var factory = new ConnectionFactory { HostName = Const.HostName };
-            using (var connection = factory.CreateConnection())
+            using (var connection = _factory.CreateConnection())
             {
                 using (var channel = connection.CreateModel())
                 {
@@ -49,5 +52,7 @@ namespace Client.Modules
                 }
             }
         }
+
+        private IConnectionFactory _factory;
     }
 }

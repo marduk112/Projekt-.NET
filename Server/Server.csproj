@@ -35,6 +35,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Autofac">
+      <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
+    </Reference>
     <Reference Include="EasyNetQ">
       <HintPath>..\packages\EasyNetQ.0.39.1.331\lib\net40\EasyNetQ.dll</HintPath>
     </Reference>

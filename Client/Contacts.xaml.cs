@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Client.Notifies;
 
 namespace Client
 {
@@ -40,6 +41,14 @@ namespace Client
             this.imStatus.Source = myImageSource.Last();
         }
 
+        public void FriendsCollection(FriendsCollection friendsCollection)
+        {
+            _friendsCollection = friendsCollection;
+        }
+
+        private FriendsCollection _friendsCollection;
+        private FriendsCollection _usersCollection = new FriendsCollection();
+        
         private void btnClose_Click(object sender, RoutedEventArgs e)
         {
             Close();

@@ -2,17 +2,22 @@
 using System.Data.SqlTypes;
 using System.Security.Cryptography;
 using System.Text;
+using Client.Interfaces;
 using Common;
 using RabbitMQ.Client;
 
 namespace Client.Modules
 {
-    public class Login
+    public class Login : ILogin
     {
+        public Login()
+        {
+            //_factory = factory;
+            _factory = new ConnectionFactory {HostName = Const.HostName};
+        }
         public AuthResponse LoginAuthRequestResponse(AuthRequest authRequest)
         {
-            var factory = new ConnectionFactory { HostName = Const.HostName };
-            using (var connection = factory.CreateConnection())
+            using (var connection = _factory.CreateConnection())
             {
                 using (var channel = connection.CreateModel())
                 {
@@ -47,7 +52,8 @@ namespace Client.Modules
                 }
             }
         }
-        
+
+        private IConnectionFactory _factory;
         private string replyQueueName;
         private QueueingBasicConsumer consumer;
     }

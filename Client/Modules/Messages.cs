@@ -1,20 +1,21 @@
 ﻿using System;
+using Client.Interfaces;
 using Common;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace Client.Modules
 {
-    public class Messages : IDisposable
+    public class Messages : IMessages
     {
-        public Messages(string login)
+        public Messages(IConnectionFactory factory)
         {
-            var factory = new ConnectionFactory() { HostName = Const.HostName };
+            //var factory = new ConnectionFactory() { HostName = Const.HostName };
             connection = factory.CreateConnection();
             channel = connection.CreateModel();
             channel.ExchangeDeclare("messages", "topic", true);
             queueName = channel.QueueDeclare();
-            channel.QueueBind(queueName, "messages", login);
+            channel.QueueBind(queueName, "messages", Const.User.Login);
             consumer = new QueueingBasicConsumer(channel);
             channel.BasicConsume(queueName, true, consumer);
         }
@@ -29,17 +30,21 @@ namespace Client.Modules
             //channel.BasicPublish("messages", "Server", properties, body);
         }
         //every user has queue for message response
-        public MessageResponse ReceiveMessage()
+        public MessageResponse ReceiveMessage(int timeout)
         {
-            var ea = (BasicDeliverEventArgs) consumer.Queue.Dequeue();
+            BasicDeliverEventArgs ea;
+            if (!consumer.Queue.Dequeue(timeout, out ea))
+                return null;
             var body = ea.Body;
             var message = body.DeserializeMessageReq();
-            var response = new MessageResponse();
-            response.Attachment = message.Attachment;
-            response.Message = message.Message;
-            response.Recipient = message.Login;
-            response.SendTime = message.SendTime;
-            response.Status = Status.OK;
+            var response = new MessageResponse
+            {
+                Attachment = message.Attachment,
+                Message = message.Message,
+                Recipient = message.Login,
+                SendTime = message.SendTime,
+                Status = Status.OK
+            };
             return response;
         }
 
