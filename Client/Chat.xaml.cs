@@ -36,10 +36,10 @@ namespace Client
             rtxtDialogueWindow.Document.Blocks.Clear();
             friendsList.DataContext = _friendsCollection;
             var ctx = SynchronizationContext.Current;
-            var u = new User {Login = "d", Status = Common.PresenceStatus.Online};
+            /*var u = new User {Login = "d", Status = Common.PresenceStatus.Online};
             _friendsCollection.Friends.Add(u);
             u = new User {Login = "d", Status = Common.PresenceStatus.Online};
-            _friendsCollection.Friends.Add(u);
+            _friendsCollection.Friends.Add(u);*/
             //StartListeningThread(ctx);
             //DownloadFriendsList();
         }
