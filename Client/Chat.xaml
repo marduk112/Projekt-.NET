@@ -386,18 +386,20 @@
             </MenuItem>
         </Menu>
         <Button Content="Dodaj znajomego" HorizontalAlignment="Left" Margin="412,33,0,0" Grid.Row="1" VerticalAlignment="Top" Width="102" Click="Button_Click_1"/>
-        <ListView x:Name="friendsList" ItemsSource="{Binding Friends}" HorizontalAlignment="Left" Height="319" Margin="52,62,0,0" Grid.Row="1" Grid.RowSpan="3" VerticalAlignment="Top" Width="159" Background="#D8FFE0FF" SelectionChanged="friendsList_SelectionChanged">
+        <ListView x:Name="friendsList" ItemsSource="{Binding Friends}" HorizontalAlignment="Left" Height="319" Margin="52,62,0,0" Grid.Row="1" Grid.RowSpan="3" VerticalAlignment="Top" Width="159" Background="#D8FFE0FF" SelectionChanged="friendsList_SelectionChanged" SelectedItem="{Binding User, UpdateSourceTrigger=PropertyChanged}">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Width="80" Header="Nick" DisplayMemberBinding="{Binding Login}" />
-                    <GridViewColumn Width="80" Header="Status" DisplayMemberBinding="{Binding Status}"/>
+                    <GridViewColumn Width="80" Header="Nick" DisplayMemberBinding="{Binding Login, UpdateSourceTrigger=PropertyChanged}" />
+                    <GridViewColumn Width="80" Header="Status" DisplayMemberBinding="{Binding Status, UpdateSourceTrigger=PropertyChanged}"/>
                 </GridView>
             </ListView.View>
             <ListView.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Remove" Click="MenuItem_Click" Command="{Binding DeleteFriend}"></MenuItem>
+                    <MenuItem Header="Remove" Command="{Binding DeleteFriend}"></MenuItem>
                 </ContextMenu>
             </ListView.ContextMenu>
         </ListView>
+        <!--<Label Content="Czatujesz z:" HorizontalAlignment="Left" Margin="228,15,0,0" Grid.Row="1" VerticalAlignment="Top" RenderTransformOrigin="0.395,-0.346"/>
+        <Label Content="{Binding SelectedItem.Login, ElementName=friendsList}" HorizontalAlignment="Left" Margin="304,15,0,0" Grid.Row="1" VerticalAlignment="Top" RenderTransformOrigin="0.1,1.2"/>-->
     </Grid>
 </Window>

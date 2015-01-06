@@ -20,6 +20,7 @@
     <system:String x:Key="Status4">Busy</system:String>
     <system:String x:Key="Status5">Unavailable</system:String>
     <system:String x:Key="FindUser">Find User</system:String>
+    <system:String x:Key="AddFriend">Add Friend</system:String>
     <system:String x:Key="ClearDialWindow">Clear chat window</system:String>
     <system:String x:Key="Save">Save the chat history</system:String>
     <system:String x:Key="ClearHistory">Clear conversation history</system:String>

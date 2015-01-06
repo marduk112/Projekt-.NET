@@ -103,9 +103,16 @@
                 </TransformGroup>
             </Label.RenderTransform>
         </Label>
-        <ListView HorizontalAlignment="Left" Height="316" Margin="124,195,0,0" VerticalAlignment="Top" Width="360" BorderBrush="Black" Background="#D8FFD6FF" BorderThickness="3" FontSize="14"/>
+        <ListView x:Name="usersList" ItemsSource="{Binding AllUsers}" SelectedItem="{Binding User, UpdateSourceTrigger=PropertyChanged}" SelectionMode="Multiple" HorizontalAlignment="Left" Height="316" Margin="124,195,0,0" VerticalAlignment="Top" Width="360" BorderBrush="Black" Background="#D8FFD6FF" BorderThickness="3" FontSize="14">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="200" Header="Nick" DisplayMemberBinding="{Binding Login}" />
+                    <GridViewColumn Width="150" Header="Status" DisplayMemberBinding="{Binding Status}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
         <TextBox Name="txtFindUsers" HorizontalAlignment="Left" Height="22" Margin="124,168,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="214" BorderBrush="Black" Background="#D8FFD6FF" SelectionBrush="Black" BorderThickness="3" FontSize="14"/>
-        <Button Name="btnFindUser" Content="{DynamicResource FindUser}" HorizontalAlignment="Left" Height="22" Margin="339,169,0,0" VerticalAlignment="Top" Width="143" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="0.5,0.5" FontWeight="Bold">
+        <Button Name="btnFindUser" Content="{DynamicResource FindUser}" HorizontalAlignment="Left" Height="22" Margin="339,169,0,0" VerticalAlignment="Top" Width="143" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="0.5,0.5" FontWeight="Bold" Click="btnFindUser_Click">
             <Button.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
                     <GradientStop Color="#FFF3F3F3" Offset="1"/>
@@ -158,5 +165,23 @@
                 </Image>
             </Grid>
         </Border>
+        <Button x:Name="btnAddFriend" Content="{DynamicResource AddFriend}" HorizontalAlignment="Left" Height="23" Margin="342,515,0,0" VerticalAlignment="Top" Width="138" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="0.5,0.5" FontWeight="Bold" Command="{Binding AddFriend}">
+            <Button.Background>
+                <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                    <GradientStop Color="#FFF3F3F3" Offset="1"/>
+                    <GradientStop Color="#FFDDDDDD" Offset="0.5"/>
+                    <GradientStop Color="#FFEBEBEB" Offset="0.5"/>
+                    <GradientStop Color="#FFEC9CE4"/>
+                </LinearGradientBrush>
+            </Button.Background>
+            <Button.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="0.66"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Button.RenderTransform>
+        </Button>
     </Grid>
 </Window>

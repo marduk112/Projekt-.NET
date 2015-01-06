@@ -11,7 +11,12 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Autofac;
+using Client.Interfaces;
+using Client.Modules;
 using Client.Notifies;
+using Common;
+using RabbitMQ.Client;
 
 namespace Client
 {
@@ -39,6 +44,8 @@ namespace Client
 
             this.cmbbStatus.SelectedIndex = 4;
             this.imStatus.Source = myImageSource.Last();
+            usersList.DataContext = _usersCollection;
+            //DownloadUsersList();
         }
 
         public void FriendsCollection(FriendsCollection friendsCollection)
@@ -47,8 +54,24 @@ namespace Client
         }
 
         private FriendsCollection _friendsCollection;
-        private FriendsCollection _usersCollection = new FriendsCollection();
-        
+        private readonly FriendsCollection _usersCollection = new FriendsCollection();
+
+        private void DownloadUsersList()
+        {
+            var builder = new ContainerBuilder();
+            builder.Register(_ => new ConnectionFactory { HostName = Const.HostName }).As<IConnectionFactory>();
+            builder.RegisterType<UsersList>().As<IUsersList>();
+            var container = builder.Build();
+            using (var scope = container.BeginLifetimeScope())
+            {
+                var reqUserList = new UserListReq { Login = Const.User.Login };
+                var response = scope.Resolve<IUsersList>();
+                foreach (var user in response.UserListReqResponse(reqUserList).Users)
+                {                   
+                    _usersCollection.Friends.Add(user);
+                }
+            }
+        }
         private void btnClose_Click(object sender, RoutedEventArgs e)
         {
             Close();
@@ -86,6 +109,15 @@ namespace Client
             else if (this.cmbiStatus3.IsSelected.ToString() == "True") imStatus.Source = myImageSource[2];
             else if (this.cmbiStatus4.IsSelected.ToString() == "True") imStatus.Source = myImageSource[3];
             else imStatus.Source = myImageSource[4];
+        }
+
+        private void btnFindUser_Click(object sender, RoutedEventArgs e)
+        {
+            var filter = txtFindUsers.Text;
+            foreach (var user in _usersCollection.AllUsers.Where(user => user.Login.Contains(filter)))
+            {
+                _usersCollection.AllUsers.Remove(user);
+            }
         }
     }
 }

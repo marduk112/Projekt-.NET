@@ -20,6 +20,7 @@
     <system:String x:Key="Status4">Zajęty</system:String>
     <system:String x:Key="Status5">Niedostępny</system:String>
     <system:String x:Key="FindUser">Znajdź użytkownika</system:String>
+    <system:String x:Key="AddFriend">Dodaj znajomego</system:String>
     <system:String x:Key="ClearDialWindow">Wyczyść okno rozmowy</system:String>
     <system:String x:Key="Save">Zapisuj w archiwum rozmów</system:String>
     <system:String x:Key="ClearHistory">Wyczyść historię rozmowy</system:String>

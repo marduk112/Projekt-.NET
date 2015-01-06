@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -35,14 +36,10 @@ namespace Client
             rtxtDialogueWindow.Document.Blocks.Clear();
             friendsList.DataContext = _friendsCollection;
             var ctx = SynchronizationContext.Current;
-            /*var u = new User();
-            u.Login = "d";
-            u.Status = Common.PresenceStatus.Online;
+            var u = new User {Login = "d", Status = Common.PresenceStatus.Online};
             _friendsCollection.Friends.Add(u);
-            u = new User();
-            u.Login = "d";
-            u.Status = Common.PresenceStatus.Online;
-            _friendsCollection.Friends.Add(u);*/
+            u = new User {Login = "d", Status = Common.PresenceStatus.Online};
+            _friendsCollection.Friends.Add(u);
             //StartListeningThread(ctx);
             //DownloadFriendsList();
         }
@@ -308,12 +305,6 @@ namespace Client
             var contact = new Contacts();
             contact.FriendsCollection(_friendsCollection);
             contact.Show();
-        }
-
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            if (friendsList.SelectedIndex != -1)
-                _friendsCollection.Friends.RemoveAt(friendsList.SelectedIndex);
         }
 
         private void friendsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
