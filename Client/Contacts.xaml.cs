@@ -119,5 +119,10 @@ namespace Client
                 _usersCollection.AllUsers.Remove(user);
             }
         }
+
+        private void usersList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
     }
 }

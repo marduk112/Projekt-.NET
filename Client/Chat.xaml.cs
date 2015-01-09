@@ -34,12 +34,10 @@ namespace Client
             imSurprised.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
             imTongue.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
             rtxtDialogueWindow.Document.Blocks.Clear();
-            friendsList.DataContext = _friendsCollection;
             var ctx = SynchronizationContext.Current;
-            /*var u = new User {Login = "d", Status = Common.PresenceStatus.Online};
-            _friendsCollection.Friends.Add(u);
-            u = new User {Login = "d", Status = Common.PresenceStatus.Online};
-            _friendsCollection.Friends.Add(u);*/
+            this.DataContext = new WindowSelecter();
+
+            
             //StartListeningThread(ctx);
             //DownloadFriendsList();
         }
@@ -48,25 +46,25 @@ namespace Client
         {
             var emoticon = sender as Image;
             if (emoticon.Equals(imSmile))
-                TxtMessageWindow.AppendText(" :) ");
+                txtMessageWindow.AppendText(" :) ");
             if (emoticon.Equals(imAngel))
-                TxtMessageWindow.AppendText(" O:) ");
+                txtMessageWindow.AppendText(" O:) ");
             if (emoticon.Equals(imCry))
-                TxtMessageWindow.AppendText(" :'( ");
+                txtMessageWindow.AppendText(" :'( ");
             if (emoticon.Equals(imHeart))
-                TxtMessageWindow.AppendText(" <3 ");
+                txtMessageWindow.AppendText(" <3 ");
             if (emoticon.Equals(imMad))
-                TxtMessageWindow.AppendText(" >:( ");
+                txtMessageWindow.AppendText(" >:( ");
             if (emoticon.Equals(imSurprised))
-                TxtMessageWindow.AppendText(" :o ");
+                txtMessageWindow.AppendText(" :o ");
             if (emoticon.Equals(imTongue))
-                TxtMessageWindow.AppendText(" :P ");
+                txtMessageWindow.AppendText(" :P ");
             if (emoticon.Equals(imKiss))
-                TxtMessageWindow.AppendText(" :* ");
+                txtMessageWindow.AppendText(" :* ");
             if (emoticon.Equals(imAshamed))
-                TxtMessageWindow.AppendText(" 😊 ");
+                txtMessageWindow.AppendText(" 😊 ");
             if (emoticon.Equals(imScared))
-                TxtMessageWindow.AppendText(" 😨 ");
+                txtMessageWindow.AppendText(" 😨 ");
         }
         
         private readonly FriendsCollection _friendsCollection = new FriendsCollection();
@@ -74,7 +72,7 @@ namespace Client
         private Thread _thread;
         public string RecipientNick { get; private set; }
 
-        private void DownloadFriendsList()
+        /*private void DownloadFriendsList()
         {
             var builder = new ContainerBuilder();
             builder.Register(_ => new ConnectionFactory { HostName = Const.HostName }).As<IConnectionFactory>();
@@ -89,9 +87,8 @@ namespace Client
                     _friendsCollection.Friends.Add(user);
                 }
             }
-            
-        }
-        private void StartListeningThread(SynchronizationContext ctx)
+        }*/
+        /*private void StartListeningThread(SynchronizationContext ctx)
         {
             _thread = new Thread(() =>
             {
@@ -114,7 +111,7 @@ namespace Client
                     //add info; activity status
                 }
             }) { IsBackground = true };
-        }
+        }*/
         private void btnClose_Click(object sender, RoutedEventArgs e)
         {
             //send presence status as offline
@@ -236,16 +233,11 @@ namespace Client
 
         private void btnSend_Click(object sender, RoutedEventArgs e)
         {
-            var textRange = new TextRange(
-                TxtMessageWindow.Document.ContentStart,
-                TxtMessageWindow.Document.ContentEnd
-                );
-            MessageForm(new DateTimeOffset().LocalDateTime, textRange.Text);
-            TxtMessageWindow.Document.Blocks.Clear();
+            MessageForm(new DateTimeOffset().LocalDateTime, txtMessageWindow.Text);
             var message = new MessageReq
             {
                 Login = Const.User.Login,
-                Message = textRange.Text,
+                Message = txtMessageWindow.Text,
                 Recipient = RecipientNick,
                 SendTime = new DateTimeOffset().LocalDateTime
             };
@@ -268,52 +260,36 @@ namespace Client
             date.TextAlignment = TextAlignment.Right;
             this.rtxtDialogueWindow.Document.Blocks.Add(date);
             this.rtxtDialogueWindow.Document.Blocks.Add(p = new Paragraph(new Run(message)));
-            p.Foreground = TxtMessageWindow.Foreground;
-            p.FontFamily = this.TxtMessageWindow.FontFamily;
-            p.FontSize = this.TxtMessageWindow.FontSize;
-            p.FontStyle = this.TxtMessageWindow.FontStyle;
-            p.FontWeight = this.TxtMessageWindow.FontWeight;
+            p.Foreground = txtMessageWindow.Foreground;
+            p.FontFamily = this.txtMessageWindow.FontFamily;
+            p.FontSize = this.txtMessageWindow.FontSize;
+            p.FontStyle = this.txtMessageWindow.FontStyle;
+            p.FontWeight = this.txtMessageWindow.FontWeight;
         }
 
         private void IfCheckedI(object sender, RoutedEventArgs e)
         {
-            this.TxtMessageWindow.FontStyle = FontStyles.Italic;
+            this.txtMessageWindow.FontStyle = FontStyles.Italic;
         }
 
         private void IfCheckedB(object sender, RoutedEventArgs e)
         {
-            this.TxtMessageWindow.FontWeight = FontWeights.Bold;
+            this.txtMessageWindow.FontWeight = FontWeights.Bold;
         }
 
         private void IfUncheckedB(object sender, RoutedEventArgs e)
         {
-            this.TxtMessageWindow.FontWeight = FontWeights.Normal;
+            this.txtMessageWindow.FontWeight = FontWeights.Normal;
         }
 
         private void IfUncheckedI(object sender, RoutedEventArgs e)
         {
-            this.TxtMessageWindow.FontStyle = FontStyles.Normal;
+            this.txtMessageWindow.FontStyle = FontStyles.Normal;
         }
 
         private void ClearDialWindow_Click(object sender, RoutedEventArgs e)
         {
             this.rtxtDialogueWindow.Document.Blocks.Clear();
-        }
-
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            var contact = new Contacts();
-            contact.FriendsCollection(_friendsCollection);
-            contact.Show();
-        }
-
-        private void friendsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (friendsList.SelectedIndex == -1) return;
-            var item = (User) friendsList.SelectedItem;
-            RecipientNick = item.Login;
-            if (_messagesCollection.ContainsKey(item.Login))
-                rtxtDialogueWindow.DataContext = _messagesCollection[item.Login];
         }
     }
 }

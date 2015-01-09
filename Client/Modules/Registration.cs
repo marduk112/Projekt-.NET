@@ -7,7 +7,7 @@ using RabbitMQ.Client;
 namespace Client.Modules
 {
     //example
-    public class Registration
+    public class Registration :         Interfaces.IRegistration
     {
         public Registration(IConnectionFactory factory)
         {

@@ -68,7 +68,7 @@ namespace Client
                 CreateUserResponse response;
                 var builder = new ContainerBuilder();
                 builder.Register(_ => new ConnectionFactory { HostName = Const.HostName }).As<IConnectionFactory>();
-                builder.RegisterType<Registration>().As<IRegistration>();
+                builder.RegisterType<Modules.Registration>().As<IRegistration>();
                 var container = builder.Build();
                 using (var scope = container.BeginLifetimeScope())
                 {
