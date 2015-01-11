@@ -14,7 +14,7 @@ using System.Windows.Shapes;
 using Autofac;
 using Client.Interfaces;
 using Client.Modules;
-using Client.Notifies;
+using Client.ViewModel;
 using Common;
 using RabbitMQ.Client;
 
@@ -44,17 +44,17 @@ namespace Client
 
             this.cmbbStatus.SelectedIndex = 4;
             this.imStatus.Source = myImageSource.Last();
-            usersList.DataContext = _usersCollection;
+            usersList.DataContext = _usersViewModel;
             //DownloadUsersList();
         }
 
-        public void FriendsCollection(FriendsCollection friendsCollection)
+        public void FriendsCollection(FriendsViewModel friendsViewModel)
         {
-            _friendsCollection = friendsCollection;
+            _friendsViewModel = friendsViewModel;
         }
 
-        private FriendsCollection _friendsCollection;
-        private readonly FriendsCollection _usersCollection = new FriendsCollection();
+        private FriendsViewModel _friendsViewModel;
+        private readonly FriendsViewModel _usersViewModel = new FriendsViewModel();
 
         private void DownloadUsersList()
         {
@@ -68,7 +68,7 @@ namespace Client
                 var response = scope.Resolve<IUsersList>();
                 foreach (var user in response.UserListReqResponse(reqUserList).Users)
                 {                   
-                    _usersCollection.Friends.Add(user);
+                    _usersViewModel.Friends.Add(user);
                 }
             }
         }
@@ -114,9 +114,9 @@ namespace Client
         private void btnFindUser_Click(object sender, RoutedEventArgs e)
         {
             var filter = txtFindUsers.Text;
-            foreach (var user in _usersCollection.AllUsers.Where(user => user.Login.Contains(filter)))
+            foreach (var user in _usersViewModel.AllUsers.Where(user => user.Login.Contains(filter)))
             {
-                _usersCollection.AllUsers.Remove(user);
+                _usersViewModel.AllUsers.Remove(user);
             }
         }
 

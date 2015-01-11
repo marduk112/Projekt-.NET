@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows;
 using Client.Annotations;
 using Common;
 using Microsoft.Practices.Prism.Commands;
 
-namespace Client.Notifies
+namespace Client.ViewModel
 {
-    public sealed class FriendsCollection : INotifyPropertyChanged
+    public sealed class FriendsViewModel : INotifyPropertyChanged
     {
-        public FriendsCollection()
+        public FriendsViewModel()
         {
             Friends = new ObservableCollection<User>();
             AllUsers = new ObservableCollection<User>();

@@ -9,7 +9,7 @@ using System.Threading;
 using Autofac;
 using Client.Interfaces;
 using Client.Modules;
-using Client.Notifies;
+using Client.ViewModel;
 using Common;
 using RabbitMQ.Client;
 
@@ -23,54 +23,12 @@ namespace Client
         public Chat()
         {
             InitializeComponent();
-            imAngel.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
-            imAshamed.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
-            imCry.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
-            imHeart.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
-            imKiss.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
-            imMad.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
-            imScared.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
-            imSmile.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
-            imSurprised.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
-            imTongue.MouseLeftButtonUp += Emoticon_MouseLeftButtonUp;
             rtxtDialogueWindow.Document.Blocks.Clear();
-            var ctx = SynchronizationContext.Current;
-            this.DataContext = new WindowSelecter();
-
-            
-            //StartListeningThread(ctx);
-            //DownloadFriendsList();
+            this.DataContext = new ChatViewModel();
         }
-
-        void Emoticon_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            var emoticon = sender as Image;
-            if (emoticon.Equals(imSmile))
-                txtMessageWindow.AppendText(" :) ");
-            if (emoticon.Equals(imAngel))
-                txtMessageWindow.AppendText(" O:) ");
-            if (emoticon.Equals(imCry))
-                txtMessageWindow.AppendText(" :'( ");
-            if (emoticon.Equals(imHeart))
-                txtMessageWindow.AppendText(" <3 ");
-            if (emoticon.Equals(imMad))
-                txtMessageWindow.AppendText(" >:( ");
-            if (emoticon.Equals(imSurprised))
-                txtMessageWindow.AppendText(" :o ");
-            if (emoticon.Equals(imTongue))
-                txtMessageWindow.AppendText(" :P ");
-            if (emoticon.Equals(imKiss))
-                txtMessageWindow.AppendText(" :* ");
-            if (emoticon.Equals(imAshamed))
-                txtMessageWindow.AppendText(" 😊 ");
-            if (emoticon.Equals(imScared))
-                txtMessageWindow.AppendText(" 😨 ");
-        }
-        
-        private readonly FriendsCollection _friendsCollection = new FriendsCollection();
-        private Dictionary<string, MessagesCollection> _messagesCollection = new Dictionary<string, MessagesCollection>();
-        private Thread _thread;
-        public string RecipientNick { get; private set; }
+       
+        //private Thread _thread;
+        //public string RecipientNick { get; private set; }
 
         /*private void DownloadFriendsList()
         {
@@ -84,7 +42,7 @@ namespace Client
                 var response = scope.Resolve<IUsersList>();
                 foreach (var user in response.GetFriendsListWithPresenceStatus(reqUserList).Users)
                 {
-                    _friendsCollection.Friends.Add(user);
+                    _friendsViewModel.Friends.Add(user);
                 }
             }
         }*/
@@ -101,7 +59,7 @@ namespace Client
                         //ten kod jest wykonany w watku UI
                     }, null);
                     var presenceStatusResponse = Listening.ListeningPresenceStatus();
-                    ctx.Post(_ => _friendsCollection.Friends.Add(presenceStatusResponse), null);
+                    ctx.Post(_ => _friendsViewModel.Friends.Add(presenceStatusResponse), null);
                     var messageResponse = Listening.ListeningMessages();
                     ctx.Post(_ =>
                     {
@@ -115,7 +73,7 @@ namespace Client
         private void btnClose_Click(object sender, RoutedEventArgs e)
         {
             //send presence status as offline
-            Const.User.Status = Common.PresenceStatus.Offline;
+            /*Const.User.Status = Common.PresenceStatus.Offline;
 
             var builder = new ContainerBuilder();
             builder.Register(c => new ConnectionFactory { HostName = Const.HostName }).As<IConnectionFactory>();
@@ -128,7 +86,7 @@ namespace Client
             }
 
             //_thread.Abort();
-            Close();
+            Close();*/
         }
 
         private void btnMinimize_Click(object sender, RoutedEventArgs e)
@@ -155,117 +113,7 @@ namespace Client
         {
             DragMove();
         }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            this.elEmoticons.Visibility = System.Windows.Visibility.Visible;
-            this.reEmoticons.Visibility = System.Windows.Visibility.Visible;
-            this.btnClose2.Visibility = System.Windows.Visibility.Visible;
-            this.imAngel.Visibility = System.Windows.Visibility.Visible;
-            this.imAshamed.Visibility = System.Windows.Visibility.Visible;
-            this.imCry.Visibility = System.Windows.Visibility.Visible;
-            this.imHeart.Visibility = System.Windows.Visibility.Visible;
-            this.imKiss.Visibility = System.Windows.Visibility.Visible;
-            this.imMad.Visibility = System.Windows.Visibility.Visible;
-            this.imScared.Visibility = System.Windows.Visibility.Visible;
-            this.imSmile.Visibility = System.Windows.Visibility.Visible;
-            this.imSurprised.Visibility = System.Windows.Visibility.Visible;
-            this.imTongue.Visibility = System.Windows.Visibility.Visible;
-        }
-
-        private void btnTextSettings_Click(object sender, RoutedEventArgs e)
-        {
-            this.elFont.Visibility = System.Windows.Visibility.Visible;
-            this.reFont.Visibility = System.Windows.Visibility.Visible;
-            this.lblFontColor.Visibility = System.Windows.Visibility.Visible;
-            this.lblFontSize.Visibility = System.Windows.Visibility.Visible;
-            this.lblFontType.Visibility = System.Windows.Visibility.Visible;
-            this.btnClose1.Visibility = System.Windows.Visibility.Visible;
-            this.chbItalic.Visibility = System.Windows.Visibility.Visible;
-            this.chbBold.Visibility = System.Windows.Visibility.Visible;
-            this.cmbbFontColor.Visibility = System.Windows.Visibility.Visible;
-            this.cmbbFontSize.Visibility = System.Windows.Visibility.Visible;
-            this.cmbbFontType.Visibility = System.Windows.Visibility.Visible;
-        }
-
-        private void btnAttach_Click(object sender, RoutedEventArgs e)
-        {
-            Microsoft.Win32.OpenFileDialog openfiledialog = new Microsoft.Win32.OpenFileDialog();
-            openfiledialog.Filter = "All files (*.*)|*.*";
-            openfiledialog.AddExtension = true;
-            openfiledialog.Multiselect = false;
-            openfiledialog.ShowDialog();
-            var filename = openfiledialog.FileName;
-        }
-
-        private void btnClose_Click2(object sender, RoutedEventArgs e)
-        {
-            this.elEmoticons.Visibility = System.Windows.Visibility.Hidden;
-            this.reEmoticons.Visibility = System.Windows.Visibility.Hidden;
-            this.btnClose2.Visibility = System.Windows.Visibility.Hidden;
-            this.imAngel.Visibility = System.Windows.Visibility.Hidden;
-            this.imAshamed.Visibility = System.Windows.Visibility.Hidden;
-            this.imCry.Visibility = System.Windows.Visibility.Hidden;
-            this.imHeart.Visibility = System.Windows.Visibility.Hidden;
-            this.imKiss.Visibility = System.Windows.Visibility.Hidden;
-            this.imMad.Visibility = System.Windows.Visibility.Hidden;
-            this.imScared.Visibility = System.Windows.Visibility.Hidden;
-            this.imSmile.Visibility = System.Windows.Visibility.Hidden;
-            this.imSurprised.Visibility = System.Windows.Visibility.Hidden;
-            this.imTongue.Visibility = System.Windows.Visibility.Hidden;
-        }
-
-        private void btnClose_Click1(object sender, RoutedEventArgs e)
-        {
-            this.elFont.Visibility = System.Windows.Visibility.Hidden;
-            this.reFont.Visibility = System.Windows.Visibility.Hidden;
-            this.lblFontColor.Visibility = System.Windows.Visibility.Hidden;
-            this.lblFontSize.Visibility = System.Windows.Visibility.Hidden;
-            this.lblFontType.Visibility = System.Windows.Visibility.Hidden;
-            this.btnClose1.Visibility = System.Windows.Visibility.Hidden;
-            this.chbItalic.Visibility = System.Windows.Visibility.Hidden;
-            this.chbBold.Visibility = System.Windows.Visibility.Hidden;
-            this.cmbbFontColor.Visibility = System.Windows.Visibility.Hidden;
-            this.cmbbFontSize.Visibility = System.Windows.Visibility.Hidden;
-            this.cmbbFontType.Visibility = System.Windows.Visibility.Hidden;
-        }
-
-
-        private void btnSend_Click(object sender, RoutedEventArgs e)
-        {
-            MessageForm(new DateTimeOffset().LocalDateTime, txtMessageWindow.Text);
-            var message = new MessageReq
-            {
-                Login = Const.User.Login,
-                Message = txtMessageWindow.Text,
-                Recipient = RecipientNick,
-                SendTime = new DateTimeOffset().LocalDateTime
-            };
-            var builder = new ContainerBuilder();
-            builder.Register(c => new ConnectionFactory { HostName = Const.HostName }).As<IConnectionFactory>();
-            builder.RegisterType<Messages>().As<IMessages>();
-            var container = builder.Build();
-            using (var scope = container.BeginLifetimeScope())
-            {
-                var writer = scope.Resolve<IMessages>();
-                writer.SendMessage(message);
-            }
-        }
-
-        private void MessageForm(DateTimeOffset dateTime, string message)
-        {
-            var date = new Paragraph(new Run(DateTime.Now.ToString()));
-            Paragraph p;
-            date.FontWeight = FontWeights.Bold;
-            date.TextAlignment = TextAlignment.Right;
-            this.rtxtDialogueWindow.Document.Blocks.Add(date);
-            this.rtxtDialogueWindow.Document.Blocks.Add(p = new Paragraph(new Run(message)));
-            p.Foreground = txtMessageWindow.Foreground;
-            p.FontFamily = this.txtMessageWindow.FontFamily;
-            p.FontSize = this.txtMessageWindow.FontSize;
-            p.FontStyle = this.txtMessageWindow.FontStyle;
-            p.FontWeight = this.txtMessageWindow.FontWeight;
-        }
+       
 
         private void IfCheckedI(object sender, RoutedEventArgs e)
         {
@@ -285,11 +133,6 @@ namespace Client
         private void IfUncheckedI(object sender, RoutedEventArgs e)
         {
             this.txtMessageWindow.FontStyle = FontStyles.Normal;
-        }
-
-        private void ClearDialWindow_Click(object sender, RoutedEventArgs e)
-        {
-            this.rtxtDialogueWindow.Document.Blocks.Clear();
         }
     }
 }

@@ -4,7 +4,11 @@
         xmlns:richTextBoxEmoticons="clr-namespace:Client.RichTextBoxEmoticons"
         Title="Czat" Height="900" Width="673" Background="Transparent" WindowStyle="None" 
         AllowsTransparency="True" Icon="/Image/icon.png"
-        x:Name="MainWindow">
+        x:Name="MainWindow"
+        xmlns:converter="clr-namespace:Client.Converter">
+    <Window.Resources>
+        <converter:Converter x:Key="Converter"/>
+    </Window.Resources>
     <Grid Background="Transparent">
         <Rectangle HorizontalAlignment="Left" Height="233" Margin="519,416,0,0" Stroke="Black" VerticalAlignment="Top" Width="62" RenderTransformOrigin="0.5,0.5" Grid.RowSpan="2">
             <Rectangle.Effect>
@@ -60,7 +64,7 @@
                 </LinearGradientBrush>
             </Rectangle.Fill>
         </Rectangle>
-        <Button x:Name="btnClose" Content="X" HorizontalAlignment="Left" Margin="436,52,0,0" VerticalAlignment="Top" Width="25" FontWeight="Bold" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="0.5,0.5" Click="btnClose_Click">
+        <Button x:Name="btnClose" Content="X" HorizontalAlignment="Left" Margin="436,52,0,0" VerticalAlignment="Top" Width="25" FontWeight="Bold" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="0.5,0.5" Command="{Binding Close}" CommandParameter="{Binding ElementName=MainWindow}">
             <Button.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
                     <GradientStop Color="#FFF3F3F3" Offset="1"/>
@@ -106,7 +110,7 @@
                 </TransformGroup>
             </Label.RenderTransform>
         </Label>
-        <richTextBoxEmoticons:RichTextBoxExt Tag="CHAT" x:Name="rtxtDialogueWindow" IsReadOnly="True" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Left" Height="303" Margin="83,82,0,0" VerticalAlignment="Top" Width="434" BorderBrush="Black" Foreground="#FF060000" FontSize="14" FontFamily="Palatino Linotype" SelectionBrush="Black" BorderThickness="3" Background="#D8FFD6FF" AllowDrop="True" IsHitTestVisible="True" >
+        <richTextBoxEmoticons:RichTextBoxExt Visibility="{Binding ChatSwitchMode, UpdateSourceTrigger=PropertyChanged}" Tag="CHAT" x:Name="rtxtDialogueWindow" IsReadOnly="True" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Left" Height="303" Margin="83,82,0,0" VerticalAlignment="Top" Width="434" BorderBrush="Black" Foreground="{Binding ElementName=cmbbFontColor, Path=Text}" FontSize="{Binding Text, ElementName=cmbbFontSize}" FontFamily="{Binding ElementName=cmbbFontType,Path=Text}" SelectionBrush="Black" BorderThickness="3" Background="#D8FFD6FF" AllowDrop="True" IsHitTestVisible="True" >
             <richTextBoxEmoticons:RichTextBoxExt.Resources>
                 <Style TargetType="{x:Type Paragraph}">
                     <Setter Property="Margin" Value="0" />
@@ -126,7 +130,7 @@
                 <richTextBoxEmoticons:EmoticonMapper Text="😨" Icon="Image/scared.png" />
             </richTextBoxEmoticons:RichTextBoxExt.Emoticons>
         </richTextBoxEmoticons:RichTextBoxExt>
-        <TextBox Visibility="{Binding ChatSwitchMode, UpdateSourceTrigger=PropertyChanged}" x:Name="txtMessageWindow" Tag="CHAT" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Right" Height="43" Margin="0,392,156,0" VerticalAlignment="Top" Width="434" BorderBrush="Black" Background="#D8FFD6FF" Foreground="{Binding ElementName=cmbbFontColor,Path=Text}" FontSize="{Binding Text, ElementName=cmbbFontSize}" FontFamily="{Binding ElementName=cmbbFontType,Path=Text}" SelectionBrush="Black" BorderThickness="3"/>
+        <TextBox Visibility="{Binding ChatSwitchMode, UpdateSourceTrigger=PropertyChanged}" x:Name="txtMessageWindow" Tag="CHAT" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Right" Height="43" Margin="0,392,156,0" VerticalAlignment="Top" Width="434" BorderBrush="Black" Background="#D8FFD6FF" Foreground="{Binding ElementName=cmbbFontColor, Path=Text}" FontSize="{Binding Text, ElementName=cmbbFontSize}" FontFamily="{Binding ElementName=cmbbFontType,Path=Text}" SelectionBrush="Black" BorderThickness="3"/>
         
         <Button x:Name="btnWindowSwitch" Content="Zamień" 
                 HorizontalAlignment="Left" Margin="374,492,0,0" 
@@ -136,8 +140,8 @@
                  Command="{Binding SelectForm}">
             
         </Button>
-        
-        <Button x:Name="btnSend" Tag="CHAT" Content="{DynamicResource Sent}" HorizontalAlignment="Left" Margin="394,442,0,0" VerticalAlignment="Top" Width="119" Height="26" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="0.5,0.5" FontWeight="Bold" FontSize="14" Click="btnSend_Click" >
+
+        <Button Visibility="{Binding ChatSwitchMode, UpdateSourceTrigger=PropertyChanged}" x:Name="btnSend" Tag="CHAT" Content="{DynamicResource Sent}" HorizontalAlignment="Left" Margin="394,442,0,0" VerticalAlignment="Top" Width="119" Height="26" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="0.5,0.5" FontWeight="Bold" FontSize="14" >
             <Button.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
                     <GradientStop Color="#FFF3F3F3" Offset="1"/>
@@ -155,7 +159,7 @@
                 </TransformGroup>
             </Button.RenderTransform>
         </Button>
-        <Button x:Name="btnAttach" Tag="CHAT" HorizontalAlignment="Left" Margin="85,441,0,0" VerticalAlignment="Top" Width="30" Height="26" Click="btnAttach_Click">
+        <Button Visibility="{Binding ChatSwitchMode, UpdateSourceTrigger=PropertyChanged}" x:Name="btnAttach" Tag="CHAT" HorizontalAlignment="Left" Margin="85,441,0,0" VerticalAlignment="Top" Width="30" Height="26" Command="{Binding AddAttachment}">
             <Image Source="Image/atach.jpg"></Image>
             <Button.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
@@ -166,7 +170,7 @@
                 </LinearGradientBrush>
             </Button.Background>
         </Button>
-        <Button x:Name="btnEmoticons" Tag="CHAT" HorizontalAlignment="Left" Margin="119,441,0,0" VerticalAlignment="Top" Width="30" Height="26" Click="Button_Click">
+        <Button Visibility="{Binding ChatSwitchMode, UpdateSourceTrigger=PropertyChanged}" x:Name="btnEmoticons" Tag="CHAT" HorizontalAlignment="Left" Margin="119,441,0,0" VerticalAlignment="Top" Width="30" Height="26" Command="{Binding ViewEmoticons}">
             <Image x:Name="imEmoticon" Source="Image/smile.png"></Image>
             <Button.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
@@ -177,7 +181,7 @@
                 </LinearGradientBrush>
             </Button.Background>
         </Button>
-        <Button x:Name="btnTextSettings" Tag="CHAT" Content="A" HorizontalAlignment="Left" Margin="153,441,0,0" VerticalAlignment="Top" Width="30" Height="26" FontWeight="Bold" FontSize="16" Foreground="#FF420534" Click="btnTextSettings_Click">
+        <Button Command="{Binding FontVisibility}" Visibility="{Binding ChatSwitchMode, UpdateSourceTrigger=PropertyChanged}" x:Name="btnTextSettings" Tag="CHAT" Content="A" HorizontalAlignment="Left" Margin="153,441,0,0" VerticalAlignment="Top" Width="30" Height="26" FontWeight="Bold" FontSize="16" Foreground="#FF420534">
             <Button.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
                     <GradientStop Color="#FFF3F3F3" Offset="1"/>
@@ -187,7 +191,7 @@
                 </LinearGradientBrush>
             </Button.Background>
         </Button>
-        <Ellipse x:Name="elFont" Tag="CHAT" HorizontalAlignment="Left" Height="280" Margin="52,191,0,0" VerticalAlignment="Top" Width="480" MouseDown="Ellipse_MouseDown" Visibility="Hidden">
+        <Ellipse x:Name="elFont" Tag="CHAT" HorizontalAlignment="Left" Height="280" Margin="52,191,0,0" VerticalAlignment="Top" Width="480" MouseDown="Ellipse_MouseDown" Visibility="{Binding Font, UpdateSourceTrigger=PropertyChanged}">
             <Ellipse.Effect>
                 <DropShadowEffect/>
             </Ellipse.Effect>
@@ -198,8 +202,9 @@
                 </LinearGradientBrush>
             </Ellipse.Fill>
         </Ellipse>
-        <Rectangle x:Name="reFont" HorizontalAlignment="Left" Height="171" VerticalAlignment="Top" Width="366" Margin="110,242,0,0" Fill="#D8FFD6FF" Stroke="Black" StrokeThickness="3" MouseDown="Rectangle_MouseDown" Visibility="Hidden" />
-        <Label x:Name="lblFontType" Content="{DynamicResource Font}" Visibility="Hidden" HorizontalAlignment="Left" Height="33" Margin="125,258,0,0" VerticalAlignment="Top" Width="110" FontWeight="Bold" FontSize="14">
+        <Button Command="{Binding FontVisibility}" x:Name="btnClose1" Content="X" HorizontalAlignment="Left" Margin="384,213,0,0" VerticalAlignment="Top" Width="25" FontWeight="Bold" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="1.009,0.542" Visibility="{Binding Font, UpdateSourceTrigger=PropertyChanged}"/>
+        <Rectangle Visibility="{Binding Font, UpdateSourceTrigger=PropertyChanged}" x:Name="reFont" HorizontalAlignment="Left" Height="171" VerticalAlignment="Top" Width="366" Margin="110,242,0,0" Fill="#D8FFD6FF" Stroke="Black" StrokeThickness="3" MouseDown="Rectangle_MouseDown" />
+        <Label Visibility="{Binding Font, UpdateSourceTrigger=PropertyChanged}" x:Name="lblFontType" Content="{DynamicResource Font}" HorizontalAlignment="Left" Height="33" Margin="125,258,0,0" VerticalAlignment="Top" Width="110" FontWeight="Bold" FontSize="14">
             <Label.Foreground>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="Black" Offset="0"/>
@@ -207,7 +212,7 @@
                 </LinearGradientBrush>
             </Label.Foreground>
         </Label>
-        <ComboBox x:Name="cmbbFontType" ItemsSource="{x:Static Fonts.SystemFontFamilies}" SelectedIndex="0" HorizontalAlignment="Left" Visibility="Hidden" Height="24" Margin="240,258,0,0" VerticalAlignment="Top" Width="219" Tag="CHAT" >
+        <ComboBox Visibility="{Binding Font, UpdateSourceTrigger=PropertyChanged}" x:Name="cmbbFontType" ItemsSource="{x:Static Fonts.SystemFontFamilies}" SelectedIndex="0" HorizontalAlignment="Left" Height="24" Margin="240,258,0,0" VerticalAlignment="Top" Width="219" Tag="CHAT" >
             <ComboBox.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
                     <GradientStop Color="#FFF3F3F3"/>
@@ -217,7 +222,7 @@
                 </LinearGradientBrush>
             </ComboBox.Background>
         </ComboBox>
-        <Label x:Name="lblFontColor" Content="{DynamicResource FontColor}" Visibility="Hidden" HorizontalAlignment="Left" Height="33" Margin="125,291,0,0" VerticalAlignment="Top" Width="110" FontWeight="Bold" FontSize="14" Tag="CHAT">
+        <Label Visibility="{Binding Font, UpdateSourceTrigger=PropertyChanged}" x:Name="lblFontColor" Content="{DynamicResource FontColor}" HorizontalAlignment="Left" Height="33" Margin="125,291,0,0" VerticalAlignment="Top" Width="110" FontWeight="Bold" FontSize="14" Tag="CHAT">
             <Label.Foreground>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="Black" Offset="0"/>
@@ -225,7 +230,7 @@
                 </LinearGradientBrush>
             </Label.Foreground>
         </Label>
-        <ComboBox x:Name="cmbbFontColor" HorizontalAlignment="Left" Visibility="Hidden" Height="24" Margin="240,291,0,0" VerticalAlignment="Top" Width="219" Tag="CHAT">
+        <ComboBox Visibility="{Binding Font, UpdateSourceTrigger=PropertyChanged}" x:Name="cmbbFontColor" HorizontalAlignment="Left" Height="24" Margin="240,291,0,0" VerticalAlignment="Top" Width="219" Tag="CHAT">
             <ComboBox.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
                     <GradientStop Color="#FFF3F3F3"/>
@@ -245,7 +250,7 @@
             <ComboBoxItem Content="Gold" Foreground="Gold"/>
             <ComboBoxItem Content="Silver" Foreground="Silver"/>
         </ComboBox>
-        <Label x:Name="lblFontSize" Tag="CHAT" Content="{DynamicResource FontSize}" Visibility="Hidden" HorizontalAlignment="Left" Height="33" Margin="125,324,0,0" VerticalAlignment="Top" Width="127" FontWeight="Bold" FontSize="14">
+        <Label x:Name="lblFontSize" Tag="CHAT" Content="{DynamicResource FontSize}" Visibility="{Binding Font, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="33" Margin="125,324,0,0" VerticalAlignment="Top" Width="127" FontWeight="Bold" FontSize="14">
             <Label.Foreground>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="Black" Offset="0"/>
@@ -253,7 +258,7 @@
                 </LinearGradientBrush>
             </Label.Foreground>
         </Label>
-        <ComboBox x:Name="cmbbFontSize" Tag="CHAT" HorizontalAlignment="Left" Visibility="Hidden" Height="24" Margin="257,324,0,0" VerticalAlignment="Top" Width="202" >
+        <ComboBox x:Name="cmbbFontSize" Tag="CHAT" HorizontalAlignment="Left" Visibility="{Binding Font, UpdateSourceTrigger=PropertyChanged}" Height="24" Margin="257,324,0,0" VerticalAlignment="Top" Width="202" >
             <ComboBox.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
                     <GradientStop Color="#FFF3F3F3"/>
@@ -276,7 +281,7 @@
             <ComboBoxItem Content="26"/>
             <ComboBoxItem Content="28"/>
         </ComboBox>
-        <CheckBox x:Name="chbBold" Tag="CHAT" Content="B" HorizontalAlignment="Left" Visibility="Hidden" Margin="146,364,0,0" VerticalAlignment="Top" Width="27" FontWeight="Bold" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="1.009,0.542" Height="26" FontSize="14" Checked="IfCheckedB" Unchecked="IfUncheckedB">
+        <CheckBox x:Name="chbBold" Tag="CHAT" Content="B" HorizontalAlignment="Left" Visibility="{Binding Font, UpdateSourceTrigger=PropertyChanged}" Margin="146,364,0,0" VerticalAlignment="Top" Width="27" FontWeight="Bold" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="1.009,0.542" Height="26" FontSize="14" Checked="IfCheckedB" Unchecked="IfUncheckedB">
             <CheckBox.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
                     <GradientStop Color="#FFF3F3F3"/>
@@ -286,7 +291,7 @@
                 </LinearGradientBrush>
             </CheckBox.Background>
         </CheckBox>
-        <CheckBox x:Name="chbItalic" Tag="CHAT" Content="I" HorizontalAlignment="Left" Margin="191,364,0,0" VerticalAlignment="Top" Width="27" FontWeight="Bold" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="1.009,0.542" Height="26" FontSize="14" FontStyle="Italic" Visibility="Hidden" Checked="IfCheckedI" Unchecked="IfUncheckedI">
+        <CheckBox x:Name="chbItalic" Tag="CHAT" Content="I" HorizontalAlignment="Left" Margin="191,364,0,0" VerticalAlignment="Top" Width="27" FontWeight="Bold" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="1.009,0.542" Height="26" FontSize="14" FontStyle="Italic" Visibility="{Binding Font, UpdateSourceTrigger=PropertyChanged}" Checked="IfCheckedI" Unchecked="IfUncheckedI">
             <CheckBox.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
                     <GradientStop Color="#FFF3F3F3"/>
@@ -296,7 +301,7 @@
                 </LinearGradientBrush>
             </CheckBox.Background>
         </CheckBox>
-        <Ellipse x:Name="elEmoticons" Tag="CHAT" HorizontalAlignment="Left" Visibility="Hidden" Height="159" Margin="37,297,0,0" VerticalAlignment="Top" Width="229" MouseDown="Ellipse_MouseDown">
+        <Ellipse x:Name="elEmoticons" Tag="CHAT" HorizontalAlignment="Left" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}" Height="159" Margin="37,297,0,0" VerticalAlignment="Top" Width="229" MouseDown="Ellipse_MouseDown">
             <Ellipse.Effect>
                 <DropShadowEffect/>
             </Ellipse.Effect>
@@ -307,7 +312,7 @@
                 </LinearGradientBrush>
             </Ellipse.Fill>
         </Ellipse>
-        <Button x:Name="btnClose2" Content="X" Visibility="Hidden" HorizontalAlignment="Left" Margin="176,302,0,0" VerticalAlignment="Top" Width="25" FontWeight="Bold" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="1.009,0.542" Click="btnClose_Click2">
+        <Button x:Name="btnClose2" Content="X" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="176,302,0,0" VerticalAlignment="Top" Width="25" FontWeight="Bold" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="1.009,0.542" Command="{Binding ViewEmoticons}">
             <Button.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
                     <GradientStop Color="#FFF3F3F3" Offset="1"/>
@@ -325,19 +330,98 @@
                 </TransformGroup>
             </Button.RenderTransform>
         </Button>
-        <Rectangle x:Name="reEmoticons" Tag="CHAT" HorizontalAlignment="Left" Visibility="Hidden" Height="96" VerticalAlignment="Top" Width="166" Margin="69,329,0,0" Fill="#D8FFD6FF" Stroke="Black" StrokeThickness="3" MouseDown="Rectangle_MouseDown" />
-        <Image x:Name="imSmile" Tag="CHAT" Source="Image/smile.png" HorizontalAlignment="Left" Height="21" Margin="98,339,0,0" VerticalAlignment="Top" Width="22" RenderTransformOrigin="2.665,1.096" Visibility="Hidden"/>
-        <Image x:Name="imAngel" Tag="CHAT" Source="Image/angel.png" HorizontalAlignment="Left" Height="21" Margin="142,340,0,0" VerticalAlignment="Top" Width="22" Visibility="Hidden"/>
-        <Image x:Name="imAshamed" Tag="CHAT" Source="Image/ashamed.png" HorizontalAlignment="Left" Height="21" Margin="184,338,0,0" VerticalAlignment="Top" Width="22" Visibility="Hidden"/>
-        <Image x:Name="imCry" Tag="CHAT" Source="Image/crying2.png" HorizontalAlignment="Left" Height="21" Margin="101,392,0,0" VerticalAlignment="Top" Width="22" Visibility="Hidden"/>
-        <Image x:Name="imHeart" Tag="CHAT" Source="Image/heart.png" HorizontalAlignment="Left" Height="21" Margin="157,366,0,0" VerticalAlignment="Top" Width="22" Visibility="Hidden"/>
-        <Button x:Name="btnClose1" Content="X" HorizontalAlignment="Left" Margin="384,213,0,0" VerticalAlignment="Top" Width="25" FontWeight="Bold" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="1.009,0.542" Click="btnClose_Click1" Visibility="Hidden"/>
-        <Image x:Name="imKiss" Source="Image/kiss.png" HorizontalAlignment="Left" Height="21" Margin="184,392,0,0" VerticalAlignment="Top" Width="22" Visibility="Hidden"/>
-        <Image x:Name="imMad" Source="Image/mad-angry.png" HorizontalAlignment="Left" Height="21" Margin="197,364,0,0" VerticalAlignment="Top" Width="22" Visibility="Hidden"/>
-        <Image x:Name="imScared" Source="Image/scared.png" HorizontalAlignment="Left" Height="21" Margin="83,364,0,0" VerticalAlignment="Top" Width="22" Visibility="Hidden"/>
-        <Image x:Name="imSurprised" Source="Image/surprised.png" HorizontalAlignment="Left" Height="21" Margin="125,366,0,0" VerticalAlignment="Top" Width="22" Visibility="Hidden"/>
-        <Image x:Name="imTongue" Source="Image/tongue-out.png" HorizontalAlignment="Left" Height="21" Margin="142,392,0,0" VerticalAlignment="Top" Width="22" Visibility="Hidden"/>
-        <Menu HorizontalAlignment="Left" Height="26" Margin="188,441,0,0" VerticalAlignment="Top" Width="31" FontFamily="Segoe UI Symbol">
+        <Rectangle x:Name="reEmoticons" Tag="CHAT" HorizontalAlignment="Left" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}" Height="96" VerticalAlignment="Top" Width="166" Margin="69,329,0,0" Fill="#D8FFD6FF" Stroke="Black" StrokeThickness="3"  />
+        <Button Tag=":)" x:Name="imSmile" Command="{Binding AddEmoticon}" BorderBrush="Transparent" Background="Transparent" HorizontalAlignment="Left" Height="21" Margin="98,339,0,0" VerticalAlignment="Top"  Width="22" RenderTransformOrigin="2.665,1.096" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}">
+            <Button.CommandParameter>
+                <MultiBinding Converter="{StaticResource Converter}">
+                    <Binding ElementName="txtMessageWindow"/>
+                    <Binding ElementName="imSmile" Path="Tag"/>
+                </MultiBinding>
+            </Button.CommandParameter>
+            <Image Tag="CHAT" Source="Image/smile.png" />
+        </Button>
+        <Button Tag="O:)" x:Name="imAngel" Command="{Binding AddEmoticon}" BorderBrush="Transparent" Background="Transparent" HorizontalAlignment="Left" Height="21" Margin="142,340,0,0" VerticalAlignment="Top" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}">
+            <Button.CommandParameter>
+                <MultiBinding Converter="{StaticResource Converter}">
+                    <Binding ElementName="txtMessageWindow"/>
+                    <Binding ElementName="imAngel" Path="Tag"/>
+                </MultiBinding>
+            </Button.CommandParameter>
+            <Image Tag="CHAT" Source="Image/angel.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
+        </Button>
+        <Button x:Name="imAshamed" Tag="😊" Command="{Binding AddEmoticon}" BorderBrush="Transparent" Background="Transparent" HorizontalAlignment="Left" Height="21" Margin="184,338,0,0" VerticalAlignment="Top" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}">
+            <Button.CommandParameter>
+                <MultiBinding Converter="{StaticResource Converter}">
+                    <Binding ElementName="txtMessageWindow"/>
+                    <Binding ElementName="imAshamed" Path="Tag"/>
+                </MultiBinding>
+            </Button.CommandParameter>
+			<Image Tag="CHAT" Source="Image/ashamed.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
+		</Button>
+        <Button Tag=":'(" x:Name="imCry" Command="{Binding AddEmoticon}" BorderBrush="Transparent" Background="Transparent" HorizontalAlignment="Left" Height="21" Margin="101,392,0,0" VerticalAlignment="Top" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}">
+            <Button.CommandParameter>
+                <MultiBinding Converter="{StaticResource Converter}">
+                    <Binding ElementName="txtMessageWindow"/>
+                    <Binding ElementName="imCry" Path="Tag"/>
+                </MultiBinding>
+            </Button.CommandParameter>
+			<Image Tag="CHAT" Source="Image/crying2.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
+		</Button>
+        <Button Tag="&lt;3" x:Name="imHeart" Command="{Binding AddEmoticon}" BorderBrush="Transparent" Background="Transparent" HorizontalAlignment="Left" Height="21" Margin="157,366,0,0" VerticalAlignment="Top" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}">
+            <Button.CommandParameter>
+                <MultiBinding Converter="{StaticResource Converter}">
+                    <Binding ElementName="txtMessageWindow"/>
+                    <Binding ElementName="imHeart" Path="Tag"/>
+                </MultiBinding>
+            </Button.CommandParameter>
+			<Image Tag="CHAT" Source="Image/heart.png" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
+		</Button>
+        <Button Tag=":*" x:Name="imKiss" Command="{Binding AddEmoticon}" BorderBrush="Transparent" Background="Transparent" HorizontalAlignment="Left" Height="21" Margin="184,392,0,0" VerticalAlignment="Top" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}">
+            <Button.CommandParameter>
+                <MultiBinding Converter="{StaticResource Converter}">
+                    <Binding ElementName="txtMessageWindow"/>
+                    <Binding ElementName="imKiss" Path="Tag"/>
+                </MultiBinding>
+            </Button.CommandParameter>
+			<Image Source="Image/kiss.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
+		</Button>
+        <Button Tag="&gt;:(" x:Name="imMad" Command="{Binding AddEmoticon}" BorderBrush="Transparent" Background="Transparent" HorizontalAlignment="Left" Height="21" Margin="197,364,0,0" VerticalAlignment="Top" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}">
+            <Button.CommandParameter>
+                <MultiBinding Converter="{StaticResource Converter}">
+                    <Binding ElementName="txtMessageWindow"/>
+                    <Binding ElementName="imMad" Path="Tag"/>
+                </MultiBinding>
+            </Button.CommandParameter>
+			<Image Source="Image/mad-angry.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
+		</Button>
+        <Button Tag="😨" x:Name="imScared" Command="{Binding AddEmoticon}" BorderBrush="Transparent" Background="Transparent" HorizontalAlignment="Left" Height="21" Margin="83,364,0,0" VerticalAlignment="Top" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}">
+            <Button.CommandParameter>
+                <MultiBinding Converter="{StaticResource Converter}">
+                    <Binding ElementName="txtMessageWindow"/>
+                    <Binding ElementName="imScared" Path="Tag"/>
+                </MultiBinding>
+            </Button.CommandParameter>
+			<Image Source="Image/scared.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
+		</Button>
+        <Button Tag=":o" x:Name="imSuprised" Command="{Binding AddEmoticon}" BorderBrush="Transparent" Background="Transparent" HorizontalAlignment="Left" Height="21" Margin="125,366,0,0" VerticalAlignment="Top" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}">
+            <Button.CommandParameter>
+                <MultiBinding Converter="{StaticResource Converter}">
+                    <Binding ElementName="txtMessageWindow"/>
+                    <Binding ElementName="imSuprised" Path="Tag"/>
+                </MultiBinding>
+            </Button.CommandParameter>
+			<Image Source="Image/surprised.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
+		</Button>
+        <Button Tag=":P" x:Name="imTongue" Command="{Binding AddEmoticon}" BorderBrush="Transparent" Background="Transparent" HorizontalAlignment="Left" Height="21" Margin="142,392,0,0" VerticalAlignment="Top" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}">
+            <Button.CommandParameter>
+                <MultiBinding Converter="{StaticResource Converter}">
+                    <Binding ElementName="txtMessageWindow"/>
+                    <Binding ElementName="imTongue" Path="Tag"/>
+                </MultiBinding>
+            </Button.CommandParameter>
+			<Image Source="Image/tongue-out.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
+		</Button>
+        <Menu Visibility="{Binding ChatSwitchMode, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="26" Margin="188,441,0,0" VerticalAlignment="Top" Width="31" FontFamily="Segoe UI Symbol">
             <Menu.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
                     <GradientStop Color="#FFF3F3F3" Offset="1"/>
@@ -350,7 +434,7 @@
                 <MenuItem.Icon>
                     <Image Source="/Image/settings.png"/>
                 </MenuItem.Icon>
-                <MenuItem Header="{DynamicResource ClearDialWindow}" Name="ClearDialWindow" Click="ClearDialWindow_Click">
+                <MenuItem Header="{DynamicResource ClearDialWindow}" Name="ClearDialWindow">
                     <MenuItem.Icon>
                         <Image Source="/Image/clear.jpg"></Image>
                     </MenuItem.Icon>

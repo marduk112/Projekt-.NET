@@ -1,23 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Client.Annotations;
 using Common;
 using Microsoft.Practices.Prism.Commands;
 
-namespace Client.Notifies
+namespace Client.ViewModel
 {
     //to determube
-    public sealed class MessagesCollection : INotifyPropertyChanged
+    public sealed class MessagesViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
         public ObservableCollection<MessageNotification> Messages { get; set; }
         public DelegateCommand AddMessage { get; private set; }
 
-        public MessagesCollection()
+        public MessagesViewModel()
         {
             Messages = new ObservableCollection<MessageNotification>();
             AddMessage = new DelegateCommand(Add);
