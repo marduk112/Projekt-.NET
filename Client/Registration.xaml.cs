@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using Autofac;
 using Client.Interfaces;
 using Client.Modules;
+using Client.ViewModel;
 using Common;
 using RabbitMQ.Client;
 
@@ -27,6 +28,7 @@ namespace Client
         public Registration()
         {
             InitializeComponent();
+            this.DataContext = new RegistrationViewModel();
         }
 
         private void btnClose_Click(object sender, RoutedEventArgs e)

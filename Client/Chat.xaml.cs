@@ -26,68 +26,6 @@ namespace Client
             rtxtDialogueWindow.Document.Blocks.Clear();
             this.DataContext = new ChatViewModel();
         }
-       
-        //private Thread _thread;
-        //public string RecipientNick { get; private set; }
-
-        /*private void DownloadFriendsList()
-        {
-            var builder = new ContainerBuilder();
-            builder.Register(_ => new ConnectionFactory { HostName = Const.HostName }).As<IConnectionFactory>();
-            builder.RegisterType<UsersList>().As<IUsersList>();
-            var container = builder.Build();
-            using (var scope = container.BeginLifetimeScope())
-            {
-                var reqUserList = new UserListReq { Login = Const.User.Login };
-                var response = scope.Resolve<IUsersList>();
-                foreach (var user in response.GetFriendsListWithPresenceStatus(reqUserList).Users)
-                {
-                    _friendsViewModel.Friends.Add(user);
-                }
-            }
-        }*/
-        /*private void StartListeningThread(SynchronizationContext ctx)
-        {
-            _thread = new Thread(() =>
-            {
-                Listening.Start();
-                while (true)
-                {
-                    var activityResponse = Listening.ListeningActivity();
-                    ctx.Post(_ =>
-                    {
-                        //ten kod jest wykonany w watku UI
-                    }, null);
-                    var presenceStatusResponse = Listening.ListeningPresenceStatus();
-                    ctx.Post(_ => _friendsViewModel.Friends.Add(presenceStatusResponse), null);
-                    var messageResponse = Listening.ListeningMessages();
-                    ctx.Post(_ =>
-                    {
-                        //ten kod jest wykonany w watku UI
-
-                    }, null);
-                    //add info; activity status
-                }
-            }) { IsBackground = true };
-        }*/
-        private void btnClose_Click(object sender, RoutedEventArgs e)
-        {
-            //send presence status as offline
-            /*Const.User.Status = Common.PresenceStatus.Offline;
-
-            var builder = new ContainerBuilder();
-            builder.Register(c => new ConnectionFactory { HostName = Const.HostName }).As<IConnectionFactory>();
-            builder.RegisterType<Modules.PresenceStatus>().As<IPresenceStatus>();
-            var container = builder.Build();
-            using (var scope = container.BeginLifetimeScope())
-            {
-                var writer = scope.Resolve<IPresenceStatus>();
-                writer.SendPresenceStatus(Const.User);
-            }
-
-            //_thread.Abort();
-            Close();*/
-        }
 
         private void btnMinimize_Click(object sender, RoutedEventArgs e)
         {

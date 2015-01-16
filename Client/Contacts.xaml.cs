@@ -23,6 +23,7 @@ namespace Client
     /// <summary>
     /// Logika interakcji dla klasy Contacts.xaml
     /// </summary>
+    /// not use
     public partial class Contacts : Window
     {
         public List<ImageSource> myImageSource;
@@ -44,34 +45,11 @@ namespace Client
 
             this.cmbbStatus.SelectedIndex = 4;
             this.imStatus.Source = myImageSource.Last();
-            usersList.DataContext = _usersViewModel;
+            //usersList.DataContext = _usersViewModel;
             //DownloadUsersList();
         }
 
-        public void FriendsCollection(FriendsViewModel friendsViewModel)
-        {
-            _friendsViewModel = friendsViewModel;
-        }
-
-        private FriendsViewModel _friendsViewModel;
-        private readonly FriendsViewModel _usersViewModel = new FriendsViewModel();
-
-        private void DownloadUsersList()
-        {
-            var builder = new ContainerBuilder();
-            builder.Register(_ => new ConnectionFactory { HostName = Const.HostName }).As<IConnectionFactory>();
-            builder.RegisterType<UsersList>().As<IUsersList>();
-            var container = builder.Build();
-            using (var scope = container.BeginLifetimeScope())
-            {
-                var reqUserList = new UserListReq { Login = Const.User.Login };
-                var response = scope.Resolve<IUsersList>();
-                foreach (var user in response.UserListReqResponse(reqUserList).Users)
-                {                   
-                    _usersViewModel.Friends.Add(user);
-                }
-            }
-        }
+        
         private void btnClose_Click(object sender, RoutedEventArgs e)
         {
             Close();

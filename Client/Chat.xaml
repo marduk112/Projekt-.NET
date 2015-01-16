@@ -64,7 +64,7 @@
                 </LinearGradientBrush>
             </Rectangle.Fill>
         </Rectangle>
-        <Button x:Name="btnClose" Content="X" HorizontalAlignment="Left" Margin="436,52,0,0" VerticalAlignment="Top" Width="25" FontWeight="Bold" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="0.5,0.5" Command="{Binding Close}" CommandParameter="{Binding ElementName=MainWindow}">
+        <Button x:Name="btnClose" Content="X" HorizontalAlignment="Left" Margin="436,52,0,0" VerticalAlignment="Top" Width="25" FontWeight="Bold" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="0.5,0.5" Command="{Binding Close}">
             <Button.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
                     <GradientStop Color="#FFF3F3F3" Offset="1"/>
@@ -100,16 +100,6 @@
                 </TransformGroup>
             </Button.RenderTransform>
         </Button>
-        <Label x:Name="LblName" Tag="CHAT" Content="Qwerty" HorizontalAlignment="Left" Margin="507,517,-55,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Width="221" Background="{x:Null}" Foreground="#FFF3BAEE" FontSize="55" FontFamily="Edwardian Script ITC" FontWeight="Bold" MouseDown="LblName_MouseDown" Grid.Row="1">
-            <Label.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform/>
-                    <SkewTransform/>
-                    <RotateTransform Angle="19.537"/>
-                    <TranslateTransform/>
-                </TransformGroup>
-            </Label.RenderTransform>
-        </Label>
         <richTextBoxEmoticons:RichTextBoxExt Visibility="{Binding ChatSwitchMode, UpdateSourceTrigger=PropertyChanged}" Tag="CHAT" x:Name="rtxtDialogueWindow" IsReadOnly="True" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Left" Height="303" Margin="83,82,0,0" VerticalAlignment="Top" Width="434" BorderBrush="Black" Foreground="{Binding ElementName=cmbbFontColor, Path=Text}" FontSize="{Binding Text, ElementName=cmbbFontSize}" FontFamily="{Binding ElementName=cmbbFontType,Path=Text}" SelectionBrush="Black" BorderThickness="3" Background="#D8FFD6FF" AllowDrop="True" IsHitTestVisible="True" >
             <richTextBoxEmoticons:RichTextBoxExt.Resources>
                 <Style TargetType="{x:Type Paragraph}">
@@ -130,18 +120,27 @@
                 <richTextBoxEmoticons:EmoticonMapper Text="😨" Icon="Image/scared.png" />
             </richTextBoxEmoticons:RichTextBoxExt.Emoticons>
         </richTextBoxEmoticons:RichTextBoxExt>
-        <TextBox Visibility="{Binding ChatSwitchMode, UpdateSourceTrigger=PropertyChanged}" x:Name="txtMessageWindow" Tag="CHAT" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Right" Height="43" Margin="0,392,156,0" VerticalAlignment="Top" Width="434" BorderBrush="Black" Background="#D8FFD6FF" Foreground="{Binding ElementName=cmbbFontColor, Path=Text}" FontSize="{Binding Text, ElementName=cmbbFontSize}" FontFamily="{Binding ElementName=cmbbFontType,Path=Text}" SelectionBrush="Black" BorderThickness="3"/>
+        <TextBox Visibility="{Binding ChatSwitchMode, UpdateSourceTrigger=PropertyChanged}" x:Name="txtMessageWindow" Tag="CHAT" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Right" Height="43" Margin="0,392,156,0" VerticalAlignment="Top" Width="434" BorderBrush="Black" Background="#D8FFD6FF" Foreground="{Binding ElementName=cmbbFontColor, Path=Text}" FontSize="{Binding Text, ElementName=cmbbFontSize}" FontFamily="{Binding ElementName=cmbbFontType,Path=Text}" SelectionBrush="Black" BorderThickness="3"
+                 Text="{Binding Message, UpdateSourceTrigger=PropertyChanged}"/>
         
-        <Button x:Name="btnWindowSwitch" Content="Zamień" 
-                HorizontalAlignment="Left" Margin="374,492,0,0" 
+        <Button x:Name="btnWindowSwitch" Content="Przełącz" 
+                HorizontalAlignment="Left" Margin="240,530,0,0" 
                 VerticalAlignment="Top" Width="119" Height="26" 
                 FontFamily="MS Reference Sans Serif" RenderTransformOrigin="0.5,0.5" 
                 FontWeight="Bold" FontSize="14" 
                  Command="{Binding SelectForm}">
-            
+            <Button.Background>
+                <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                    <GradientStop Color="#FFF3F3F3" Offset="1"/>
+                    <GradientStop Color="#FFDDDDDD" Offset="0.5"/>
+                    <GradientStop Color="#FFEBEBEB" Offset="0.5"/>
+                    <GradientStop Color="#FFEC9CE4"/>
+                </LinearGradientBrush>
+            </Button.Background>
         </Button>
 
-        <Button Visibility="{Binding ChatSwitchMode, UpdateSourceTrigger=PropertyChanged}" x:Name="btnSend" Tag="CHAT" Content="{DynamicResource Sent}" HorizontalAlignment="Left" Margin="394,442,0,0" VerticalAlignment="Top" Width="119" Height="26" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="0.5,0.5" FontWeight="Bold" FontSize="14" >
+        <Button Visibility="{Binding ChatSwitchMode, UpdateSourceTrigger=PropertyChanged}" x:Name="btnSend" Tag="CHAT" Content="{DynamicResource Sent}" HorizontalAlignment="Left" Margin="394,442,0,0" VerticalAlignment="Top" Width="119" Height="26" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="0.5,0.5" FontWeight="Bold" FontSize="14"
+                Command="{Binding SendMessage}">
             <Button.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
                     <GradientStop Color="#FFF3F3F3" Offset="1"/>
@@ -203,7 +202,7 @@
             </Ellipse.Fill>
         </Ellipse>
         <Button Command="{Binding FontVisibility}" x:Name="btnClose1" Content="X" HorizontalAlignment="Left" Margin="384,213,0,0" VerticalAlignment="Top" Width="25" FontWeight="Bold" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="1.009,0.542" Visibility="{Binding Font, UpdateSourceTrigger=PropertyChanged}"/>
-        <Rectangle Visibility="{Binding Font, UpdateSourceTrigger=PropertyChanged}" x:Name="reFont" HorizontalAlignment="Left" Height="171" VerticalAlignment="Top" Width="366" Margin="110,242,0,0" Fill="#D8FFD6FF" Stroke="Black" StrokeThickness="3" MouseDown="Rectangle_MouseDown" />
+        <Rectangle Visibility="{Binding Font, UpdateSourceTrigger=PropertyChanged}" x:Name="reFont" HorizontalAlignment="Left" Height="171" VerticalAlignment="Top" Width="366" Margin="110,242,0,0" Fill="#D8FFD6FF" Stroke="Black" StrokeThickness="3" />
         <Label Visibility="{Binding Font, UpdateSourceTrigger=PropertyChanged}" x:Name="lblFontType" Content="{DynamicResource Font}" HorizontalAlignment="Left" Height="33" Margin="125,258,0,0" VerticalAlignment="Top" Width="110" FontWeight="Bold" FontSize="14">
             <Label.Foreground>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -281,7 +280,7 @@
             <ComboBoxItem Content="26"/>
             <ComboBoxItem Content="28"/>
         </ComboBox>
-        <CheckBox x:Name="chbBold" Tag="CHAT" Content="B" HorizontalAlignment="Left" Visibility="{Binding Font, UpdateSourceTrigger=PropertyChanged}" Margin="146,364,0,0" VerticalAlignment="Top" Width="27" FontWeight="Bold" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="1.009,0.542" Height="26" FontSize="14" Checked="IfCheckedB" Unchecked="IfUncheckedB">
+        <CheckBox x:Name="chbBold" Tag="CHAT" Content="B" HorizontalAlignment="Left" Visibility="{Binding Font, UpdateSourceTrigger=PropertyChanged}" Margin="146,364,0,0" VerticalAlignment="Top" Width="27" FontWeight="Bold" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="1.009,0.542" Height="26" FontSize="14">
             <CheckBox.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
                     <GradientStop Color="#FFF3F3F3"/>
@@ -291,7 +290,7 @@
                 </LinearGradientBrush>
             </CheckBox.Background>
         </CheckBox>
-        <CheckBox x:Name="chbItalic" Tag="CHAT" Content="I" HorizontalAlignment="Left" Margin="191,364,0,0" VerticalAlignment="Top" Width="27" FontWeight="Bold" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="1.009,0.542" Height="26" FontSize="14" FontStyle="Italic" Visibility="{Binding Font, UpdateSourceTrigger=PropertyChanged}" Checked="IfCheckedI" Unchecked="IfUncheckedI">
+        <CheckBox x:Name="chbItalic" Tag="CHAT" Content="I" HorizontalAlignment="Left" Margin="191,364,0,0" VerticalAlignment="Top" Width="27" FontWeight="Bold" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="1.009,0.542" Height="26" FontSize="14" FontStyle="Italic" Visibility="{Binding Font, UpdateSourceTrigger=PropertyChanged}">
             <CheckBox.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
                     <GradientStop Color="#FFF3F3F3"/>
@@ -312,7 +311,7 @@
                 </LinearGradientBrush>
             </Ellipse.Fill>
         </Ellipse>
-        <Button x:Name="btnClose2" Content="X" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="176,302,0,0" VerticalAlignment="Top" Width="25" FontWeight="Bold" FontFamily="MS Reference Sans Serif" RenderTransformOrigin="1.009,0.542" Command="{Binding ViewEmoticons}">
+        <Button x:Name="btnClose2" Content="X" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="176,302,0,0" VerticalAlignment="Top" Width="25" FontWeight="Bold" FontFamily="MS Reference Sans Ser" RenderTransformOrigin="1.009,0.542" Command="{Binding ViewEmoticons}">
             <Button.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
                     <GradientStop Color="#FFF3F3F3" Offset="1"/>
@@ -456,6 +455,97 @@
                 </MenuItem>
             </MenuItem>
         </Menu>
+        <Label x:Name="LblName" Content="Qwerty" HorizontalAlignment="Left" Margin="507,517,-55,0" VerticalAlignment="Top" 
+               RenderTransformOrigin="0.5,0.5" Width="221" Background="{x:Null}" Foreground="#FFF3BAEE" FontSize="55"
+               FontFamily="Edwardian Script ITC" FontWeight="Bold" MouseDown="LblName_MouseDown" Tag="FRIEND_LIST">
+            <Label.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="19.537"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Label.RenderTransform>
+        </Label>
+        <ListView x:Name="usersList" ItemsSource="{Binding Friends}" 
+                  SelectedItem="{Binding User, UpdateSourceTrigger=PropertyChanged}" 
+                  SelectionMode="Multiple" HorizontalAlignment="Left" Height="316" 
+                  Margin="124,195,0,0" VerticalAlignment="Top" Width="360" BorderBrush="Black" 
+                  Tag="FRIEND_LIST"
+                  Background="#D8FFD6FF" BorderThickness="3" FontSize="14" Visibility="{Binding ChatSwitchMode2, UpdateSourceTrigger=PropertyChanged}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="200" Header="Nick" DisplayMemberBinding="{Binding Login}" />
+                    <GridViewColumn Width="150" Header="Status" DisplayMemberBinding="{Binding Status}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <TextBox Name="txtFindUsers" HorizontalAlignment="Left" Height="22" Margin="124,168,0,0" 
+                 TextWrapping="Wrap" VerticalAlignment="Top" Width="214" BorderBrush="Black" 
+                 Background="#D8FFD6FF" SelectionBrush="Black" BorderThickness="3" FontSize="14"
+                 Tag="FRIEND_LIST" Visibility="{Binding ChatSwitchMode2, UpdateSourceTrigger=PropertyChanged}"
+                 Text="{Binding FriendLogin, UpdateSourceTrigger=PropertyChanged}"/>
+        <Button Name="btnFindUser" Content="{DynamicResource AddFriend}" 
+                HorizontalAlignment="Left" Height="22" Margin="339,169,0,0"                 
+                VerticalAlignment="Top" Width="143" FontFamily="MS Reference Sans Serif" 
+                RenderTransformOrigin="0.5,0.5" FontWeight="Bold" Visibility="{Binding ChatSwitchMode2, UpdateSourceTrigger=PropertyChanged}"
+                Command="{Binding AddFriend}">
+            <Button.Background>
+                <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                    <GradientStop Color="#FFF3F3F3" Offset="1"/>
+                    <GradientStop Color="#FFDDDDDD" Offset="0.5"/>
+                    <GradientStop Color="#FFEBEBEB" Offset="0.5"/>
+                    <GradientStop Color="#FFEC9CE4"/>
+                </LinearGradientBrush>
+            </Button.Background>
+            <Button.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="0.66"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Button.RenderTransform>
+        </Button>
+        <Label Name="lblUsername" Content="{Binding UserName}" HorizontalAlignment="Left" Margin="216,95,0,0" 
+               VerticalAlignment="Top" FontSize="18"  BorderBrush="Black" Background="#D8FFD6FF" 
+               BorderThickness="3" Width="268" FontWeight="Bold" FontStyle="Italic"
+               Tag="FRIEND_LIST" Visibility="{Binding ChatSwitchMode2, UpdateSourceTrigger=PropertyChanged}" IsEnabled="False"/>
+        <ComboBox Name="cmbbStatus" HorizontalAlignment="Left" Height="23" Margin="216,140,0,0" VerticalAlignment="Top"
+                  Width="268" FontWeight="Bold" Tag="FRIEND_LIST" Visibility="{Binding ChatSwitchMode2, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding PresenceStatuses}"
+                  SelectedItem="{Binding PresenceStatus, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Value" SelectedValuePath="PresenceStatus" SelectedIndex="0">
+            <ComboBox.Background>
+                <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                    <GradientStop Color="#FFF3F3F3"/>
+                    <GradientStop Color="#FFEBEBEB" Offset="0.5"/>
+                    <GradientStop Color="#FFDDDDDD" Offset="0.5"/>
+                    <GradientStop Color="#FFE83FD7" Offset="1"/>
+                </LinearGradientBrush>
+            </ComboBox.Background>
+        </ComboBox>
+        <Border BorderBrush="Black" CornerRadius="50" BorderThickness="3" HorizontalAlignment="Left" Height="68" 
+                Tag="FRIEND_LIST"
+                Margin="124,95,0,0" VerticalAlignment="Top" Width="87"  Visibility="{Binding ChatSwitchMode2, UpdateSourceTrigger=PropertyChanged}">
+            <Grid>
+                <Border x:Name="mask" Background="White" BorderBrush="Black" CornerRadius="50" BorderThickness="3" 
+                        HorizontalAlignment="Left" Height="67" Margin="-4,-3,-2,-2" VerticalAlignment="Top" 
+                        Width="87" RenderTransformOrigin="0.5,0.5">
+                    <Border.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform/>
+                            <SkewTransform/>
+                            <RotateTransform Angle="-0.153"/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </Border.RenderTransform>
+                </Border>
+                <Image x:Name="imStatus" Stretch="Fill" Source="{Binding MyImageSource}">
+                    <Image.OpacityMask>
+                        <VisualBrush Visual="{Binding ElementName=mask}"></VisualBrush>
+                    </Image.OpacityMask>
+                </Image>
+            </Grid>
+        </Border>
     </Grid>
 </Window>
 

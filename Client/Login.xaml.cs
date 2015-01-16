@@ -16,6 +16,7 @@ using System.Threading;
 using Autofac;
 using Client.Interfaces;
 using Client.Modules;
+using Client.ViewModel;
 using Common;
 using RabbitMQ.Client;
 
@@ -31,6 +32,7 @@ namespace Client
         {
             InitializeComponent();
             SetLanguageDictionary();
+            this.DataContext = new LoginViewModel();
         }
 
         private void SetLanguageDictionary()

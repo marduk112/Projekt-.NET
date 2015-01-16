@@ -137,8 +137,6 @@
     <Compile Include="Modules\PresenceStatus.cs" />
     <Compile Include="Modules\Registration.cs" />
     <Compile Include="Modules\UsersList.cs" />
-    <Compile Include="ViewModel\FriendsViewModel.cs" />
-    <Compile Include="ViewModel\MessagesViewModel.cs" />
     <Compile Include="ViewModel\ChatViewModel.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Registration.xaml.cs">
@@ -155,6 +153,8 @@
     <Compile Include="RichTextBoxEmoticons\RichTextBoxHelper.cs" />
     <Compile Include="RichTextBoxEmoticons\RTBNavigationService.cs" />
     <Compile Include="RichTextBoxEmoticons\WordBreaker.cs" />
+    <Compile Include="ViewModel\LoginViewModel.cs" />
+    <Compile Include="ViewModel\RegistrationViewModel.cs" />
     <Page Include="Chat.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
