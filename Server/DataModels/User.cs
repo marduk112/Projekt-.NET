@@ -39,12 +39,12 @@ namespace Server.DataModels
 
         public void RegisterUser(string userLogin, string userPassword)
         {
-            var user = QueryUser(userLogin);
-            if (user == null)
-            {
-                user = new User {Login = userLogin, Password = userPassword};
-                Insert(user);
-            }
+            //var user = QueryUser(userLogin);
+            //if (user == null)
+            //{
+            var user = new User {Login = userLogin, Password = userPassword};
+            Insert(user);
+            //}
         }
     }
 

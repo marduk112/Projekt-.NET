@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Common;
 using RabbitMQ.Client;
+using Server.DataModels;
+using SQLite;
 
 namespace Server.Modules
 {
@@ -69,42 +71,19 @@ namespace Server.Modules
         private CreateUserResponse correctRegister()
         {
             CreateUserResponse createUserResponse;
-            XDocument xmlDoc;
-            //load users list from XML file
-            if (!Directory.Exists("Databases"))
-                Directory.CreateDirectory("Databases");
-            if (!File.Exists(Const.FileNameToRegAndLogin))
-            {
-                File.AppendAllText(Const.FileNameToRegAndLogin, "<Users>\n</Users>");
-                xmlDoc = XDocument.Load(Const.FileNameToRegAndLogin);
-            }
-            else
-                xmlDoc = XDocument.Load(Const.FileNameToRegAndLogin);
-            //XML to LINQ
-            var users = from user in xmlDoc.Descendants("User")
-                        let login = user.Element("Login")
-                        where login != null
-                        select new
-                        {
-                            Login = login.Value,
-                        };
-            //Is user exist
-            bool isExist = users.Any(user => user.Login.Equals(message.Login));
-            if (isExist)
-            {
-                return incorrectRegister("User with login " + message.Login + " exist");
-            }
-            createUserResponse = new CreateUserResponse();
-            createUserResponse.Status = Status.OK;
-            createUserResponse.Message = "Successful registration";
-            var xElement = xmlDoc.Element("Users");
 
-            if (xElement != null)
-                xElement.Add(new XElement("User", new XElement("Login", message.Login),
-                    new XElement("Password", message.Password)));
-            else
-                return incorrectRegister("Error");
-            xmlDoc.Save(Const.FileNameToRegAndLogin);
+            var db = new Database();
+            try
+            {
+                db.RegisterUser(message.Login, message.Password);
+                createUserResponse = new CreateUserResponse();
+                createUserResponse.Status = Status.OK;
+                createUserResponse.Message = "Successful registration";
+            }
+            catch (SQLiteException e)
+            {
+                createUserResponse = incorrectRegister("User with login " + message.Login + " exist");   
+            }
             return createUserResponse;
         }
 
