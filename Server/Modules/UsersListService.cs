@@ -1,26 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using Common;
 using RabbitMQ.Client;
-using Server.DataModels;
 using Server.Data_Access;
+using SQLite;
 
 namespace Server.Modules
 {
-    class LoginService : IServicable
+    class UsersListService : IServicable
     {
-        private static string ServiceName = "loginServer";
+        private static string ServiceName = "UsersListServer";
         private bool _work;
-
+        private static UserListReq message;
         public void Start()
         {
             _work = true;
+            var db = new Database();
 
             var factory = new ConnectionFactory { HostName = Const.HostName };
             using (var connection = factory.CreateConnection())
@@ -34,7 +31,7 @@ namespace Server.Modules
 
                     while (true)
                     {
-                        var response = new AuthResponse();
+                        var response = new UserListResponse();
                         var ea = consumer.Queue.Dequeue();
                         var body = ea.Body;
                         var props = ea.BasicProperties;
@@ -42,12 +39,19 @@ namespace Server.Modules
                         replyProps.CorrelationId = props.CorrelationId;
                         try
                         {
-                            message = body.DeserializeAuthRequest();
-                            response = correctAuthentication();
+                            message = body.DeserializeUserListReq();
+                            response = new UserListResponse { Message = "Lista użytkowników", 
+                                Status = Status.OK, 
+                                Users = (List<Common.User>) db.QueryAllUsers() };
                         }
                         catch (Exception e)
                         {
-                            response = IncorrectAuthentication("Error");
+                            response = new UserListResponse
+                            {
+                                Message = "Nie udało się pobrać listy użytkowników",
+                                Status = Status.Error,
+                                Users = null
+                            };
                         }
                         finally
                         {
@@ -64,34 +68,5 @@ namespace Server.Modules
         {
             _work = false;
         }
-
-        private static AuthResponse correctAuthentication()
-        {
-            var db = new Database();
-            var authResponse = new AuthResponse();
-            bool isAuth = db.LoginUser(message.Login, message.Password);
-            if (isAuth)
-            {
-                authResponse.Status = Status.OK;
-                authResponse.Message = "Successful authentication";
-                authResponse.IsAuthenticated = true;
-            }
-            else
-            {
-                authResponse = IncorrectAuthentication("Wrong login or password");
-            }
-            return authResponse;
-        }
-
-        private static AuthResponse IncorrectAuthentication(string error)
-        {
-            var authResponse = new AuthResponse();
-            authResponse.Status = Status.Error;
-            authResponse.Message = error;
-            authResponse.IsAuthenticated = false;
-            return authResponse;
-        }
-
-        private static AuthRequest message;
     }
 }

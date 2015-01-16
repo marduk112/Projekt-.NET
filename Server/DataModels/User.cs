@@ -16,5 +16,10 @@ namespace Server.DataModels
         public string Password { get; set; }
         [NotNull]
         public PresenceStatus Status { get; set; }
+
+        public Common.User ToCommonUser()
+        {
+            return new Common.User {Login = this.Login, Status = this.Status};
+        }
     }
 }

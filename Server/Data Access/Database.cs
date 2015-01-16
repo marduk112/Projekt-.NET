@@ -30,13 +30,13 @@ namespace Server.Data_Access
                     where u.Login == userLogin
                     select u).FirstOrDefault();
         }
-        public User QueryUserLogin(string userLogin, string userPassword)
+        public Common.User QueryUserLogin(string userLogin, string userPassword)
         {
             var user = (from u in Table<User>()
                         where u.Login == userLogin && u.Password == userPassword
                         select u).FirstOrDefault();
             ChangeUserStatus(ref user, PresenceStatus.Online);
-            return user;
+            return user.ToCommonUser();
         }
 
         public void ChangeUserStatus(ref User user, PresenceStatus status)
@@ -44,11 +44,17 @@ namespace Server.Data_Access
             user.Status = status;
             Update(user);
         }
-        public IEnumerable<User> QueryAllUsers()
+        public IEnumerable<Common.User> QueryAllUsers()
         {
-            return from u in Table<User>()
+            List<Common.User> userList = new List<Common.User>();
+            var users = from u in Table<User>()
                    orderby u.Login
                    select u;
+            foreach (var user in users)
+            {
+                userList.Add(user.ToCommonUser());
+            }
+            return userList;
         }
 
         public void RegisterUser(string userLogin, string userPassword)
@@ -74,13 +80,14 @@ namespace Server.Data_Access
         public List<Common.User> QuerryAllFriends(string userLogin)
         {
             var userList = new List<Common.User>();
-            var users = from u in Table<Friends>()
+            var friends = from u in Table<Friends>()
                 where u.UserLogin1 == userLogin || u.UserLogin2 == userLogin
                 select u;
-            foreach (var user in users)
+            foreach (var friend in friends)
             {
-                var login = user.UserLogin1 == userLogin ? user.UserLogin2 : user.UserLogin1;
-                var userFriend = new Common.User { Login = login, Status = QueryUser(login).Status };
+                // Defining friend login which isn't userLogin
+                var friendLogin = friend.UserLogin1 == userLogin ? friend.UserLogin2 : friend.UserLogin1;
+                var userFriend = new Common.User { Login = friendLogin, Status = QueryUser(friendLogin).Status };
                 userList.Add(userFriend);
             }
             return userList;
@@ -88,12 +95,12 @@ namespace Server.Data_Access
 
         public void AddFriend(string userLogin, string friendLogin)
         {
-            var isFriend = (from f in Table<Friends>()
+            var isFriendAlready = (from f in Table<Friends>()
                 where
                     (f.UserLogin1 == userLogin && f.UserLogin2 == friendLogin) ||
                     (f.UserLogin2 == userLogin && f.UserLogin1 == friendLogin)
                 select f).FirstOrDefault();
-            if (isFriend == null)
+            if (isFriendAlready == null)
             {
                 var newFriends = new Friends { UserLogin1 = userLogin, UserLogin2 = friendLogin };
                 Insert(newFriends);

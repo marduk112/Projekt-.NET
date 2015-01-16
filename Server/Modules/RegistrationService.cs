@@ -14,7 +14,7 @@ namespace Server.Modules
 {
     class RegistrationService : IServicable
     {
-        
+        private static string ServiceName = "regServer";
         private CreateUserReq message;
         private volatile bool _work;
 
@@ -28,10 +28,10 @@ namespace Server.Modules
             {
                 using (var channel = connection.CreateModel())
                 {
-                    channel.QueueDeclare("regServer", false, false, false, null);
+                    channel.QueueDeclare(ServiceName, false, false, false, null);
                     channel.BasicQos(0, 1, false);
                     var consumer = new QueueingBasicConsumer(channel);
-                    channel.BasicConsume("regServer", false, consumer);
+                    channel.BasicConsume(ServiceName, false, consumer);
 
                     while (_work)
                     {
