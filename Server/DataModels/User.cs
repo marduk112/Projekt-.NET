@@ -1,4 +1,5 @@
-﻿using SQLite;
+﻿using Common;
+using SQLite;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,17 +10,18 @@ namespace Server.DataModels
 {
     public class User
     {
-        [PrimaryKey, AutoIncrement]
-        public int Id { get; set; }
-        [MaxLength(32), NotNull, Unique]
+        [PrimaryKey, MaxLength(32)]
         public string Login { get; set; }
-        [MaxLength(32), NotNull]
+        [MaxLength(128), NotNull]
         public string Password { get; set; }
+        [NotNull]
+        public PresenceStatus Status { get; set; }
     }
 
     public class Database : SQLiteConnection
     {
-        public const String DbName = "ProjectDB";
+        private const String DbName = "ProjectDB";
+
         public Database() : base(DbName)
         {
             CreateTable<User>();
@@ -32,9 +34,17 @@ namespace Server.DataModels
         }
         public User QueryUserLogin(string userLogin, string userPassword)
         {
-            return (from u in Table<User>()
+            var user = (from u in Table<User>()
                     where u.Login == userLogin && u.Password == userPassword
                     select u).FirstOrDefault();
+            ChangeUserStatus(ref user, PresenceStatus.Online);
+            return user;
+        }
+
+        public void ChangeUserStatus(ref User user, PresenceStatus status)
+        {
+            user.Status = status;
+            Update(user);
         }
         public IEnumerable<User> QueryAllUsers()
         {
@@ -48,7 +58,7 @@ namespace Server.DataModels
             //var user = QueryUser(userLogin);
             //if (user == null)
             //{
-            var user = new User {Login = userLogin, Password = userPassword};
+            var user = new User {Login = userLogin, Password = userPassword, Status = PresenceStatus.Offline };
             Insert(user);
             //}
         }
