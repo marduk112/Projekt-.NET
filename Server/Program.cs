@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Server.Modules;
 using Topshelf;
+using SQLite;
 
 namespace Server
 {

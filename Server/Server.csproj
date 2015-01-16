@@ -63,6 +63,7 @@
     <Compile Include="Data Access\MessageHistorySQL.cs" />
     <Compile Include="Data Access\UsersListSQL.cs" />
     <Compile Include="Data Access\UsersPresenceStatus.cs" />
+    <Compile Include="DataModels\User.cs" />
     <Compile Include="Modules\IServicable.cs" />
     <Compile Include="Modules\Login.cs" />
     <Compile Include="Modules\LoginService.cs" />
@@ -78,6 +79,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="SQLite.cs" />
+    <Compile Include="SQLiteAsync.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
