@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace Server.DataModels
 {
-    public class User
+    public class Friends
     {
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
-        [MaxLength(32), NotNull, Unique]
-        public string Login { get; set; }
-        [MaxLength(32), NotNull]
-        public string Password { get; set; }
+        [Indexed]
+        public string UserLogin1 { get; set; }
+        [Indexed]
+        public string UserLogin2 { get; set; }
     }
 }
