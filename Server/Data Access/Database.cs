@@ -1,4 +1,5 @@
 ﻿using Common;
+using Server.DataModels;
 using SQLite;
 using System;
 using System.Collections.Generic;
@@ -16,8 +17,13 @@ namespace Server.Data_Access
         public Database()
             : base(DbName)
         {
+            //DropTable<User>();
+            //DropTable<Friends>();
+
             CreateTable<User>();
+            CreateTable<Friends>();
         }
+        // User
         public User QueryUser(string userLogin)
         {
             return (from u in Table<User>()
@@ -61,6 +67,36 @@ namespace Server.Data_Access
             else
             {
                 return true;
+            }
+        }
+
+        // Friends
+        public List<Common.User> QuerryAllFriends(string userLogin)
+        {
+            var userList = new List<Common.User>();
+            var users = from u in Table<Friends>()
+                where u.UserLogin1 == userLogin || u.UserLogin2 == userLogin
+                select u;
+            foreach (var user in users)
+            {
+                var login = user.UserLogin1 == userLogin ? user.UserLogin2 : user.UserLogin1;
+                var userFriend = new Common.User { Login = login, Status = QueryUser(login).Status };
+                userList.Add(userFriend);
+            }
+            return userList;
+        }
+
+        public void AddFriend(string userLogin, string friendLogin)
+        {
+            var isFriend = (from f in Table<Friends>()
+                where
+                    (f.UserLogin1 == userLogin && f.UserLogin2 == friendLogin) ||
+                    (f.UserLogin2 == userLogin && f.UserLogin1 == friendLogin)
+                select f).FirstOrDefault();
+            if (isFriend == null)
+            {
+                var newFriends = new Friends { UserLogin1 = userLogin, UserLogin2 = friendLogin };
+                Insert(newFriends);
             }
         }
     }
