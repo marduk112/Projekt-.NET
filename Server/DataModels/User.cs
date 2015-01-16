@@ -30,6 +30,12 @@ namespace Server.DataModels
                     where u.Login == userLogin
                     select u).FirstOrDefault();
         }
+        public User QueryUserLogin(string userLogin, string userPassword)
+        {
+            return (from u in Table<User>()
+                    where u.Login == userLogin && u.Password == userPassword
+                    select u).FirstOrDefault();
+        }
         public IEnumerable<User> QueryAllUsers()
         {
             return from u in Table<User>()
@@ -45,6 +51,19 @@ namespace Server.DataModels
             var user = new User {Login = userLogin, Password = userPassword};
             Insert(user);
             //}
+        }
+
+        public bool LoginUser(string userLogin, string userPassword)
+        {
+            var user = QueryUserLogin(userLogin, userPassword);
+            if (user == null)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 

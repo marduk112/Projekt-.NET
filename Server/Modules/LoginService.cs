@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Common;
 using RabbitMQ.Client;
+using Server.DataModels;
 
 namespace Server.Modules
 {
@@ -64,32 +65,9 @@ namespace Server.Modules
 
         private static AuthResponse correctAuthentication()
         {
-            //XML to LINQ
-            XDocument xmlDoc;
+            var db = new Database();
             var authResponse = new AuthResponse();
-            //load users list from XML file
-            if (!Directory.Exists("Databases"))
-                Directory.CreateDirectory("Databases");
-            if (!File.Exists(Const.FileNameToRegAndLogin))
-            {
-                File.AppendAllText(Const.FileNameToRegAndLogin, "<Users>\n</Users>");
-                xmlDoc = XDocument.Load(Const.FileNameToRegAndLogin);
-            }
-            else
-                xmlDoc = XDocument.Load(Const.FileNameToRegAndLogin);
-            //XML to LINQ
-            var users = from user in xmlDoc.Descendants("User")
-                        let login = user.Element("Login")
-                        where !login.IsEmpty
-                        let password = user.Element("Password")
-                        where !password.IsEmpty
-                        select new
-                        {
-                            Login = login.Value,
-                            Password = password.Value,
-                        };
-            //Is authenticated
-            bool isAuth = users.Any(user => (user.Login.Equals(message.Login) && user.Password.Equals(message.Password)));
+            bool isAuth = db.LoginUser(message.Login, message.Password);
             if (isAuth)
             {
                 authResponse.Status = Status.OK;
@@ -100,7 +78,6 @@ namespace Server.Modules
             {
                 authResponse = IncorrectAuthentication("Wrong login or password");
             }
-            xmlDoc = null;
             return authResponse;
         }
 
