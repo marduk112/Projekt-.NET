@@ -1,4 +1,5 @@
-﻿using SQLite;
+﻿using Common;
+using SQLite;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +10,11 @@ namespace Server.DataModels
 {
     public class User
     {
-        [PrimaryKey, AutoIncrement]
-        public int Id { get; set; }
-        [MaxLength(32), NotNull, Unique]
+        [PrimaryKey, MaxLength(32)]
         public string Login { get; set; }
-        [MaxLength(32), NotNull]
+        [MaxLength(128), NotNull]
         public string Password { get; set; }
+        [NotNull]
+        public PresenceStatus Status { get; set; }
     }
 }

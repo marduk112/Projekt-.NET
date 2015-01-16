@@ -1,16 +1,18 @@
-﻿using Server.DataModels;
+﻿using Common;
 using SQLite;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using User = Server.DataModels.User;
 
 namespace Server.Data_Access
 {
     public class Database : SQLiteConnection
     {
-        public const String DbName = "ProjectDB";
+        private const String DbName = "ProjectDB";
+
         public Database()
             : base(DbName)
         {
@@ -24,9 +26,17 @@ namespace Server.Data_Access
         }
         public User QueryUserLogin(string userLogin, string userPassword)
         {
-            return (from u in Table<User>()
-                    where u.Login == userLogin && u.Password == userPassword
-                    select u).FirstOrDefault();
+            var user = (from u in Table<User>()
+                        where u.Login == userLogin && u.Password == userPassword
+                        select u).FirstOrDefault();
+            ChangeUserStatus(ref user, PresenceStatus.Online);
+            return user;
+        }
+
+        public void ChangeUserStatus(ref User user, PresenceStatus status)
+        {
+            user.Status = status;
+            Update(user);
         }
         public IEnumerable<User> QueryAllUsers()
         {
@@ -37,7 +47,7 @@ namespace Server.Data_Access
 
         public void RegisterUser(string userLogin, string userPassword)
         {
-            var user = new User { Login = userLogin, Password = userPassword };
+            var user = new User { Login = userLogin, Password = userPassword, Status = PresenceStatus.Offline };
             Insert(user);
         }
 
