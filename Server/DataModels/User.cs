@@ -19,8 +19,8 @@ namespace Server.DataModels
 
     public class Database : SQLiteConnection
     {
-        public Database(string path)
-            : base(path)
+        public const String DbName = "ProjectDB";
+        public Database() : base(DbName)
         {
             CreateTable<User>();
         }
