@@ -93,17 +93,30 @@ namespace Server.Data_Access
             return userList;
         }
 
-        public void AddFriend(string userLogin, string friendLogin)
+        private Friends AreFriends(string userLogin, string friendLogin)
         {
-            var isFriendAlready = (from f in Table<Friends>()
+            return (from f in Table<Friends>()
                 where
                     (f.UserLogin1 == userLogin && f.UserLogin2 == friendLogin) ||
                     (f.UserLogin2 == userLogin && f.UserLogin1 == friendLogin)
                 select f).FirstOrDefault();
-            if (isFriendAlready == null)
+        }
+
+        public void AddFriend(string userLogin, string friendLogin)
+        {
+            if (AreFriends(userLogin, friendLogin) == null)
             {
                 var newFriends = new Friends { UserLogin1 = userLogin, UserLogin2 = friendLogin };
                 Insert(newFriends);
+            }
+        }
+
+        public void DeleteFriend(string userLogin, string friendLogin)
+        {
+            var areFriends = AreFriends(userLogin, friendLogin);
+            if (areFriends != null)
+            {
+                Delete(areFriends);
             }
         }
     }
