@@ -9,6 +9,8 @@ namespace Server.DataModels
 {
     public class Friends
     {
+        [PrimaryKey, AutoIncrement]
+        public int Id { get; set; }
         [Indexed]
         public string UserLogin1 { get; set; }
         [Indexed]
