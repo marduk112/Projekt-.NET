@@ -24,10 +24,10 @@ namespace Server.Modules
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
-                //channel.ExchangeDeclare(Const.ClientExchange, "topic");
+                channel.ExchangeDeclare(Const.ClientExchange, "topic");
                 channel.QueueDeclare(ServiceName, false, false, false, null);
                 channel.BasicQos(0, 1, false);
-                //channel.QueueBind(ServiceName, Const.ClientExchange, Const.ServerFriendListRequestRoute);
+                channel.QueueBind(ServiceName, Const.ClientExchange, Const.ServerFriendListRequestRoute);
                 var consumer = new QueueingBasicConsumer(channel);
                 channel.BasicConsume(ServiceName, false, consumer);
 
