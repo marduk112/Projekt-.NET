@@ -1,28 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using Common;
 using RabbitMQ.Client;
-using Server.DataModels;
 using Server.Data_Access;
 
 namespace Server.Modules
 {
-    class LoginService : IServicable
+    class FriendListService : IServicable
     {
-        private static AuthRequest message;
-        private static string ServiceName = "loginServer";
         private bool _work;
-        private static string logMsg = " attempted to login. Result: ";
-
+        private static string ServiceName = "FriendListServer";
+        private static UserListReq message;
+        private static string logMsg = " attempted to fetch friends list. Result: ";
         public void Start()
         {
             _work = true;
+            var db = new Database();
 
             var factory = new ConnectionFactory { HostName = Const.HostName };
             using (var connection = factory.CreateConnection())
@@ -31,12 +27,13 @@ namespace Server.Modules
                 channel.ExchangeDeclare(Const.ClientExchange, "topic");
                 channel.QueueDeclare(ServiceName, false, false, false, null);
                 channel.BasicQos(0, 1, false);
+                channel.QueueBind(ServiceName, Const.ClientExchange, Const.ServerFriendListRequestRoute);
                 var consumer = new QueueingBasicConsumer(channel);
                 channel.BasicConsume(ServiceName, false, consumer);
 
                 while (true)
                 {
-                    var response = new AuthResponse();
+                    var response = new UserListResponse();
                     var ea = consumer.Queue.Dequeue();
                     var body = ea.Body;
                     var props = ea.BasicProperties;
@@ -44,12 +41,22 @@ namespace Server.Modules
                     replyProps.CorrelationId = props.CorrelationId;
                     try
                     {
-                        message = body.DeserializeAuthRequest();
-                        response = correctAuthentication();
+                        message = body.DeserializeUserListReq();
+                        response = new UserListResponse
+                        {
+                            Message = "Lista znajmoych",
+                            Status = Status.OK,
+                            Users = db.QueryAllFriends(message.Login)
+                        };
                     }
                     catch
                     {
-                        response = IncorrectAuthentication("Error");
+                        response = new UserListResponse
+                        {
+                            Message = "Nie udało się pobrać listy znajomych",
+                            Status = Status.Error,
+                            Users = null
+                        };
                     }
                     finally
                     {
@@ -65,33 +72,6 @@ namespace Server.Modules
         public void Stop()
         {
             _work = false;
-        }
-
-        private static AuthResponse correctAuthentication()
-        {
-            var db = new Database();
-            var authResponse = new AuthResponse();
-            bool isAuth = db.LoginUser(message.Login, message.Password);
-            if (isAuth)
-            {
-                authResponse.Status = Status.OK;
-                authResponse.Message = "Successful authentication";
-                authResponse.IsAuthenticated = true;
-            }
-            else
-            {
-                authResponse = IncorrectAuthentication("Wrong login or password");
-            }
-            return authResponse;
-        }
-
-        private static AuthResponse IncorrectAuthentication(string error)
-        {
-            var authResponse = new AuthResponse();
-            authResponse.Status = Status.Error;
-            authResponse.Message = error;
-            authResponse.IsAuthenticated = false;
-            return authResponse;
         }
     }
 }

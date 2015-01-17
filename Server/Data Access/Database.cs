@@ -77,7 +77,7 @@ namespace Server.Data_Access
         }
 
         // Friends
-        public List<Common.User> QuerryAllFriends(string userLogin)
+        public List<Common.User> QueryAllFriends(string userLogin)
         {
             var userList = new List<Common.User>();
             var friends = from u in Table<Friends>()

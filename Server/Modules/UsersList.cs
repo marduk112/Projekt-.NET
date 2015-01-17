@@ -45,7 +45,7 @@ namespace Server.Modules
                     var message = body.DeserializeUserListReq();
                     response = GetUserList(message.Login);//connect with database
                 }
-                catch (Exception e)
+                catch
                 {
                     response = ErrorUserListResponse("Error");
                 }
@@ -78,7 +78,7 @@ namespace Server.Modules
                     var message = body.DeserializeUserListReq();
                     response = GetFriendsList(message.Login);//connect with database
                 }
-                catch (Exception e)
+                catch
                 {
                     response = ErrorUserListResponse("Error");
                 }

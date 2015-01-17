@@ -16,6 +16,8 @@
         public static string ClientMessageNotificationRoute = "client.notification.message.";
         public static string ServerMessageRequestRoute = "server.request.message";
         public static string ServerStatusRequestRoute = "server.request.status";
+        public static string ServerFriendListRequestRoute = "server.request.friends";
+        public static string ClientExchange = "ClientExchange";
 
     }
 }
