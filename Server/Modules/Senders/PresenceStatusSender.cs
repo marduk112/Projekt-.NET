@@ -5,8 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Common;
 using RabbitMQ.Client;
+using Server.Modules.Interfaces;
 
-namespace Server.Modules
+namespace Server.Modules.Senders
 {
     class PresenceStatusSender : INotificationSender
     {

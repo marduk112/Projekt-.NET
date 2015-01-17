@@ -8,8 +8,9 @@ using Common;
 using RabbitMQ.Client;
 using Server.Data_Access;
 using SQLite;
+using Server.Modules.Interfaces;
 
-namespace Server.Modules
+namespace Server.Modules.Services
 {
     class AddFriendService : IServicable
     {

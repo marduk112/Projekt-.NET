@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Common;
 
-namespace Server.Modules
+namespace Server.Modules.Interfaces
 {
     interface INotificationSender
     {

@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 using Common;
 using RabbitMQ.Client;
 using Server.Data_Access;
+using Server.Modules.Interfaces;
 
-namespace Server.Modules
+namespace Server.Modules.Services
 {
     class FriendListService : IServicable
     {

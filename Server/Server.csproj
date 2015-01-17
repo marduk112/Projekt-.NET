@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -73,9 +73,7 @@
     <Compile Include="Modules\Interfaces\IServicable.cs" />
     <Compile Include="Modules\Services\LoginService.cs" />
     <Compile Include="Modules\Services\AddFriendService.cs" />
-    <Compile Include="Modules\FriendListService.cs" />
-    <Compile Include="Modules\IServicable.cs" />
-    <Compile Include="Modules\LoginService.cs" />
+    <Compile Include="Modules\Services\DeleteFriendService.cs" />
     <Compile Include="Modules\MessageHistory.cs" />
     <Compile Include="Modules\Senders\PresenceStatusSender.cs" />
     <Compile Include="Modules\Services\RegistrationService.cs" />
