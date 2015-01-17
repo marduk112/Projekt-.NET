@@ -124,7 +124,7 @@
                 VerticalAlignment="Top" Width="119" Height="26" 
                 FontFamily="MS Reference Sans Serif" RenderTransformOrigin="0.5,0.5" 
                 FontWeight="Bold" FontSize="14" 
-                 Command="{Binding SelectForm}">
+                 Command="{Binding ChangeFormVisibility}">
             <Button.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
                     <GradientStop Color="#FFF3F3F3" Offset="1"/>
@@ -404,8 +404,8 @@
             </Label.RenderTransform>
         </Label>
         <ListView x:Name="usersList" ItemsSource="{Binding Friends}" 
-                  SelectedItem="{Binding User, UpdateSourceTrigger=PropertyChanged}" 
-                  SelectionMode="Multiple" HorizontalAlignment="Left" Height="316" 
+                  SelectedItem="{Binding Friend, UpdateSourceTrigger=PropertyChanged}" 
+                  SelectionMode="Single" HorizontalAlignment="Left" Height="316" 
                   Margin="124,195,0,0" VerticalAlignment="Top" Width="360" BorderBrush="Black" 
                   Tag="FRIEND_LIST"
                   Background="#D8FFD6FF" BorderThickness="3" FontSize="14" Visibility="{Binding ChatSwitchMode2, UpdateSourceTrigger=PropertyChanged}">
@@ -415,6 +415,11 @@
                     <GridViewColumn Width="150" Header="Status" DisplayMemberBinding="{Binding Status}"/>
                 </GridView>
             </ListView.View>
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Remove" Command="{Binding RemoveFriend}"/>
+                </ContextMenu>
+            </ListView.ContextMenu>
         </ListView>
         <TextBox Name="txtFindUsers" HorizontalAlignment="Left" Height="22" Margin="124,168,0,0" 
                  TextWrapping="Wrap" VerticalAlignment="Top" Width="214" BorderBrush="Black" 

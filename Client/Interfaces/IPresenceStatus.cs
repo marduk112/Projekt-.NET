@@ -10,6 +10,6 @@ namespace Client.Interfaces
     public interface IPresenceStatus : IDisposable
     {
         void SendPresenceStatus(User message);
-        User ReceiveUserPresenceStatus(int timeout);
+        PresenceStatusNotification ReceiveUserPresenceStatus(int timeout);
     }
 }

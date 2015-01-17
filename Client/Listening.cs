@@ -10,9 +10,9 @@ using RabbitMQ.Client;
 
 namespace Client
 {
-    public static class Listening
+    public class Listening
     {
-        public static void Start()
+        public Listening()
         {
             var builder = new ContainerBuilder();
             builder.Register(_ => new ConnectionFactory { HostName = Const.HostName }).As<IConnectionFactory>();
@@ -23,10 +23,10 @@ namespace Client
             _isRun = true;
         }
 
-        public static User ListeningPresenceStatus()
+        public PresenceStatusNotification ListeningPresenceStatus()
         {
             if (!_isRun) return null;
-            User user;
+            PresenceStatusNotification user;
             using (var scope = _container.BeginLifetimeScope())
             {
                 var response = scope.Resolve<IPresenceStatus>();
@@ -35,7 +35,7 @@ namespace Client
             return user;
         }
 
-        public static MessageResponse ListeningMessages()
+        public MessageResponse ListeningMessages()
         {
             if (!_isRun) return null;
             MessageResponse messageResponse;
@@ -47,7 +47,7 @@ namespace Client
             return messageResponse;
         }
 
-        public static ActivityResponse ListeningActivity()
+        public ActivityResponse ListeningActivity()
         {
             if (!_isRun) return null;
             ActivityResponse activityResponse;
@@ -59,8 +59,8 @@ namespace Client
             return activityResponse;
         }
 
-        private static IContainer _container;
+        private IContainer _container;
         private const int Timeout = 200;
-        private static bool _isRun = false;
+        private bool _isRun = false;
     }
 }

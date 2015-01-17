@@ -10,5 +10,6 @@ namespace Client.Interfaces
     public interface IActivity : IDisposable
     {
         ActivityResponse ActivityResponse(int timeout);
+        void ActivityReq(ActivityReq activityReq);
     }
 }

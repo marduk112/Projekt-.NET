@@ -1,11 +1,12 @@
 ﻿using System;
+using Client.Interfaces;
 using Common;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace Client.Modules
 {
-    public class UsersList
+    public class UsersList : IUsersList
     {
         public UsersList(IConnectionFactory factory)
         {

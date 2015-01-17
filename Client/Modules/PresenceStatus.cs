@@ -33,13 +33,13 @@ namespace Client.Modules
             //channel.BasicPublish("UsersStatus", message.Login, null, messageBytes);
         }
 
-        public User ReceiveUserPresenceStatus(int timeout)
+        public PresenceStatusNotification ReceiveUserPresenceStatus(int timeout)
         {
             BasicDeliverEventArgs ea;
             if (!consumer.Queue.Dequeue(timeout, out ea))
                 return null;
             var body = ea.Body;
-            var message = body.DeserializeUser();
+            var message = body.DeserializePresenceStatusNotification();
             return message;
         }
 

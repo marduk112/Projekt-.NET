@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Navigation;
 using Autofac;
 using Client.Annotations;
 using Client.Interfaces;
@@ -22,7 +23,7 @@ namespace Client.ViewModel
 {
     public class ChatViewModel : INotifyPropertyChanged  
     {
-        public DelegateCommand SelectForm { get; private set; }
+        public DelegateCommand ChangeFormVisibility { get; private set; }
         public DelegateCommand ViewEmoticons { get; private set; }
         public DelegateCommand AddAttachment { get; private set; }
         public DelegateCommand Close { get; private set; }
@@ -30,12 +31,14 @@ namespace Client.ViewModel
         public DelegateCommand FontVisibility { get; private set; }
         public DelegateCommand AddFriend { get; private set; }
         public DelegateCommand SendMessage { get; private set; }
+        public DelegateCommand RemoveFriend { get; private set; }
         public ObservableCollection<User> Friends { get; set; }
-        public ObservableCollection<PresenceStatusView> PresenceStatuses { get; set; } 
-
+        public ObservableCollection<PresenceStatusView> PresenceStatuses { get; set; }
+        public ObservableCollection<MessageNotification> Conversation { get; set; } 
+        
         public ChatViewModel()
         {
-            SelectForm = new DelegateCommand(doSelectForm);
+            ChangeFormVisibility = new DelegateCommand(doSelectForm);
             ViewEmoticons = new DelegateCommand(viewEmoticons);
             AddAttachment = new DelegateCommand(addAttachment);
             Close = new DelegateCommand(closeApplication);
@@ -45,6 +48,8 @@ namespace Client.ViewModel
             PresenceStatuses = new ObservableCollection<PresenceStatusView>();
             AddFriend = new DelegateCommand(addFriend, canAddFriend);
             SendMessage = new DelegateCommand(sendMessage, canSendMessage);
+            RemoveFriend = new DelegateCommand(removeFriend, canRemoveFriend);
+            Conversation = new ObservableCollection<MessageNotification>();
             AddPresenceStatuses();
         }
 
@@ -55,7 +60,7 @@ namespace Client.ViewModel
             {
                 _chatSwitchMode = value;
                 OnPropertyChanged();
-                SelectForm.RaiseCanExecuteChanged();
+                ChangeFormVisibility.RaiseCanExecuteChanged();
             }
         }
         public Visibility ChatSwitchMode2
@@ -65,7 +70,7 @@ namespace Client.ViewModel
             {
                 _chatSwitchMode2 = value;
                 OnPropertyChanged();
-                SelectForm.RaiseCanExecuteChanged();
+                ChangeFormVisibility.RaiseCanExecuteChanged();
             }
         }
 
@@ -98,6 +103,7 @@ namespace Client.ViewModel
             {
                 _presenceStatus = value;
                 OnPropertyChanged();
+                MessageBox.Show(_presenceStatus.ToString());
                 Const.User.Status = _presenceStatus;
                 try
                 {
@@ -149,6 +155,9 @@ namespace Client.ViewModel
             {
                 _friend = value;
                 OnPropertyChanged();
+                if (!_messagesDictionary.ContainsKey(FriendLogin))
+                    _messagesDictionary.Add(FriendLogin, new ObservableCollection<MessageNotification>());
+                Conversation = _messagesDictionary[FriendLogin];
             }
         }
 
@@ -164,8 +173,8 @@ namespace Client.ViewModel
         private string _message;
         private string _pathToAttachment;
         private User _friend;
-        private List<string> _allUsersList = new List<string>();
-        
+        private ICollection<User> _allUsersList = new List<User>();
+        private IDictionary<string, ObservableCollection<MessageNotification>> _messagesDictionary = new Dictionary<string, ObservableCollection<MessageNotification>>();
         [NotifyPropertyChangedInvocator]
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -173,9 +182,23 @@ namespace Client.ViewModel
             if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        private void removeFriend()
+        {
+            Friends.Remove(Friends.First(friend => friend.Login.Equals(Friend.Login)));
+        }
+
+        private bool canRemoveFriend()
+        {
+            return Friend != null;
+        }
+
         private void addFriend()
         {
-            var user = new User {Login = FriendLogin};
+            var user = new User
+            {
+                Login = FriendLogin,
+                Status = _allUsersList.First(u => u.Login.Equals(FriendLogin)).Status
+            };
             var builder = new ContainerBuilder();
             builder.Register(_ => new ConnectionFactory { HostName = Const.HostName }).As<IConnectionFactory>();
             builder.RegisterType<Modules.PresenceStatus>().As<IPresenceStatus>();
@@ -200,6 +223,7 @@ namespace Client.ViewModel
                     Recipient = Friend.Login,
                     SendTime = new DateTimeOffset().LocalDateTime
                 };
+                
                 var builder = new ContainerBuilder();
                 builder.Register(_ => new ConnectionFactory {HostName = Const.HostName}).As<IConnectionFactory>();
                 builder.RegisterType<Messages>().As<IMessages>();
@@ -215,12 +239,31 @@ namespace Client.ViewModel
 
         private bool canSendMessage()
         {
-            return !string.IsNullOrEmpty(Message);
+            try
+            {
+                var activityReq = new ActivityReq
+                {
+                    Login = Const.User.Login,
+                    IsWriting = !string.IsNullOrEmpty(Message),
+                    Recipient = Friend.Login
+                };
+                var builder = new ContainerBuilder();
+                builder.Register(_ => new ConnectionFactory { HostName = Const.HostName }).As<IConnectionFactory>();
+                builder.RegisterType<Activity>().As<IActivity>();
+                var container = builder.Build();
+                using (var scope = container.BeginLifetimeScope())
+                {
+                    var writer = scope.Resolve<IActivity>();
+                    writer.ActivityReq(activityReq);
+                }
+            }
+            catch { }
+            return !string.IsNullOrEmpty(Message) && Friend != null;
         }
 
         private bool canAddFriend()
         {
-            return _allUsersList.Any(login => login.Equals(FriendLogin));
+            return _allUsersList.Any(user => user.Login.Equals(FriendLogin)) && !FriendLogin.Equals(Const.User.Login);
         }
         private void doSelectForm()
         {
@@ -285,6 +328,20 @@ namespace Client.ViewModel
 
         private void closeApplication()
         {
+            Const.User.Status = PresenceStatus.Offline;
+            try
+            {
+                var builder = new ContainerBuilder();
+                builder.Register(_ => new ConnectionFactory { HostName = Const.HostName }).As<IConnectionFactory>();
+                builder.RegisterType<Modules.PresenceStatus>().As<IPresenceStatus>();
+                var container = builder.Build();
+                using (var scope = container.BeginLifetimeScope())
+                {
+                    var writer = scope.Resolve<IPresenceStatus>();
+                    writer.SendPresenceStatus(Const.User);
+                }
+            }
+            catch { }
             Application.Current.Shutdown();
         }
 
@@ -312,9 +369,10 @@ namespace Client.ViewModel
                 {
                     var reqUserList = new UserListReq {Login = Const.User.Login};
                     var response = scope.Resolve<IUsersList>();
+                    _allUsersList.Clear();
                     foreach (var user in response.UserListReqResponse(reqUserList).Users)
                     {
-                        _allUsersList.Add(user.Login);
+                        _allUsersList.Add(user);
                     }
                 }
             }
