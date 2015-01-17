@@ -24,7 +24,8 @@ namespace Client.ViewModel
 {
     public class ChatViewModel : INotifyPropertyChanged  
     {
-        Listening listener = new Listening();
+        private Listening listener;
+        private Thread th;
 
         public DelegateCommand ChangeFormVisibility { get; private set; }
         public DelegateCommand ViewEmoticons { get; private set; }
@@ -53,9 +54,12 @@ namespace Client.ViewModel
             SendMessage = new DelegateCommand(sendMessage, canSendMessage);
             RemoveFriend = new DelegateCommand(removeFriend, canRemoveFriend);
             Conversation = new ObservableCollection<MessageNotification>();
-            AddPresenceStatuses();
-            listener = new Listening();
+            AddPresenceStatuses();      
             DownloadFriendsList();
+                                  
+            listener = new Listening();
+            th = new Thread(doListen);
+            th.Start();
         }
 
         public Visibility ChatSwitchMode 
@@ -170,7 +174,6 @@ namespace Client.ViewModel
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-
         private Visibility _chatSwitchMode = Visibility.Visible;
         private Visibility _emoticonsVisibility = Visibility.Collapsed;
         private Visibility _font = Visibility.Collapsed;
@@ -240,6 +243,11 @@ namespace Client.ViewModel
                     var writer = scope.Resolve<IMessages>();
                     writer.SendMessage(message);
                 }
+
+                Conversation.Add(new MessageNotification() { 
+                    Attachment = message.Attachment, SendTime = message.SendTime,
+                    Message = message.Message, Recipient = message.Recipient, Sender = message.Login
+                });
             }
             catch { }
 
@@ -273,6 +281,7 @@ namespace Client.ViewModel
         {
             return _allUsersList.Any(user => user.Login.Equals(FriendLogin)) && !FriendLogin.Equals(Const.User.Login);
         }
+       
         private void doSelectForm()
         {
             switch (ChatSwitchMode)
@@ -409,6 +418,32 @@ namespace Client.ViewModel
             }
             //catch { }
         }
+
+        void doListen()
+        {
+            while (th != null && th.IsAlive)
+            {
+                var msg = listener.ListeningMessages();
+                if (msg != null)
+                    Conversation.Add(new MessageNotification()
+                    {
+                        Message = msg.Message,
+                        Attachment = msg.Attachment,
+                        Sender = msg.Recipient,
+                        Recipient = Const.User.Login,
+                        SendTime = msg.SendTime
+                    });
+
+                var act = listener.ListeningActivity();
+                if (act != null) ;
+
+                var prs = listener.ListeningPresenceStatus();
+                if (prs != null) ;
+                //PresenceQueue.Enqueue(prs);  
+                Thread.Sleep(500);   
+            }
+        }
+
     }
 
     public class PresenceStatusView
