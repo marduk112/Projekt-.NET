@@ -1,5 +1,6 @@
 ﻿using Common;
 using Server.DataModels;
+using Server.Modules;
 using SQLite;
 using System;
 using System.Collections.Generic;
@@ -43,6 +44,13 @@ namespace Server.Data_Access
         {
             user.Status = status;
             Update(user);
+            var friendsList = QueryAllFriends(user.Login);
+            var notificationsList = NotificationFactory.CreatePresenceNotifications(friendsList, user);
+            var sender = new PresenceStatusSender();
+            foreach (var presenceStatusNotification in notificationsList)
+            {
+                sender.Send(presenceStatusNotification);
+            }
         }
         public IEnumerable<Common.User> QueryAllUsers()
         {

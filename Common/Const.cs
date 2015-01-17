@@ -14,6 +14,7 @@
         /// ClientMessageNotificationRoute + *sender* + "." + "recipent"
         /// </summary>
         public static string ClientMessageNotificationRoute = "client.notification.message.";
+        public static string ClientPresenceStatusNotificationRoute = "client.notification.presence.";
         public static string ServerMessageRequestRoute = "server.request.message";
         public static string ServerStatusRequestRoute = "server.request.status";
         public static string ServerFriendListRequestRoute = "server.request.friends";
