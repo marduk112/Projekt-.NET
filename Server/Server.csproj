@@ -72,7 +72,7 @@
     <Compile Include="Modules\Interfaces\INotificationSender.cs" />
     <Compile Include="Modules\Interfaces\IServicable.cs" />
     <Compile Include="Modules\Services\LoginService.cs" />
-    <Compile Include="Modules\AddFriendService.cs" />
+    <Compile Include="Modules\Services\AddFriendService.cs" />
     <Compile Include="Modules\FriendListService.cs" />
     <Compile Include="Modules\IServicable.cs" />
     <Compile Include="Modules\LoginService.cs" />
