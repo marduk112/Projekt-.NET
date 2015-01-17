@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using System.Data;
+using Common;
 using Server.DataModels;
 using Server.Modules;
 using SQLite;
@@ -114,8 +115,12 @@ namespace Server.Data_Access
         {
             if (AreFriends(userLogin, friendLogin) == null)
             {
-                var newFriends = new Friends { UserLogin1 = userLogin, UserLogin2 = friendLogin };
+                var newFriends = new Friends {UserLogin1 = userLogin, UserLogin2 = friendLogin};
                 Insert(newFriends);
+            }
+            else
+            {
+                throw new DataException("Friend already exist in friend list.");
             }
         }
 
@@ -125,6 +130,10 @@ namespace Server.Data_Access
             if (areFriends != null)
             {
                 Delete(areFriends);
+            }
+            else
+            {
+                throw new DataException("Friend not exist in friend list.");
             }
         }
     }

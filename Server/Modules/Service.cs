@@ -19,6 +19,7 @@ namespace Server.Modules
             services.Add(new LoginService());
             services.Add(new UsersListService());
             services.Add(new FriendListService());
+            services.Add(new AddFriendService());
 
             foreach (var service in services)
             {
