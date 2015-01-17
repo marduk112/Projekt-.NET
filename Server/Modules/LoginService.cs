@@ -51,6 +51,7 @@ namespace Server.Modules
                         }
                         finally
                         {
+                            log(response);
                             var responseBytes = response.Serialize();
                             channel.BasicPublish("", props.ReplyTo, replyProps, responseBytes);
                             channel.BasicAck(ea.DeliveryTag, false);
@@ -90,6 +91,17 @@ namespace Server.Modules
             authResponse.Message = error;
             authResponse.IsAuthenticated = false;
             return authResponse;
+        }
+
+        private void log(AuthResponse response)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(DateTime.Now.ToLongTimeString());
+            sb.Append(" - ");
+            sb.Append(message.Login);
+            sb.Append(" attempted to login. Result: ");
+            sb.Append(response.Status);
+            Console.WriteLine(sb.ToString());
         }
 
         private static AuthRequest message;

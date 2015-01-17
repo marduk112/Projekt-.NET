@@ -20,7 +20,6 @@ namespace Server
             //example
             Console.WriteLine(" [x] Awaiting RPC requests");
             ServiceFactory.CreateService().Run();
-            Console.ReadKey();
         }
     }
 }

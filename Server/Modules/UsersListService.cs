@@ -40,9 +40,12 @@ namespace Server.Modules
                         try
                         {
                             message = body.DeserializeUserListReq();
-                            response = new UserListResponse { Message = "Lista użytkowników", 
+                            response = new UserListResponse 
+                            { 
+                                Message = "Lista użytkowników", 
                                 Status = Status.OK, 
-                                Users = (List<Common.User>) db.QueryAllUsers() };
+                                Users = (List<Common.User>) db.QueryAllUsers() 
+                            };
                         }
                         catch (Exception e)
                         {
@@ -55,6 +58,7 @@ namespace Server.Modules
                         }
                         finally
                         {
+                            log(response);
                             var responseBytes = response.Serialize();
                             channel.BasicPublish("", props.ReplyTo, replyProps, responseBytes);
                             channel.BasicAck(ea.DeliveryTag, false);
@@ -67,6 +71,16 @@ namespace Server.Modules
         public void Stop()
         {
             _work = false;
+        }
+        private void log(UserListResponse response)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(DateTime.Now.ToLongTimeString());
+            sb.Append(" - ");
+            sb.Append(message.Login);
+            sb.Append(" attempted to fetch users list. Result: ");
+            sb.Append(response.Status);
+            Console.WriteLine(sb.ToString());
         }
     }
 }

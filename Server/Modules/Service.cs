@@ -41,6 +41,15 @@ namespace Server.Modules
             {
                 service.Stop();
             }
+            AbortAll();
+        }
+
+        private void AbortAll()
+        {
+            foreach (Thread thread in threads)
+            {
+                thread.Abort();
+            }
         }
     }
 }

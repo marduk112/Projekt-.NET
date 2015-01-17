@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -55,6 +56,7 @@ namespace Server.Modules
                         }
                         finally
                         {
+                            log(response);
                             var responseBytes = response.Serialize();
                             channel.BasicPublish("", props.ReplyTo, replyProps, responseBytes);
                             channel.BasicAck(ea.DeliveryTag, false);
@@ -86,6 +88,17 @@ namespace Server.Modules
                 createUserResponse = incorrectRegister("User with login " + message.Login + " exist");   
             }
             return createUserResponse;
+        }
+
+        private void log(CreateUserResponse response)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(DateTime.Now.ToLongTimeString());
+            sb.Append(" - ");
+            sb.Append(message.Login);
+            sb.Append(" attempted to register. Result: ");
+            sb.Append(response.Status);
+            Console.WriteLine(sb.ToString());
         }
 
         private CreateUserResponse incorrectRegister(string error)
