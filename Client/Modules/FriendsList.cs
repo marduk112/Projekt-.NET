@@ -21,9 +21,14 @@ namespace Client.Modules
             {
                 using (var channel = connection.CreateModel())
                 {
+                    var replyQueueName = channel.QueueDeclare();
+                    var corrId = Guid.NewGuid().ToString();
+                    var props = channel.CreateBasicProperties();
                     channel.QueueDeclare("AddFriendServer", false, false, false, null);
                     var messageBytes = addFriendReq.Serialize();
-                    channel.BasicPublish("", "AddFriendServer", null, messageBytes);
+                    props.ReplyTo = replyQueueName;
+                    props.CorrelationId = corrId;
+                    channel.BasicPublish("", "AddFriendServer", props, messageBytes);
                    
                 }
             }

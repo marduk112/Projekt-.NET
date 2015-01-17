@@ -46,6 +46,7 @@ namespace Server.Data_Access
         {
             user.Status = status;
             Update(user);
+            Console.WriteLine(DateTime.Now.ToShortTimeString() + " - User " + user.Login + " changed status to: " + status);
             var friendsList = QueryAllFriends(user.Login);
             var notificationsList = NotificationFactory.CreatePresenceNotifications(friendsList, user);
             var sender = new PresenceStatusSender();
@@ -112,16 +113,18 @@ namespace Server.Data_Access
                 select f).FirstOrDefault();
         }
 
-        public void AddFriend(string userLogin, string friendLogin)
+        public bool AddFriend(string userLogin, string friendLogin)
         {
+            var result = AreFriends(userLogin, friendLogin);
             if (AreFriends(userLogin, friendLogin) == null)
             {
                 var newFriends = new Friends {UserLogin1 = userLogin, UserLogin2 = friendLogin};
                 Insert(newFriends);
+                return true;
             }
             else
             {
-                throw new DataException("Friend already exist in friend list.");
+                return false;
             }
         }
 

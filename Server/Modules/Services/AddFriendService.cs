@@ -77,12 +77,20 @@ namespace Server.Modules.Services
             var db = new Database();
             try
             {
-                db.AddFriend(message.Login, message.FriendLogin);
-                addFriendResponse = new AddFriendResponse();
-                addFriendResponse.Status = Status.OK;
-                addFriendResponse.Message = "Successful added";
+                var result = db.AddFriend(message.Login, message.FriendLogin);
+                if (result)
+                {
+                    addFriendResponse = new AddFriendResponse();
+                    addFriendResponse.Status = Status.OK;
+                    addFriendResponse.Message = "Successful added";
+                }
+                else
+                {
+                    addFriendResponse =
+                        incorrectAddFriend("User with login " + message.FriendLogin + " is already a friend");
+                }
             }
-            catch (DataException)
+            catch (Exception)
             {
                 addFriendResponse = incorrectAddFriend("User with login " + message.FriendLogin + " is already a friend");
             }
