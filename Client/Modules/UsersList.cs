@@ -53,7 +53,7 @@ namespace Client.Modules
                     props.ReplyTo = replyQueueName;
                     props.CorrelationId = corrId;
                     var messageBytes = userListReq.Serialize(); //message forward login and password
-                    channel.BasicPublish("", "FriendsListServer", props, messageBytes);
+                    channel.BasicPublish("", "FriendListServer", props, messageBytes);
                     while (true)
                     {
                         var ea = consumer.Queue.Dequeue();

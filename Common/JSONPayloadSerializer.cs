@@ -92,5 +92,19 @@ namespace Common
                 return JsonSerializer.DeserializeFromStream<User>(stream);
             }
         }
+        public static AddFriendReq DeserializeAddFriendReq(this byte[] data)
+        {
+            using (var stream = new MemoryStream(data))
+            {
+                return JsonSerializer.DeserializeFromStream<AddFriendReq>(stream);
+            }
+        }
+        public static DeleteFriendReq DeserializeDeleteFriendReq(this byte[] data)
+        {
+            using (var stream = new MemoryStream(data))
+            {
+                return JsonSerializer.DeserializeFromStream<DeleteFriendReq>(stream);
+            }
+        }
     }
 }
