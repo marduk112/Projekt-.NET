@@ -26,7 +26,7 @@ namespace Client.ViewModel
         public DelegateCommand ViewEmoticons { get; private set; }
         public DelegateCommand AddAttachment { get; private set; }
         public DelegateCommand Close { get; private set; }
-        public DelegateCommand<object[]> AddEmoticon { get; private set; }
+        public DelegateCommand<string> AddEmoticon { get; private set; }
         public DelegateCommand FontVisibility { get; private set; }
         public DelegateCommand AddFriend { get; private set; }
         public DelegateCommand SendMessage { get; private set; }
@@ -39,7 +39,7 @@ namespace Client.ViewModel
             ViewEmoticons = new DelegateCommand(viewEmoticons);
             AddAttachment = new DelegateCommand(addAttachment);
             Close = new DelegateCommand(closeApplication);
-            AddEmoticon = new DelegateCommand<object[]>(addEmoticon);
+            AddEmoticon = new DelegateCommand<string>(addEmoticon);
             FontVisibility = new DelegateCommand(fontVisibility);
             Friends = new ObservableCollection<User>();
             PresenceStatuses = new ObservableCollection<PresenceStatusView>();
@@ -288,12 +288,9 @@ namespace Client.ViewModel
             Application.Current.Shutdown();
         }
 
-        private void addEmoticon(object[] values)
+        private void addEmoticon(string emoticon)
         {
-            
-            var textDialog = values[0] as TextBox;
-            var emoticon = values[1] as string;
-            textDialog.Text += " " + emoticon + " ";
+            Message += " " + emoticon + " ";
         }
 
 

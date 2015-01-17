@@ -120,10 +120,6 @@
     <Compile Include="Chat.xaml.cs">
       <DependentUpon>Chat.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Contacts.xaml.cs">
-      <DependentUpon>Contacts.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Converter\Converter.cs" />
     <Compile Include="Interfaces\IActivity.cs" />
     <Compile Include="Interfaces\ILogin.cs" />
     <Compile Include="Interfaces\IMessages.cs" />
@@ -156,10 +152,6 @@
     <Compile Include="ViewModel\LoginViewModel.cs" />
     <Compile Include="ViewModel\RegistrationViewModel.cs" />
     <Page Include="Chat.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Contacts.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
