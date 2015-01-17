@@ -7,11 +7,14 @@ using System.Threading.Tasks;
 using Client.Interfaces;
 using Common;
 using RabbitMQ.Client;
+using System.Threading;
 
 namespace Client
 {
     public class Listening
     {
+        Thread th;
+
         public Listening()
         {
             var builder = new ContainerBuilder();
@@ -21,6 +24,13 @@ namespace Client
             builder.RegisterType<Modules.Activity>().As<IActivity>();
             _container = builder.Build();
             _isRun = true;
+
+            ActivityQueue = new Queue<ActivityResponse>();
+            PresenceQueue = new Queue<PresenceStatusNotification>();
+            MessageQueue = new Queue<MessageResponse>();
+
+            Thread th = new Thread(doExecute);
+            th.Start();
         }
 
         public PresenceStatusNotification ListeningPresenceStatus()
@@ -33,6 +43,27 @@ namespace Client
                 user = response.ReceiveUserPresenceStatus(Timeout);
             }
             return user;
+
+        }
+
+        void doExecute() 
+        {
+            while (_isRun)
+            {
+                var msg = ListeningMessages();
+                if (msg != null)
+                    MessageQueue.Enqueue(msg);
+
+                var act = ListeningActivity();
+                if (act != null)
+                    ActivityQueue.Enqueue(act);
+
+                var prs = ListeningPresenceStatus();
+                if (prs != null)
+                    PresenceQueue.Enqueue(prs);
+
+                Thread.Sleep(Timeout);
+            }
         }
 
         public MessageResponse ListeningMessages()
@@ -58,6 +89,11 @@ namespace Client
             }
             return activityResponse;
         }
+
+
+        public Queue<ActivityResponse> ActivityQueue { get; set; }
+        public Queue<MessageResponse> MessageQueue { get; set; }
+        public Queue<PresenceStatusNotification> PresenceQueue { get; set; }
 
         private IContainer _container;
         private const int Timeout = 200;

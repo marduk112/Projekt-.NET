@@ -18,11 +18,14 @@ using Microsoft.Practices.Prism.Commands;
 using RabbitMQ.Client;
 using Xceed.Wpf.DataGrid.Views;
 using PresenceStatus = Common.PresenceStatus;
+using System.Threading;
 
 namespace Client.ViewModel
 {
     public class ChatViewModel : INotifyPropertyChanged  
     {
+        Listening listener = new Listening();
+
         public DelegateCommand ChangeFormVisibility { get; private set; }
         public DelegateCommand ViewEmoticons { get; private set; }
         public DelegateCommand AddAttachment { get; private set; }
@@ -51,6 +54,7 @@ namespace Client.ViewModel
             RemoveFriend = new DelegateCommand(removeFriend, canRemoveFriend);
             Conversation = new ObservableCollection<MessageNotification>();
             AddPresenceStatuses();
+            listener = new Listening();
         }
 
         public Visibility ChatSwitchMode 
@@ -63,6 +67,7 @@ namespace Client.ViewModel
                 ChangeFormVisibility.RaiseCanExecuteChanged();
             }
         }
+        
         public Visibility ChatSwitchMode2
         {
             get { return _chatSwitchMode2; }
@@ -235,6 +240,7 @@ namespace Client.ViewModel
                 }
             }
             catch { }
+
         }
 
         private bool canSendMessage()
@@ -315,6 +321,7 @@ namespace Client.ViewModel
                     break;
             }
         }
+       
         private void addAttachment()
         {
             var window = new Microsoft.Win32.OpenFileDialog
@@ -350,13 +357,13 @@ namespace Client.ViewModel
             Message += " " + emoticon + " ";
         }
 
-
         private void AddPresenceStatuses()
         {
             PresenceStatuses.Add(new PresenceStatusView { PresenceStatus = PresenceStatus.Online, Value = "Online" });
             PresenceStatuses.Add(new PresenceStatusView { PresenceStatus = PresenceStatus.Afk, Value = "Away from keyboard" });
             PresenceStatuses.Add(new PresenceStatusView { PresenceStatus = PresenceStatus.Offline, Value = "Offline" });
         }
+        
         private void DownloadUsersList()
         {
             try
