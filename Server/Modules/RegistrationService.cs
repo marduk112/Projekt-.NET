@@ -18,6 +18,7 @@ namespace Server.Modules
         private static string ServiceName = "regServer";
         private CreateUserReq message;
         private volatile bool _work;
+        private static string logMsg = " attempted to register. Result: ";
 
 
         public void Start()
@@ -26,41 +27,39 @@ namespace Server.Modules
 
             var factory = new ConnectionFactory() { HostName = Const.HostName };
             using (var connection = factory.CreateConnection())
+            using (var channel = connection.CreateModel())
             {
-                using (var channel = connection.CreateModel())
+                channel.QueueDeclare(ServiceName, false, false, false, null);
+                channel.BasicQos(0, 1, false);
+                var consumer = new QueueingBasicConsumer(channel);
+                channel.BasicConsume(ServiceName, false, consumer);
+
+                while (_work)
                 {
-                    channel.QueueDeclare(ServiceName, false, false, false, null);
-                    channel.BasicQos(0, 1, false);
-                    var consumer = new QueueingBasicConsumer(channel);
-                    channel.BasicConsume(ServiceName, false, consumer);
+                    var response = new CreateUserResponse();
+                    var ea = consumer.Queue.Dequeue();
 
-                    while (_work)
+                    var body = ea.Body;
+                    var props = ea.BasicProperties;
+                    var replyProps = channel.CreateBasicProperties();
+                    replyProps.CorrelationId = props.CorrelationId;
+
+                    try
                     {
-                        var response = new CreateUserResponse();
-                        var ea = consumer.Queue.Dequeue();
-
-                        var body = ea.Body;
-                        var props = ea.BasicProperties;
-                        var replyProps = channel.CreateBasicProperties();
-                        replyProps.CorrelationId = props.CorrelationId;
-
-                        try
-                        {
-                            message = body.DeserializeCreateUserReq();
-                            response = correctRegister();
-                        }
-                        catch (Exception e)
-                        {
-                            response = incorrectRegister("Incorrect registration");
-                            Console.WriteLine(e.Message);
-                        }
-                        finally
-                        {
-                            log(response);
-                            var responseBytes = response.Serialize();
-                            channel.BasicPublish("", props.ReplyTo, replyProps, responseBytes);
-                            channel.BasicAck(ea.DeliveryTag, false);
-                        }
+                        message = body.DeserializeCreateUserReq();
+                        response = correctRegister();
+                    }
+                    catch (Exception e)
+                    {
+                        response = incorrectRegister("Incorrect registration");
+                        Console.WriteLine(e.Message);
+                    }
+                    finally
+                    {
+                        Logger.serviceLog(response, message, logMsg);
+                        var responseBytes = response.Serialize();
+                        channel.BasicPublish("", props.ReplyTo, replyProps, responseBytes);
+                        channel.BasicAck(ea.DeliveryTag, false);
                     }
                 }
             }
@@ -88,17 +87,6 @@ namespace Server.Modules
                 createUserResponse = incorrectRegister("User with login " + message.Login + " exist");   
             }
             return createUserResponse;
-        }
-
-        private void log(CreateUserResponse response)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(DateTime.Now.ToLongTimeString());
-            sb.Append(" - ");
-            sb.Append(message.Login);
-            sb.Append(" attempted to register. Result: ");
-            sb.Append(response.Status);
-            Console.WriteLine(sb.ToString());
         }
 
         private CreateUserResponse incorrectRegister(string error)

@@ -15,8 +15,10 @@ namespace Server.Modules
 {
     class LoginService : IServicable
     {
+        private static AuthRequest message;
         private static string ServiceName = "loginServer";
         private bool _work;
+        private static string logMsg = " attempted to login. Result: ";
 
         public void Start()
         {
@@ -24,38 +26,36 @@ namespace Server.Modules
 
             var factory = new ConnectionFactory { HostName = Const.HostName };
             using (var connection = factory.CreateConnection())
+            using (var channel = connection.CreateModel())
             {
-                using (var channel = connection.CreateModel())
-                {
-                    channel.QueueDeclare(ServiceName, false, false, false, null);
-                    channel.BasicQos(0, 1, false);
-                    var consumer = new QueueingBasicConsumer(channel);
-                    channel.BasicConsume(ServiceName, false, consumer);
+                channel.QueueDeclare(ServiceName, false, false, false, null);
+                channel.BasicQos(0, 1, false);
+                var consumer = new QueueingBasicConsumer(channel);
+                channel.BasicConsume(ServiceName, false, consumer);
 
-                    while (true)
+                while (true)
+                {
+                    var response = new AuthResponse();
+                    var ea = consumer.Queue.Dequeue();
+                    var body = ea.Body;
+                    var props = ea.BasicProperties;
+                    var replyProps = channel.CreateBasicProperties();
+                    replyProps.CorrelationId = props.CorrelationId;
+                    try
                     {
-                        var response = new AuthResponse();
-                        var ea = consumer.Queue.Dequeue();
-                        var body = ea.Body;
-                        var props = ea.BasicProperties;
-                        var replyProps = channel.CreateBasicProperties();
-                        replyProps.CorrelationId = props.CorrelationId;
-                        try
-                        {
-                            message = body.DeserializeAuthRequest();
-                            response = correctAuthentication();
-                        }
-                        catch (Exception e)
-                        {
-                            response = IncorrectAuthentication("Error");
-                        }
-                        finally
-                        {
-                            log(response);
-                            var responseBytes = response.Serialize();
-                            channel.BasicPublish("", props.ReplyTo, replyProps, responseBytes);
-                            channel.BasicAck(ea.DeliveryTag, false);
-                        }
+                        message = body.DeserializeAuthRequest();
+                        response = correctAuthentication();
+                    }
+                    catch (Exception e)
+                    {
+                        response = IncorrectAuthentication("Error");
+                    }
+                    finally
+                    {
+                        Logger.serviceLog(response, message, logMsg);
+                        var responseBytes = response.Serialize();
+                        channel.BasicPublish("", props.ReplyTo, replyProps, responseBytes);
+                        channel.BasicAck(ea.DeliveryTag, false);
                     }
                 }
             }
@@ -92,18 +92,5 @@ namespace Server.Modules
             authResponse.IsAuthenticated = false;
             return authResponse;
         }
-
-        private void log(AuthResponse response)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(DateTime.Now.ToLongTimeString());
-            sb.Append(" - ");
-            sb.Append(message.Login);
-            sb.Append(" attempted to login. Result: ");
-            sb.Append(response.Status);
-            Console.WriteLine(sb.ToString());
-        }
-
-        private static AuthRequest message;
     }
 }

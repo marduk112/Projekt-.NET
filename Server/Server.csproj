@@ -66,6 +66,7 @@
     <Compile Include="Data Access\UsersPresenceStatus.cs" />
     <Compile Include="DataModels\Friends.cs" />
     <Compile Include="DataModels\User.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="Modules\IServicable.cs" />
     <Compile Include="Modules\LoginService.cs" />
     <Compile Include="Modules\MessageHistory.cs" />
