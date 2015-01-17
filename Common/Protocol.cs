@@ -130,4 +130,17 @@ namespace Common
         public bool IsWriting { get; set; }
         public string Recipient { get; set; }
     }
+
+    public class AddFriendReq : Request
+    {
+        public string FriendLogin { get; set; }
+    }
+
+    public class AddFriendResponse : Response {}
+    public class DeleteFriendReq : Request
+    {
+        public string FriendLogin { get; set; }
+    }
+
+    public class DeleteFriendResponse : Response {}
 }
