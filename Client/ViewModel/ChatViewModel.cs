@@ -161,9 +161,9 @@ namespace Client.ViewModel
             {
                 _friend = value;
                 OnPropertyChanged();
-                if (!_messagesDictionary.ContainsKey(FriendLogin))
-                    _messagesDictionary.Add(FriendLogin, new ObservableCollection<MessageNotification>());
-                Conversation = _messagesDictionary[FriendLogin];
+                if (!_messagesDictionary.ContainsKey(Friend.Login))
+                    _messagesDictionary.Add(Friend.Login, new ObservableCollection<MessageNotification>());
+                Conversation = _messagesDictionary[Friend.Login];
                 RemoveFriend.RaiseCanExecuteChanged();
             }
         }
@@ -192,6 +192,17 @@ namespace Client.ViewModel
         private void removeFriend()
         {
             Friends.Remove(Friends.First(friend => friend.Login.Equals(Friend.Login)));
+            var builder = new ContainerBuilder();
+            builder.Register(_ => new ConnectionFactory { HostName = Const.HostName }).As<IConnectionFactory>();
+            builder.RegisterType<Modules.PresenceStatus>().As<IPresenceStatus>();
+            builder.RegisterType<FriendsList>().As<IFriendsList>();
+            var container = builder.Build();
+            using (var scope = container.BeginLifetimeScope())
+            {
+                var writer = scope.Resolve<IFriendsList>();
+                var deleteFriendReq = new DeleteFriendReq {Login = Const.User.Login, FriendLogin = Friend.Login};
+                writer.DeleteFriend(deleteFriendReq);
+            }
         }
 
         private bool canRemoveFriend()
@@ -209,12 +220,13 @@ namespace Client.ViewModel
             var builder = new ContainerBuilder();
             builder.Register(_ => new ConnectionFactory { HostName = Const.HostName }).As<IConnectionFactory>();
             builder.RegisterType<Modules.PresenceStatus>().As<IPresenceStatus>();
+            builder.RegisterType<FriendsList>().As<IFriendsList>();
             var container = builder.Build();
             using (var scope = container.BeginLifetimeScope())
             {
-                var writer = scope.Resolve<IPresenceStatus>();
-                //download user presence status
-                //writer.
+                var writer = scope.Resolve<IFriendsList>();
+                var addFriendReq = new AddFriendReq {Login = Const.User.Login, FriendLogin = FriendLogin};
+                writer.AddFriend(addFriendReq);
             }
             Friends.Add(user);
         }
@@ -266,7 +278,7 @@ namespace Client.ViewModel
                 }
             }
             catch { }
-            return !string.IsNullOrEmpty(Message) && Friend != null;
+            return !string.IsNullOrEmpty(Message) && !string.IsNullOrEmpty(Friend.Login);
         }
 
         private bool canAddFriend()
