@@ -93,6 +93,7 @@ namespace Client
         public Queue<MessageResponse> MessageQueue { get; set; }
         public Queue<PresenceStatusNotification> PresenceQueue { get; set; }
 
+        private bool _isRun = true;
         private IContainer _container;
         private const int Timeout = 200;
     }
