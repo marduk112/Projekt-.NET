@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Server.Modules.Services;
 
 namespace Server.Modules
 {
@@ -20,6 +21,7 @@ namespace Server.Modules
             services.Add(new UsersListService());
             services.Add(new FriendListService());
             services.Add(new AddFriendService());
+            services.Add(new DeleteFriendService());
 
             foreach (var service in services)
             {
