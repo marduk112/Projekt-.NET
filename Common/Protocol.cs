@@ -98,7 +98,7 @@ namespace Common
     }
 
 
-    public class MessageNotification
+    public class MessageNotification : Notification
     {
         public string Sender { get; set; }
         public string Recipient { get; set; }

@@ -17,7 +17,7 @@ namespace Server.Modules.Senders
         private static string SenderName = "MessageNotificationSender";
         public void Send(Common.Notification notification)
         {
-            var notif = (Common.MessageNotification) notification;
+            var notif = (Common.MessageNotification)notification;
 
             var factory = new ConnectionFactory { HostName = Const.HostName };
             using (var connection = factory.CreateConnection())
