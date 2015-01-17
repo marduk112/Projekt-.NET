@@ -68,12 +68,14 @@
     <Compile Include="DataModels\User.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Modules\NotificationFactory.cs" />
+    <Compile Include="Modules\Senders\MessageSender.cs" />
     <Compile Include="Modules\Services\FriendListService.cs" />
     <Compile Include="Modules\Interfaces\INotificationSender.cs" />
     <Compile Include="Modules\Interfaces\IServicable.cs" />
     <Compile Include="Modules\Services\LoginService.cs" />
     <Compile Include="Modules\Services\AddFriendService.cs" />
     <Compile Include="Modules\Services\DeleteFriendService.cs" />
+    <Compile Include="Modules\Services\MessageService.cs" />
     <Compile Include="Modules\MessageHistory.cs" />
     <Compile Include="Modules\Senders\PresenceStatusSender.cs" />
     <Compile Include="Modules\Services\RegistrationService.cs" />

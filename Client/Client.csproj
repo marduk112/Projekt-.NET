@@ -121,6 +121,7 @@
       <DependentUpon>Chat.xaml</DependentUpon>
     </Compile>
     <Compile Include="Interfaces\IActivity.cs" />
+    <Compile Include="Interfaces\IFriendsList.cs" />
     <Compile Include="Interfaces\ILogin.cs" />
     <Compile Include="Interfaces\IMessages.cs" />
     <Compile Include="Interfaces\IPresenceStatus.cs" />
@@ -128,6 +129,7 @@
     <Compile Include="Interfaces\IUsersList.cs" />
     <Compile Include="Listening.cs" />
     <Compile Include="Modules\Activity.cs" />
+    <Compile Include="Modules\FriendsList.cs" />
     <Compile Include="Modules\Login.cs" />
     <Compile Include="Modules\Messages.cs" />
     <Compile Include="Modules\PresenceStatus.cs" />
