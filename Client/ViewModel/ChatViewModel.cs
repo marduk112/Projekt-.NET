@@ -51,6 +51,7 @@ namespace Client.ViewModel
             RemoveFriend = new DelegateCommand(removeFriend, canRemoveFriend);
             Conversation = new ObservableCollection<MessageNotification>();
             AddPresenceStatuses();
+            DownloadFriendsList();
         }
 
         public Visibility ChatSwitchMode 
@@ -158,6 +159,7 @@ namespace Client.ViewModel
                 if (!_messagesDictionary.ContainsKey(FriendLogin))
                     _messagesDictionary.Add(FriendLogin, new ObservableCollection<MessageNotification>());
                 Conversation = _messagesDictionary[FriendLogin];
+                RemoveFriend.RaiseCanExecuteChanged();
             }
         }
 
@@ -377,6 +379,28 @@ namespace Client.ViewModel
                 }
             }
             catch{}
+        }
+
+        private void DownloadFriendsList()
+        {
+            //try
+            {
+                var builder = new ContainerBuilder();
+                builder.Register(_ => new ConnectionFactory { HostName = Const.HostName }).As<IConnectionFactory>();
+                builder.RegisterType<UsersList>().As<IUsersList>();
+                var container = builder.Build();
+                using (var scope = container.BeginLifetimeScope())
+                {
+                    var reqUserList = new UserListReq { Login = Const.User.Login };
+                    var response = scope.Resolve<IUsersList>();
+                    _allUsersList.Clear();
+                    foreach (var user in response.GetFriendsListWithPresenceStatus(reqUserList).Users)
+                    {
+                        Friends.Add(user);
+                    }
+                }
+            }
+            //catch { }
         }
     }
 

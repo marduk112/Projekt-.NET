@@ -20,12 +20,10 @@ namespace Client
             builder.RegisterType<Modules.Messages>().As<IMessages>();
             builder.RegisterType<Modules.Activity>().As<IActivity>();
             _container = builder.Build();
-            _isRun = true;
         }
 
         public PresenceStatusNotification ListeningPresenceStatus()
         {
-            if (!_isRun) return null;
             PresenceStatusNotification user;
             using (var scope = _container.BeginLifetimeScope())
             {
@@ -37,7 +35,6 @@ namespace Client
 
         public MessageResponse ListeningMessages()
         {
-            if (!_isRun) return null;
             MessageResponse messageResponse;
             using (var scope = _container.BeginLifetimeScope())
             {
@@ -49,7 +46,6 @@ namespace Client
 
         public ActivityResponse ListeningActivity()
         {
-            if (!_isRun) return null;
             ActivityResponse activityResponse;
             using (var scope = _container.BeginLifetimeScope())
             {
@@ -61,6 +57,5 @@ namespace Client
 
         private IContainer _container;
         private const int Timeout = 200;
-        private bool _isRun = false;
     }
 }
