@@ -48,12 +48,14 @@ namespace Client.ViewModel
             Close = new DelegateCommand(closeApplication);
             AddEmoticon = new DelegateCommand<string>(addEmoticon);
             FontVisibility = new DelegateCommand(fontVisibility);
-            Friends = new ObservableCollection<User>();
             PresenceStatuses = new ObservableCollection<PresenceStatusView>();
             AddFriend = new DelegateCommand(addFriend, canAddFriend);
             SendMessage = new DelegateCommand(sendMessage, canSendMessage);
+
             RemoveFriend = new DelegateCommand(removeFriend, canRemoveFriend);
-            Conversation = new ObservableCollection<MessageNotification>();
+            Conversation = new ObservableCollection<MessageNotification>();      
+            Friends = new ObservableCollection<User>();
+
             AddPresenceStatuses();      
             DownloadFriendsList();
                                   
@@ -286,7 +288,7 @@ namespace Client.ViewModel
                 }
             }
             catch { }
-            return !string.IsNullOrEmpty(Message) && !string.IsNullOrEmpty(Friend.Login);
+            return !string.IsNullOrEmpty(Message) && (Friend!=null) && !string.IsNullOrEmpty(Friend.Login);
         }
 
         private bool canAddFriend()
@@ -358,6 +360,7 @@ namespace Client.ViewModel
 
         private void closeApplication()
         {
+            _isRunning = false;
             Const.User.Status = PresenceStatus.Offline;
             try
             {
@@ -433,7 +436,7 @@ namespace Client.ViewModel
 
         void doListen()
         {
-            while (th != null && th.IsAlive)
+            while (th != null && th.IsAlive && _isRunning)
             {
                 var msg = listener.ListeningMessages();
                 if (msg != null)
@@ -450,11 +453,15 @@ namespace Client.ViewModel
                 if (act != null) ;
 
                 var prs = listener.ListeningPresenceStatus();
-                if (prs != null) ;
+                if (prs != null) 
+                    Friends.Where(x=>x.Login.Equals(prs.Login)).FirstOrDefault().Status = prs.PresenceStatus;
+
                 //PresenceQueue.Enqueue(prs);  
                 Thread.Sleep(500);   
             }
         }
+
+        private bool _isRunning = true;
 
     }
 
