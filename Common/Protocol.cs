@@ -91,6 +91,7 @@ namespace Common
 
     public class MessageResponse : Response
     {
+        public string Login { get; set; }
         public string Recipient { get; set; }
         public Attachment Attachment { get; set; }
         //Server

@@ -30,13 +30,13 @@ namespace Server.Data_Access
         public User QueryUser(string userLogin)
         {
             return (from u in Table<User>()
-                    where u.Login == userLogin
+                    where u.Login.Equals(userLogin)
                     select u).FirstOrDefault();
         }
         public Common.User QueryUserLogin(string userLogin, string userPassword)
         {
             var user = (from u in Table<User>()
-                        where u.Login == userLogin && u.Password == userPassword
+                        where u.Login.Equals(userLogin) && u.Password.Equals(userPassword)
                         select u).FirstOrDefault();
             ChangeUserStatus(ref user, PresenceStatus.Online);
             return user.ToCommonUser();
@@ -97,7 +97,7 @@ namespace Server.Data_Access
             foreach (var friend in friends)
             {
                 // Defining friend login which isn't userLogin
-                var friendLogin = friend.UserLogin1 == userLogin ? friend.UserLogin2 : friend.UserLogin1;
+                var friendLogin = friend.UserLogin1.Equals(userLogin) ? friend.UserLogin2 : friend.UserLogin1;
                 var userFriend = new Common.User { Login = friendLogin, Status = QueryUser(friendLogin).Status };
                 userList.Add(userFriend);
             }
@@ -108,8 +108,8 @@ namespace Server.Data_Access
         {
             return (from f in Table<Friends>()
                 where
-                    (f.UserLogin1 == userLogin && f.UserLogin2 == friendLogin) ||
-                    (f.UserLogin2 == userLogin && f.UserLogin1 == friendLogin)
+                    (f.UserLogin1.Equals(userLogin) && f.UserLogin2.Equals(friendLogin)) ||
+                    (f.UserLogin2.Equals(userLogin) && f.UserLogin1.Equals(friendLogin))
                 select f).FirstOrDefault();
         }
 

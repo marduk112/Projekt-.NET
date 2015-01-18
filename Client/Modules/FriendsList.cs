@@ -21,15 +21,11 @@ namespace Client.Modules
             {
                 using (var channel = connection.CreateModel())
                 {
-                    var replyQueueName = channel.QueueDeclare();
-                    var corrId = Guid.NewGuid().ToString();
-                    var props = channel.CreateBasicProperties();
-                    channel.QueueDeclare("AddFriendServer", false, false, false, null);
+                    channel.ExchangeDeclare(Const.ClientExchange, "topic", true);
+                    var properties = channel.CreateBasicProperties();
+                    properties.SetPersistent(true);
                     var messageBytes = addFriendReq.Serialize();
-                    props.ReplyTo = replyQueueName;
-                    props.CorrelationId = corrId;
-                    channel.BasicPublish("", "AddFriendServer", props, messageBytes);
-                   
+                    channel.BasicPublish(Const.ClientExchange, "AddFriendServer", properties, messageBytes);
                 }
             }
         }
@@ -40,9 +36,11 @@ namespace Client.Modules
             {
                 using (var channel = connection.CreateModel())
                 {
-                    channel.QueueDeclare("DeleteFriendServer", false, false, false, null);
+                    channel.ExchangeDeclare(Const.ClientExchange, "topic", true);
+                    var properties = channel.CreateBasicProperties();
+                    properties.SetPersistent(true);
                     var messageBytes = deleteFriendReq.Serialize();
-                    channel.BasicPublish("", "DeleteFriendServer", null, messageBytes);
+                    channel.BasicPublish(Const.ClientExchange, "DeleteFriendServer", properties, messageBytes);
                 }
             }
         }

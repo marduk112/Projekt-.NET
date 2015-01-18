@@ -26,6 +26,7 @@ namespace Client.Modules
                     channel.BasicConsume(replyQueueName, true, consumer);
                     var corrId = Guid.NewGuid().ToString();
                     var props = channel.CreateBasicProperties();
+                    props.SetPersistent(true);
                     props.ReplyTo = replyQueueName;
                     props.CorrelationId = corrId;
                     

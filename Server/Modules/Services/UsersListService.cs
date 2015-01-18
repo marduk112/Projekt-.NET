@@ -25,8 +25,7 @@ namespace Server.Modules.Services
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
-                channel.ExchangeDeclare(Const.ClientExchange, "topic");
-                channel.QueueDeclare(ServiceName, false, false, false, null);
+                channel.QueueDeclare(ServiceName, true, false, false, null);
                 channel.BasicQos(0, 1, false);
                 var consumer = new QueueingBasicConsumer(channel);
                 channel.BasicConsume(ServiceName, false, consumer);

@@ -13,26 +13,20 @@ namespace Client.Modules
             //var factory = new ConnectionFactory() { HostName = Const.HostName };
             connection = factory.CreateConnection();
             channel = connection.CreateModel();
-            channel.ExchangeDeclare("messages", "topic", true);
+            channel.ExchangeDeclare(Const.ClientExchange, "topic", true);
             queueName = channel.QueueDeclare();
-            channel.QueueBind(queueName, "messages", Const.User.Login);
+            var routingKey = Const.ClientMessageNotificationRoute + Const.User.Login;
+            channel.QueueBind(queueName, Const.ClientExchange, routingKey);
             consumer = new QueueingBasicConsumer(channel);
-            channel.BasicConsume(queueName, true, consumer);
+            channel.BasicConsume(queueName, false, consumer);
         }
         public void SendMessage (MessageReq message)
         {
-            var queueName = channel.QueueDeclare();
-            var corrId = Guid.NewGuid().ToString();
             var body = message.Serialize();
             var properties = channel.CreateBasicProperties();
             properties.SetPersistent(true);
-            properties.ReplyTo = queueName;
-            properties.CorrelationId = corrId;
-            //var routingKey = message.Recipient;
             var routingKey = Const.ServerMessageRequestRoute;
             channel.BasicPublish(Const.ClientExchange, routingKey, properties, body);
-            //(to determine)Server receive message and send it to correct user and save in database
-            //channel.BasicPublish("messages", "Server", properties, body);
         }
         //every user has queue for message response
         public MessageResponse ReceiveMessage(int timeout)
@@ -40,6 +34,7 @@ namespace Client.Modules
             BasicDeliverEventArgs ea;
             if (!consumer.Queue.Dequeue(timeout, out ea))
                 return null;
+            channel.BasicAck(ea.DeliveryTag, false);
             var body = ea.Body;
             var message = body.DeserializeMessageReq();
             var response = new MessageResponse

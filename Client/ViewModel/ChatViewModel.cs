@@ -165,9 +165,17 @@ namespace Client.ViewModel
             {
                 _friend = value;
                 OnPropertyChanged();
-                if (!_messagesDictionary.ContainsKey(Friend.Login))
-                    _messagesDictionary.Add(Friend.Login, new ObservableCollection<MessageNotification>());
-                Conversation = _messagesDictionary[Friend.Login];
+                if (!string.IsNullOrEmpty(FriendLogin))
+                {
+                    if (!_messagesDictionary.ContainsKey(FriendLogin))
+                        _messagesDictionary.Add(FriendLogin, new ObservableCollection<MessageNotification>());
+                }
+                if (Friend != null)
+                {
+                    if (!_messagesDictionary.ContainsKey(Friend.Login))
+                        _messagesDictionary.Add(Friend.Login, new ObservableCollection<MessageNotification>());
+                    Conversation = _messagesDictionary[Friend.Login];
+                }
                 RemoveFriend.RaiseCanExecuteChanged();
             }
         }
@@ -194,7 +202,6 @@ namespace Client.ViewModel
 
         private void removeFriend()
         {
-            Friends.Remove(Friends.First(friend => friend.Login.Equals(Friend.Login)));
             var builder = new ContainerBuilder();
             builder.Register(_ => new ConnectionFactory { HostName = Const.HostName }).As<IConnectionFactory>();
             builder.RegisterType<Modules.PresenceStatus>().As<IPresenceStatus>();
@@ -206,6 +213,7 @@ namespace Client.ViewModel
                 var deleteFriendReq = new DeleteFriendReq {Login = Const.User.Login, FriendLogin = Friend.Login};
                 writer.DeleteFriend(deleteFriendReq);
             }
+            Friends.Remove(Friends.First(friend => friend.Login.Equals(Friend.Login)));
         }
 
         private bool canRemoveFriend()
@@ -286,7 +294,10 @@ namespace Client.ViewModel
                 }
             }
             catch { }
-            return !string.IsNullOrEmpty(Message) && !string.IsNullOrEmpty(Friend.Login);
+            if (Friend != null)
+                return !string.IsNullOrEmpty(Message) && !string.IsNullOrEmpty(Friend.Login);
+            return false;
+
         }
 
         private bool canAddFriend()

@@ -27,22 +27,18 @@ namespace Server.Modules.Services
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
-                channel.ExchangeDeclare(Const.ClientExchange, "topic");
-                channel.QueueDeclare(ServiceName, false, false, false, null);
-                channel.BasicQos(0, 1, false);
+                channel.ExchangeDeclare(Const.ClientExchange, "topic", true);
+                var queueName = channel.QueueDeclare();
+                channel.QueueBind(queueName, Const.ClientExchange, ServiceName);
                 var consumer = new QueueingBasicConsumer(channel);
-                channel.BasicConsume(ServiceName, false, consumer);
+                channel.BasicConsume(queueName, false, consumer);
 
                 while (_work)
                 {
                     var response = new DeleteFriendResponse();
                     var ea = consumer.Queue.Dequeue();
-
+                    channel.BasicAck(ea.DeliveryTag, false);
                     var body = ea.Body;
-                    var props = ea.BasicProperties;
-                    var replyProps = channel.CreateBasicProperties();
-                    replyProps.CorrelationId = props.CorrelationId;
-
                     try
                     {
                         message = body.DeserializeDeleteFriendReq();
@@ -56,9 +52,6 @@ namespace Server.Modules.Services
                     finally
                     {
                         Logger.serviceLog(response, message, logMsg);
-                        var responseBytes = response.Serialize();
-                        channel.BasicPublish("", props.ReplyTo, replyProps, responseBytes);
-                        channel.BasicAck(ea.DeliveryTag, false);
                     }
                 }
             }

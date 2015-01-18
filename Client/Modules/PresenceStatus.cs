@@ -19,16 +19,19 @@ namespace Client.Modules
             //var factory = new ConnectionFactory { HostName = Const.HostName };
             connection = factory.CreateConnection();
             channel = connection.CreateModel();
-            channel.ExchangeDeclare("UsersStatus", "topic");
+            channel.ExchangeDeclare(Const.ClientPresenceStatusNotificationRoute, "topic", true);
             queueName = channel.QueueDeclare();
+            channel.QueueBind(queueName, Const.ClientPresenceStatusNotificationRoute, Const.User.Login);
             consumer = new QueueingBasicConsumer(channel);
-            channel.BasicConsume(queueName, true, consumer);
+            channel.BasicConsume(queueName, false, consumer);
         }
 
         public void SendPresenceStatus(User message)
         {
             var messageBytes = message.Serialize();
-            channel.BasicPublish("UsersStatus", "Server", null, messageBytes);
+            var props = channel.CreateBasicProperties();
+            props.SetPersistent(true);
+            channel.BasicPublish("UsersStatus", "Server", props, messageBytes);
             //send presence status directly to users
             //channel.BasicPublish("UsersStatus", message.Login, null, messageBytes);
         }
@@ -38,6 +41,7 @@ namespace Client.Modules
             BasicDeliverEventArgs ea;
             if (!consumer.Queue.Dequeue(timeout, out ea))
                 return null;
+            channel.BasicAck(ea.DeliveryTag, false);
             var body = ea.Body;
             var message = body.DeserializePresenceStatusNotification();
             return message;
@@ -46,13 +50,13 @@ namespace Client.Modules
         public void AddFriendToListenPresenceStatus(string nick)
         {
             channel.QueueBind(queueName, "UsersStatus", nick);
-            channel.BasicConsume(queueName, true, consumer);
+            channel.BasicConsume(queueName, false, consumer);
         }
 
         public void RemoveFriendToListenPresenceStatus(string nick)
         {
             channel.QueueUnbind(queueName, "UsersStatus", nick, null);
-            channel.BasicConsume(queueName, true, consumer);
+            channel.BasicConsume(queueName, false, consumer);
         }
         //Implement IDisposable.
         public void Dispose()

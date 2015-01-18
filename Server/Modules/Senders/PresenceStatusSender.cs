@@ -21,13 +21,9 @@ namespace Server.Modules.Senders
             using (var channel = connection.CreateModel())
             {
                 var routingKey = Const.ClientPresenceStatusNotificationRoute + notifcation.Login;
-                channel.ExchangeDeclare(Const.ClientExchange, "topic");
-                channel.QueueDeclare(SenderName, false, false, false, null);
-                channel.BasicQos(0, 1, false);
-                channel.QueueBind(SenderName, Const.ClientExchange, routingKey);
+                channel.ExchangeDeclare(Const.ClientExchange, "topic", true);
                 var responseBytes = notifcation.Serialize();
-                var replyProps = channel.CreateBasicProperties();
-                channel.BasicPublish(Const.ClientExchange, routingKey, replyProps, responseBytes);
+                channel.BasicPublish(Const.ClientExchange, routingKey, null, responseBytes);
             }
         }
     }

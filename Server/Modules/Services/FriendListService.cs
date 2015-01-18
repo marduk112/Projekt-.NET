@@ -25,10 +25,8 @@ namespace Server.Modules.Services
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
-                channel.ExchangeDeclare(Const.ClientExchange, "topic");
-                channel.QueueDeclare(ServiceName, false, false, false, null);
+                channel.QueueDeclare(ServiceName, true, false, false, null);
                 channel.BasicQos(0, 1, false);
-                channel.QueueBind(ServiceName, Const.ClientExchange, Const.ServerFriendListRequestRoute);
                 var consumer = new QueueingBasicConsumer(channel);
                 channel.BasicConsume(ServiceName, false, consumer);
 
@@ -36,6 +34,7 @@ namespace Server.Modules.Services
                 {
                     var response = new UserListResponse();
                     var ea = consumer.Queue.Dequeue();
+                    //channel.BasicAck(ea.DeliveryTag, false);
                     var body = ea.Body;
                     var props = ea.BasicProperties;
                     var replyProps = channel.CreateBasicProperties();

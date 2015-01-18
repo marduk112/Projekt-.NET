@@ -23,6 +23,7 @@ namespace Client.Modules
                     channel.BasicConsume(replyQueueName, true, consumer);
                     var corrId = Guid.NewGuid().ToString();
                     var props = channel.CreateBasicProperties();
+                    //props.SetPersistent(true);
                     props.ReplyTo = replyQueueName;
                     props.CorrelationId = corrId;
                     var messageBytes = userListReq.Serialize(); //message forward login and password
@@ -50,6 +51,7 @@ namespace Client.Modules
                     channel.BasicConsume(replyQueueName, true, consumer);
                     var corrId = Guid.NewGuid().ToString();
                     var props = channel.CreateBasicProperties();
+                    props.SetPersistent(true);
                     props.ReplyTo = replyQueueName;
                     props.CorrelationId = corrId;
                     var messageBytes = userListReq.Serialize(); //message forward login and password

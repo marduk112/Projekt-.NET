@@ -25,8 +25,7 @@ namespace Server.Modules.Senders
             {
                 var routingKey = Const.ClientMessageNotificationRoute + notif.Recipient;
                 channel.ExchangeDeclare(Const.ClientExchange, "topic");
-                channel.QueueDeclare(SenderName, false, false, false, null);
-                channel.BasicQos(0, 1, false);
+                var queueName = channel.QueueDeclare();
                 channel.QueueBind(SenderName, Const.ClientExchange, routingKey);
                 var responseBytes = notif.Serialize();
                 var replyProps = channel.CreateBasicProperties();

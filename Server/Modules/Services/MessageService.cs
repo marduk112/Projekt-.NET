@@ -27,23 +27,18 @@ namespace Server.Modules.Services
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
-                channel.ExchangeDeclare(Const.ClientExchange, "topic");
-                channel.QueueDeclare(ServiceName, false, false, false, null);
-                channel.BasicQos(0, 1, false);
-                channel.QueueBind(ServiceName, Const.ClientExchange, Const.ServerMessageRequestRoute);
+                channel.ExchangeDeclare(Const.ClientExchange, "topic", true);
+                var queueName = channel.QueueDeclare();
+                channel.QueueBind(queueName, Const.ClientExchange, Const.ServerMessageRequestRoute);
                 var consumer = new QueueingBasicConsumer(channel);
-                channel.BasicConsume(ServiceName, false, consumer);
+                channel.BasicConsume(queueName, false, consumer);
 
                 while (_work)
                 {
                     var response = new MessageResponse();
                     var ea = consumer.Queue.Dequeue();
-
+                    channel.BasicAck(ea.DeliveryTag, false);
                     var body = ea.Body;
-                    var props = ea.BasicProperties;
-                    var replyProps = channel.CreateBasicProperties();
-                    replyProps.CorrelationId = props.CorrelationId;
-
                     try
                     {
                         message = body.DeserializeMessageReq();
@@ -57,9 +52,10 @@ namespace Server.Modules.Services
                     finally
                     {
                         Logger.serviceLog(response, message, logMsg);
-                        var responseBytes = response.Serialize();
-                        channel.BasicPublish("", props.ReplyTo, replyProps, responseBytes);
-                        channel.BasicAck(ea.DeliveryTag, false);
+                        var props = channel.CreateBasicProperties();
+                        props.SetPersistent(true);
+                        var routingKey = Const.ClientMessageNotificationRoute + response.Recipient;
+                        channel.BasicPublish(Const.ClientExchange, routingKey, props, response.Serialize());
                     }
                 }
             }
@@ -74,7 +70,7 @@ namespace Server.Modules.Services
         {
             var date = DateTimeOffset.Now;
             
-            var messageNotification = new MessageNotification();
+            /*var messageNotification = new MessageNotification();
             messageNotification.Sender = message.Login;
             messageNotification.Recipient = message.Recipient;
             messageNotification.Message = message.Message;
@@ -82,15 +78,17 @@ namespace Server.Modules.Services
             messageNotification.SendTime = date;
 
             var messageSender = new MessageSender();
-            messageSender.Send(messageNotification);
+            messageSender.Send(messageNotification);*/
 
-            var messageResponse = new MessageResponse();
-
-            messageResponse.Status = Status.OK;
-            messageResponse.Message = "Successful sended";
-            messageResponse.Recipient = message.Recipient;
-            messageResponse.Attachment = message.Attachment;
-            messageResponse.SendTime = date;
+            var messageResponse = new MessageResponse
+            {
+                Status = Status.OK,
+                Message = "Successful sended",
+                Login = message.Login,
+                Recipient = message.Recipient,
+                Attachment = message.Attachment,
+                SendTime = date
+            };
 
             return messageResponse;
         }

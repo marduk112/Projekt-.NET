@@ -25,6 +25,7 @@ namespace Client.Modules
                     channel.BasicConsume(replyQueueName, true, consumer);
                     var corrId = Guid.NewGuid().ToString();
                     var props = channel.CreateBasicProperties();
+                    props.SetPersistent(true);
                     props.ReplyTo = replyQueueName;
                     props.CorrelationId = corrId;
                     
@@ -40,10 +41,10 @@ namespace Client.Modules
                     }
                     var messageBytes = createUserReq.Serialize(); //message forward login and password
                     channel.BasicPublish("", "regServer", props, messageBytes);
-
-                    var ea = consumer.Queue.Dequeue();
+                    
                     while (true)
                     {
+                        var ea = consumer.Queue.Dequeue();
                         if (ea.BasicProperties.CorrelationId == corrId)
                         {
                             return ea.Body.DeserializeCreateUserResponse();
