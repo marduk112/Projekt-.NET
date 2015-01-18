@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
+using System.Web;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -24,9 +27,6 @@ namespace Client.ViewModel
 {
     public class ChatViewModel : INotifyPropertyChanged  
     {
-        private Listening listener;
-        private Thread th;
-
         public DelegateCommand ChangeFormVisibility { get; private set; }
         public DelegateCommand ViewEmoticons { get; private set; }
         public DelegateCommand AddAttachment { get; private set; }
@@ -36,6 +36,7 @@ namespace Client.ViewModel
         public DelegateCommand AddFriend { get; private set; }
         public DelegateCommand SendMessage { get; private set; }
         public DelegateCommand RemoveFriend { get; private set; }
+        public DelegateCommand DeleteAttachment { get; private set; }
         public ObservableCollection<User> Friends { get; set; }
         public ObservableCollection<PresenceStatusView> PresenceStatuses { get; set; }
         public ObservableCollection<MessageNotification> Conversation { get; set; } 
@@ -53,12 +54,13 @@ namespace Client.ViewModel
             AddFriend = new DelegateCommand(addFriend, canAddFriend);
             SendMessage = new DelegateCommand(sendMessage, canSendMessage);
             RemoveFriend = new DelegateCommand(removeFriend, canRemoveFriend);
+            DeleteAttachment = new DelegateCommand(deleteAttachment, canDeleteAttachment);
             Conversation = new ObservableCollection<MessageNotification>();
             AddPresenceStatuses();      
             DownloadFriendsList();
-                                  
-            listener = new Listening();
-            th = new Thread(doListen);
+            IsWriting = Visibility.Collapsed;
+            
+            th = new Thread(doListen) {IsBackground = true};
             th.Start();
         }
 
@@ -106,15 +108,20 @@ namespace Client.ViewModel
             }
         }
 
-        public PresenceStatus PresenceStatus
+        public string PresenceStatus
         {
             get { return _presenceStatus; }
             set
             {
                 _presenceStatus = value;
                 OnPropertyChanged();
-                MessageBox.Show(_presenceStatus.ToString());
-                Const.User.Status = _presenceStatus;
+                MessageBox.Show(_presenceStatus);
+                if (_presenceStatus.Equals("Online"))
+                    Const.User.Status = Common.PresenceStatus.Online;
+                if (_presenceStatus.Equals("Away from keyboard"))
+                    Const.User.Status = Common.PresenceStatus.Afk;
+                if (_presenceStatus.Equals("Offline"))
+                    Const.User.Status = Common.PresenceStatus.Offline;
                 try
                 {
                     var builder = new ContainerBuilder();
@@ -180,19 +187,51 @@ namespace Client.ViewModel
             }
         }
 
+        public Visibility IsWriting
+        {
+            get { return _isWriting; }
+            set
+            {
+                _isWriting = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string WritingUser
+        {
+            get { return _writingUser; }
+            set
+            {
+                _writingUser = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string AttachmentName
+        {
+            get { return _attachment.Name; }
+            set
+            {
+                _attachment.Name = value;
+                OnPropertyChanged();
+                DeleteAttachment.RaiseCanExecuteChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private Visibility _chatSwitchMode = Visibility.Visible;
         private Visibility _emoticonsVisibility = Visibility.Collapsed;
         private Visibility _font = Visibility.Collapsed;
-        private Visibility _chatSwitchMode2 = Visibility.Collapsed;
-        private PresenceStatus _presenceStatus = PresenceStatus.Online;
+        private Visibility _chatSwitchMode2 = Visibility.Collapsed, _isWriting = Visibility.Collapsed;
+        private string _presenceStatus = "Online";
         private string _friendLogin;
-        private string _message;
-        private string _pathToAttachment;
+        private string _message, _writingUser;
         private User _friend;
+        private Attachment _attachment = new Attachment();
         private ICollection<User> _allUsersList = new List<User>();
         private IDictionary<string, ObservableCollection<MessageNotification>> _messagesDictionary = new Dictionary<string, ObservableCollection<MessageNotification>>();
+        private Thread th;
         [NotifyPropertyChangedInvocator]
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -251,7 +290,8 @@ namespace Client.ViewModel
                     Login = Const.User.Login,
                     Message = Message,
                     Recipient = Friend.Login,
-                    SendTime = new DateTimeOffset().LocalDateTime
+                    SendTime = new DateTimeOffset().LocalDateTime,
+                    Attachment = _attachment,
                 };
                 
                 var builder = new ContainerBuilder();
@@ -275,6 +315,7 @@ namespace Client.ViewModel
 
         private bool canSendMessage()
         {
+            if (Friend == null) return false;
             try
             {
                 var activityReq = new ActivityReq
@@ -294,10 +335,7 @@ namespace Client.ViewModel
                 }
             }
             catch { }
-            if (Friend != null)
-                return !string.IsNullOrEmpty(Message) && !string.IsNullOrEmpty(Friend.Login);
-            return false;
-
+            return !string.IsNullOrEmpty(Message) && !string.IsNullOrEmpty(Friend.Login);
         }
 
         private bool canAddFriend()
@@ -363,13 +401,35 @@ namespace Client.ViewModel
                 AddExtension = true,
                 Multiselect = false
             };
-            window.ShowDialog();
-            _pathToAttachment = window.FileName;
+            var click = window.ShowDialog();
+            if (click != true) return;
+            if (new FileInfo(window.FileName).Length > 1048576)
+            {
+                MessageBox.Show("File is too big( > 1 MB)");
+                return;
+            }
+            AttachmentName = window.SafeFileName;
+            _attachment.Name = window.SafeFileName;
+            _attachment.MimeType = MimeMapping.GetMimeMapping(window.SafeFileName);
+            _attachment.Data = Encoding.UTF8.GetBytes(Convert.ToBase64String(File.ReadAllBytes(window.FileName)));
+        }
+
+        private void deleteAttachment()
+        {
+            _attachment.Name = null;
+            _attachment.MimeType = null;
+            _attachment.Data = null;
+            AttachmentName = null;
+        }
+
+        private bool canDeleteAttachment()
+        {
+            return !string.IsNullOrEmpty(AttachmentName);
         }
 
         private void closeApplication()
         {
-            Const.User.Status = PresenceStatus.Offline;
+            Const.User.Status = Common.PresenceStatus.Offline;
             try
             {
                 var builder = new ContainerBuilder();
@@ -383,6 +443,7 @@ namespace Client.ViewModel
                 }
             }
             catch { }
+            th.Abort();
             Application.Current.Shutdown();
         }
 
@@ -393,9 +454,9 @@ namespace Client.ViewModel
 
         private void AddPresenceStatuses()
         {
-            PresenceStatuses.Add(new PresenceStatusView { PresenceStatus = PresenceStatus.Online, Value = "Online" });
-            PresenceStatuses.Add(new PresenceStatusView { PresenceStatus = PresenceStatus.Afk, Value = "Away from keyboard" });
-            PresenceStatuses.Add(new PresenceStatusView { PresenceStatus = PresenceStatus.Offline, Value = "Offline" });
+            PresenceStatuses.Add(new PresenceStatusView { PresenceStatus = Common.PresenceStatus.Online, Value = "Online" });
+            PresenceStatuses.Add(new PresenceStatusView { PresenceStatus = Common.PresenceStatus.Afk, Value = "Away from keyboard" });
+            PresenceStatuses.Add(new PresenceStatusView { PresenceStatus = Common.PresenceStatus.Offline, Value = "Offline" });
         }
         
         private void DownloadUsersList()
@@ -422,7 +483,7 @@ namespace Client.ViewModel
 
         private void DownloadFriendsList()
         {
-            //try
+            try
             {
                 var builder = new ContainerBuilder();
                 builder.Register(_ => new ConnectionFactory { HostName = Const.HostName }).As<IConnectionFactory>();
@@ -439,11 +500,12 @@ namespace Client.ViewModel
                     }
                 }
             }
-            //catch { }
+            catch { }
         }
 
         void doListen()
         {
+            var listener = new Listening();
             while (th != null && th.IsAlive)
             {
                 var msg = listener.ListeningMessages();
@@ -458,12 +520,25 @@ namespace Client.ViewModel
                     });
 
                 var act = listener.ListeningActivity();
-                if (act != null) ;
+                if (act != null)
+                {
+                    if (Friend != null)
+                    {
+                        if (act.IsWriting && Friend.Login.Equals(act.Login))
+                        {
+                            IsWriting = Visibility.Visible;
+                            WritingUser = act.Login;
+                        }
+                        else
+                            IsWriting = Visibility.Collapsed;
+                    }
+                }
 
                 var prs = listener.ListeningPresenceStatus();
-                if (prs != null) ;
-                //PresenceQueue.Enqueue(prs);  
-                Thread.Sleep(500);   
+                if (prs != null)
+                {
+                    MessageBox.Show(prs.Login+ " "+prs.PresenceStatus);
+                }
             }
         }
 

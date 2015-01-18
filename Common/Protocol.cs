@@ -129,6 +129,7 @@ namespace Common
 
     public class ActivityResponse : Response
     {
+        public string Login { get; set; }
         public bool IsWriting { get; set; }
         public string Recipient { get; set; }
     }

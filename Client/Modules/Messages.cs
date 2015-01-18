@@ -36,12 +36,13 @@ namespace Client.Modules
                 return null;
             channel.BasicAck(ea.DeliveryTag, false);
             var body = ea.Body;
-            var message = body.DeserializeMessageReq();
+            var message = body.DeserializeMessageResponse();
             var response = new MessageResponse
             {
                 Attachment = message.Attachment,
                 Message = message.Message,
-                Recipient = message.Login,
+                Login = message.Login,
+                Recipient = message.Recipient,
                 SendTime = message.SendTime,
                 Status = Status.OK
             };

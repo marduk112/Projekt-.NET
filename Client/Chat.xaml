@@ -118,7 +118,7 @@
         </richTextBoxEmoticons:RichTextBoxExt>
         <TextBox Visibility="{Binding ChatSwitchMode, UpdateSourceTrigger=PropertyChanged}" x:Name="txtMessageWindow" Tag="CHAT" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Right" Height="43" Margin="0,392,156,0" VerticalAlignment="Top" Width="434" BorderBrush="Black" Background="#D8FFD6FF" Foreground="{Binding ElementName=cmbbFontColor, Path=Text}" FontSize="{Binding Text, ElementName=cmbbFontSize}" FontFamily="{Binding ElementName=cmbbFontType,Path=Text}" SelectionBrush="Black" BorderThickness="3"
                  Text="{Binding Message, UpdateSourceTrigger=PropertyChanged}"/>
-        
+
         <Button x:Name="btnWindowSwitch" Content="Przełącz" 
                 HorizontalAlignment="Left" Margin="240,530,0,0" 
                 VerticalAlignment="Top" Width="119" Height="26" 
@@ -333,29 +333,29 @@
             <Image Tag="CHAT" Source="Image/angel.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
         </Button>
         <Button x:Name="imAshamed" CommandParameter="😊" Command="{Binding AddEmoticon}" BorderBrush="Transparent" Background="Transparent" HorizontalAlignment="Left" Height="21" Margin="184,338,0,0" VerticalAlignment="Top" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}">
-			<Image Tag="CHAT" Source="Image/ashamed.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
-		</Button>
+            <Image Tag="CHAT" Source="Image/ashamed.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
+        </Button>
         <Button CommandParameter=":'(" x:Name="imCry" Command="{Binding AddEmoticon}" BorderBrush="Transparent" Background="Transparent" HorizontalAlignment="Left" Height="21" Margin="101,392,0,0" VerticalAlignment="Top" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}">
-			<Image Tag="CHAT" Source="Image/crying2.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
-		</Button>
+            <Image Tag="CHAT" Source="Image/crying2.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
+        </Button>
         <Button CommandParameter="&lt;3" x:Name="imHeart" Command="{Binding AddEmoticon}" BorderBrush="Transparent" Background="Transparent" HorizontalAlignment="Left" Height="21" Margin="157,366,0,0" VerticalAlignment="Top" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}">
-			<Image Tag="CHAT" Source="Image/heart.png" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
-		</Button>
+            <Image Tag="CHAT" Source="Image/heart.png" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
+        </Button>
         <Button CommandParameter=":*" x:Name="imKiss" Command="{Binding AddEmoticon}" BorderBrush="Transparent" Background="Transparent" HorizontalAlignment="Left" Height="21" Margin="184,392,0,0" VerticalAlignment="Top" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}">
-			<Image Source="Image/kiss.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
-		</Button>
+            <Image Source="Image/kiss.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
+        </Button>
         <Button CommandParameter="&gt;:(" x:Name="imMad" Command="{Binding AddEmoticon}" BorderBrush="Transparent" Background="Transparent" HorizontalAlignment="Left" Height="21" Margin="197,364,0,0" VerticalAlignment="Top" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}">
-			<Image Source="Image/mad-angry.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
-		</Button>
+            <Image Source="Image/mad-angry.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
+        </Button>
         <Button CommandParameter="😨" x:Name="imScared" Command="{Binding AddEmoticon}" BorderBrush="Transparent" Background="Transparent" HorizontalAlignment="Left" Height="21" Margin="83,364,0,0" VerticalAlignment="Top" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}">
-			<Image Source="Image/scared.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
-		</Button>
+            <Image Source="Image/scared.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
+        </Button>
         <Button x:Name="imSuprised" Command="{Binding AddEmoticon}" CommandParameter=":o"  BorderBrush="Transparent" Background="Transparent" HorizontalAlignment="Left" Height="21" Margin="125,366,0,0" VerticalAlignment="Top" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}">
-			<Image Source="Image/surprised.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
-		</Button>
+            <Image Source="Image/surprised.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
+        </Button>
         <Button CommandParameter=":P" x:Name="imTongue" Command="{Binding AddEmoticon}" BorderBrush="Transparent" Background="Transparent" HorizontalAlignment="Left" Height="21" Margin="142,392,0,0" VerticalAlignment="Top" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}">
-			<Image Source="Image/tongue-out.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
-		</Button>
+            <Image Source="Image/tongue-out.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
+        </Button>
         <Menu Visibility="{Binding ChatSwitchMode, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="26" Margin="188,441,0,0" VerticalAlignment="Top" Width="31" FontFamily="Segoe UI Symbol">
             <Menu.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
@@ -487,6 +487,20 @@
                 </Image>
             </Grid>
         </Border>
+        <Label Visibility="{Binding IsWriting, UpdateSourceTrigger=PropertyChanged}" Content="is writing" HorizontalAlignment="Left" Margin="257,56,0,0" VerticalAlignment="Top"/>
+        <Label Visibility="{Binding IsWriting, UpdateSourceTrigger=PropertyChanged}" Content="{Binding WritingUser, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="173,56,0,0" VerticalAlignment="Top"/>
+        <Label Content="{Binding AttachmentName, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="114,476,0,0" VerticalAlignment="Top" Foreground="White" RenderTransformOrigin="2.3,1.1"/>
+        <Button Command="{Binding DeleteAttachment}" x:Name="DeleteAttachmentButton" HorizontalAlignment="Left" Margin="85,471,0,0" VerticalAlignment="Top" Width="27" Height="15">
+            <Image Source="Image/cancel.png" Width="16" Height="10"/>
+            <Button.Background>
+                <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                    <GradientStop Color="#FFF3F3F3" Offset="1"/>
+                    <GradientStop Color="#FFDDDDDD" Offset="0.5"/>
+                    <GradientStop Color="#FFEBEBEB" Offset="0.5"/>
+                    <GradientStop Color="#FFEC9CE4"/>
+                </LinearGradientBrush>
+            </Button.Background>
+        </Button>
     </Grid>
 </Window>
 

@@ -21,14 +21,15 @@ namespace Client
             builder.RegisterType<Modules.Messages>().As<IMessages>();
             builder.RegisterType<Modules.Activity>().As<IActivity>();
             _container = builder.Build();
+            scope = _container.BeginLifetimeScope();
         }
 
         public PresenceStatusNotification ListeningPresenceStatus()
         {
             PresenceStatusNotification user;
-            using (var scope = _container.BeginLifetimeScope())
+            //using (var scope = _container.BeginLifetimeScope())
             {
-                var response = scope.Resolve<IPresenceStatus>();
+                IPresenceStatus response = scope.Resolve<IPresenceStatus>();
                 user = response.ReceiveUserPresenceStatus(Timeout);
             }
             return user;
@@ -38,9 +39,9 @@ namespace Client
         public MessageResponse ListeningMessages()
         {
             MessageResponse messageResponse;
-            using (var scope = _container.BeginLifetimeScope())
+            //using (var scope = _container.BeginLifetimeScope())
             {
-                var response = scope.Resolve<IMessages>();
+                IMessages response = scope.Resolve<IMessages>();
                 messageResponse = response.ReceiveMessage(Timeout);
             }
             return messageResponse;
@@ -49,9 +50,9 @@ namespace Client
         public ActivityResponse ListeningActivity()
         {
             ActivityResponse activityResponse;
-            using (var scope = _container.BeginLifetimeScope())
+            //using (var scope = _container.BeginLifetimeScope())
             {
-                var response = scope.Resolve<IActivity>();
+                IActivity response = scope.Resolve<IActivity>();
                 activityResponse = response.ActivityResponse(Timeout);
             }
             return activityResponse;
@@ -59,5 +60,6 @@ namespace Client
 
         private IContainer _container;
         private const int Timeout = 200;
+        private ILifetimeScope scope;
     }
 }

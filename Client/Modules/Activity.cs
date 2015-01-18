@@ -10,13 +10,12 @@ namespace Client.Modules
     {
         public Activity(IConnectionFactory factory)
         {
-            this.login = Const.User.Login;
             //var factory = new ConnectionFactory() { HostName = Const.HostName };
             connection = factory.CreateConnection();
             channel = connection.CreateModel();
-            channel.ExchangeDeclare("activity", "topic");
+            channel.ExchangeDeclare(Const.ClientExchange, "topic", true);
             queueName = channel.QueueDeclare();
-            channel.QueueBind(queueName, "activity", "Activity." + login);
+            channel.QueueBind(queueName, Const.ClientExchange, "Activity." + Const.User.Login);
             consumer = new QueueingBasicConsumer(channel);
             channel.BasicConsume(queueName, true, consumer);
         }
@@ -24,7 +23,7 @@ namespace Client.Modules
         public void ActivityReq(ActivityReq activityReq)
         {
             var body = activityReq.Serialize();
-            channel.BasicPublish("activity", "Activity."+activityReq.Recipient, null, body);
+            channel.BasicPublish(Const.ClientExchange, "Activity." + activityReq.Recipient, null, body);
         }
 
         public ActivityResponse ActivityResponse(int timeout)
@@ -34,10 +33,13 @@ namespace Client.Modules
                 return null;
             var body = ea.Body;
             var message = body.DeserializeActivityReq();
-            var activityResponse = new ActivityResponse();
-            activityResponse.Recipient = message.Login;
-            activityResponse.Status = Status.OK;
-            activityResponse.IsWriting = message.IsWriting;
+            var activityResponse = new ActivityResponse
+            {
+                Login = message.Login,
+                Recipient = message.Recipient,
+                Status = Status.OK,
+                IsWriting = message.IsWriting
+            };
             return activityResponse;
         }
 
@@ -80,7 +82,6 @@ namespace Client.Modules
             connection.Close();
         }
         private bool _disposed = false;
-        private string login;
         private IModel channel;
         private IConnection connection;
         private string queueName;

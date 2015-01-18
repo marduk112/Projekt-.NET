@@ -21,7 +21,8 @@ namespace Client.Modules
             channel = connection.CreateModel();
             channel.ExchangeDeclare(Const.ClientPresenceStatusNotificationRoute, "topic", true);
             queueName = channel.QueueDeclare();
-            channel.QueueBind(queueName, Const.ClientPresenceStatusNotificationRoute, Const.User.Login);
+            var routingKey = Const.ClientPresenceStatusNotificationRoute + Const.User.Login;
+            channel.QueueBind(queueName, Const.ClientExchange, routingKey);
             consumer = new QueueingBasicConsumer(channel);
             channel.BasicConsume(queueName, false, consumer);
         }
@@ -31,7 +32,7 @@ namespace Client.Modules
             var messageBytes = message.Serialize();
             var props = channel.CreateBasicProperties();
             props.SetPersistent(true);
-            channel.BasicPublish("UsersStatus", "Server", props, messageBytes);
+            channel.BasicPublish(Const.ClientExchange, "ChangeUserStatusServer", props, messageBytes);
             //send presence status directly to users
             //channel.BasicPublish("UsersStatus", message.Login, null, messageBytes);
         }
@@ -45,18 +46,6 @@ namespace Client.Modules
             var body = ea.Body;
             var message = body.DeserializePresenceStatusNotification();
             return message;
-        }
-
-        public void AddFriendToListenPresenceStatus(string nick)
-        {
-            channel.QueueBind(queueName, "UsersStatus", nick);
-            channel.BasicConsume(queueName, false, consumer);
-        }
-
-        public void RemoveFriendToListenPresenceStatus(string nick)
-        {
-            channel.QueueUnbind(queueName, "UsersStatus", nick, null);
-            channel.BasicConsume(queueName, false, consumer);
         }
         //Implement IDisposable.
         public void Dispose()
