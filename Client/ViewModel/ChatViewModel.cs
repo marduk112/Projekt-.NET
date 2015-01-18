@@ -18,6 +18,7 @@ using Client.Modules;
 using Client.RichTextBoxEmoticons;
 using Common;
 using Microsoft.Practices.Prism.Commands;
+using Microsoft.Win32;
 using RabbitMQ.Client;
 using Xceed.Wpf.DataGrid.Views;
 using PresenceStatus = Common.PresenceStatus;
@@ -510,14 +511,31 @@ namespace Client.ViewModel
             {
                 var msg = listener.ListeningMessages();
                 if (msg != null)
+                {
                     Conversation.Add(new MessageNotification()
                     {
                         Message = msg.Message,
                         Attachment = msg.Attachment,
-                        Sender = msg.Recipient,
+                        Sender = msg.Login,
                         Recipient = Const.User.Login,
                         SendTime = msg.SendTime
                     });
+                    if (!string.IsNullOrEmpty(msg.Attachment.Name))
+                    {
+                        var data = Convert.FromBase64String(Encoding.UTF8.GetString(msg.Attachment.Data));
+                        var window = new SaveFileDialog
+                        {
+                            Title = "Save Attachment",
+                            FileName = msg.Attachment.Name,
+                            Filter =
+                                @"(*" + Path.GetExtension(msg.Attachment.Name) + ")|(*." +
+                                Path.GetExtension(msg.Attachment.Name) + ")"
+                        };
+                        var t = window.ShowDialog();
+                        if (t == true)
+                            File.WriteAllBytes(window.FileName, data);
+                    }
+                }
 
                 var act = listener.ListeningActivity();
                 if (act != null)
