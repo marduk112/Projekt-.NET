@@ -30,6 +30,7 @@ namespace Server.Modules.Services
                 channel.ExchangeDeclare(Const.ClientExchange, "topic");
                 channel.QueueDeclare(ServiceName, false, false, false, null);
                 channel.BasicQos(0, 1, false);
+                channel.QueueBind(ServiceName, Const.ClientExchange, Const.ServerMessageRequestRoute);
                 var consumer = new QueueingBasicConsumer(channel);
                 channel.BasicConsume(ServiceName, false, consumer);
 

@@ -23,6 +23,7 @@ namespace Server.Modules
             services.Add(new FriendListService());
             services.Add(new AddFriendService());
             services.Add(new DeleteFriendService());
+            services.Add(new MessageService());
 
             foreach (var service in services)
             {

@@ -21,11 +21,16 @@ namespace Client.Modules
         }
         public void SendMessage (MessageReq message)
         {
+            var queueName = channel.QueueDeclare();
+            var corrId = Guid.NewGuid().ToString();
             var body = message.Serialize();
             var properties = channel.CreateBasicProperties();
             properties.SetPersistent(true);
-            var routingKey = message.Recipient;
-            channel.BasicPublish("messages", routingKey, properties, body);
+            properties.ReplyTo = queueName;
+            properties.CorrelationId = corrId;
+            //var routingKey = message.Recipient;
+            var routingKey = Const.ServerMessageRequestRoute;
+            channel.BasicPublish(Const.ClientExchange, routingKey, properties, body);
             //(to determine)Server receive message and send it to correct user and save in database
             //channel.BasicPublish("messages", "Server", properties, body);
         }

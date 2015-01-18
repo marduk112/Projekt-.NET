@@ -23,7 +23,7 @@ namespace Server.Modules.Senders
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
-                var routingKey = Const.ClientPresenceStatusNotificationRoute + notif.Recipient;
+                var routingKey = Const.ClientMessageNotificationRoute + notif.Recipient;
                 channel.ExchangeDeclare(Const.ClientExchange, "topic");
                 channel.QueueDeclare(SenderName, false, false, false, null);
                 channel.BasicQos(0, 1, false);
