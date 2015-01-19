@@ -24,7 +24,8 @@ namespace Client
         {
             InitializeComponent();
             rtxtDialogueWindow.Document.Blocks.Clear();
-            this.DataContext = new ChatViewModel();
+            var ctx = SynchronizationContext.Current;
+            this.DataContext = new ChatViewModel(rtxtDialogueWindow, ctx);
         }
 
         private void btnMinimize_Click(object sender, RoutedEventArgs e)
@@ -50,27 +51,6 @@ namespace Client
         private void LblName_MouseDown(object sender, MouseButtonEventArgs e)
         {
             DragMove();
-        }
-       
-
-        private void IfCheckedI(object sender, RoutedEventArgs e)
-        {
-            this.txtMessageWindow.FontStyle = FontStyles.Italic;
-        }
-
-        private void IfCheckedB(object sender, RoutedEventArgs e)
-        {
-            this.txtMessageWindow.FontWeight = FontWeights.Bold;
-        }
-
-        private void IfUncheckedB(object sender, RoutedEventArgs e)
-        {
-            this.txtMessageWindow.FontWeight = FontWeights.Normal;
-        }
-
-        private void IfUncheckedI(object sender, RoutedEventArgs e)
-        {
-            this.txtMessageWindow.FontStyle = FontStyles.Normal;
         }
     }
 }

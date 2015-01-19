@@ -37,11 +37,9 @@ namespace Client.Modules
             //channel.BasicPublish("UsersStatus", message.Login, null, messageBytes);
         }
 
-        public PresenceStatusNotification ReceiveUserPresenceStatus(int timeout)
+        public PresenceStatusNotification ReceiveUserPresenceStatus()
         {
-            BasicDeliverEventArgs ea;
-            if (!consumer.Queue.Dequeue(timeout, out ea))
-                return null;
+            var ea = consumer.Queue.Dequeue();
             channel.BasicAck(ea.DeliveryTag, false);
             var body = ea.Body;
             var message = body.DeserializePresenceStatusNotification();

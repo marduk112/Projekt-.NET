@@ -37,7 +37,6 @@ namespace Server.Modules.Services
                 {
                     var response = new MessageResponse();
                     var ea = consumer.Queue.Dequeue();
-                    channel.BasicAck(ea.DeliveryTag, false);
                     var body = ea.Body;
                     try
                     {
@@ -56,6 +55,7 @@ namespace Server.Modules.Services
                         props.SetPersistent(true);
                         var routingKey = Const.ClientMessageNotificationRoute + response.Recipient;
                         channel.BasicPublish(Const.ClientExchange, routingKey, props, response.Serialize());
+                        channel.BasicAck(ea.DeliveryTag, false);
                     }
                 }
             }
@@ -83,7 +83,7 @@ namespace Server.Modules.Services
             var messageResponse = new MessageResponse
             {
                 Status = Status.OK,
-                Message = "Successful sended",
+                Message = message.Message,
                 Login = message.Login,
                 Recipient = message.Recipient,
                 Attachment = message.Attachment,

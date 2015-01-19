@@ -26,7 +26,7 @@ using System.Threading;
 
 namespace Client.ViewModel
 {
-    public class ChatViewModel : INotifyPropertyChanged  
+    public class ChatViewModel : INotifyPropertyChanged, IDisposable
     {
         public DelegateCommand ChangeFormVisibility { get; private set; }
         public DelegateCommand ViewEmoticons { get; private set; }
@@ -40,9 +40,8 @@ namespace Client.ViewModel
         public DelegateCommand DeleteAttachment { get; private set; }
         public ObservableCollection<User> Friends { get; set; }
         public ObservableCollection<PresenceStatusView> PresenceStatuses { get; set; }
-        public ObservableCollection<MessageNotification> Conversation { get; set; } 
         
-        public ChatViewModel()
+        public ChatViewModel(RichTextBoxExt dialogueWindow, SynchronizationContext ctx)
         {
             ChangeFormVisibility = new DelegateCommand(doSelectForm);
             ViewEmoticons = new DelegateCommand(viewEmoticons);
@@ -56,13 +55,17 @@ namespace Client.ViewModel
             SendMessage = new DelegateCommand(sendMessage, canSendMessage);
             RemoveFriend = new DelegateCommand(removeFriend, canRemoveFriend);
             DeleteAttachment = new DelegateCommand(deleteAttachment, canDeleteAttachment);
-            Conversation = new ObservableCollection<MessageNotification>();
             AddPresenceStatuses();      
             DownloadFriendsList();
             IsWriting = Visibility.Collapsed;
-            
-            th = new Thread(doListen) {IsBackground = true};
-            th.Start();
+            _dialogueWindow = dialogueWindow;
+            _ctx = ctx;
+            th1 = new Thread(doListenMessages);
+            th2 = new Thread(doPresenceStatusListen);
+            th3 = new Thread(doActivityListen);
+            th1.Start();
+            //th2.Start();
+            th3.Start();
         }
 
         public Visibility ChatSwitchMode 
@@ -172,19 +175,20 @@ namespace Client.ViewModel
             set
             {
                 _friend = value;
-                OnPropertyChanged();
                 if (!string.IsNullOrEmpty(FriendLogin))
                 {
                     if (!_messagesDictionary.ContainsKey(FriendLogin))
-                        _messagesDictionary.Add(FriendLogin, new ObservableCollection<MessageNotification>());
+                        _messagesDictionary.Add(FriendLogin, new FlowDocument());
                 }
                 if (Friend != null)
                 {
                     if (!_messagesDictionary.ContainsKey(Friend.Login))
-                        _messagesDictionary.Add(Friend.Login, new ObservableCollection<MessageNotification>());
-                    Conversation = _messagesDictionary[Friend.Login];
+                        _messagesDictionary.Add(Friend.Login, new FlowDocument());
+                    _dialogueWindow.Document = _messagesDictionary[Friend.Login];
                 }
+                OnPropertyChanged();
                 RemoveFriend.RaiseCanExecuteChanged();
+                SendMessage.RaiseCanExecuteChanged();
             }
         }
 
@@ -229,10 +233,15 @@ namespace Client.ViewModel
         private string _friendLogin;
         private string _message, _writingUser;
         private User _friend;
+        private RichTextBoxExt _dialogueWindow;
         private Attachment _attachment = new Attachment();
         private ICollection<User> _allUsersList = new List<User>();
-        private IDictionary<string, ObservableCollection<MessageNotification>> _messagesDictionary = new Dictionary<string, ObservableCollection<MessageNotification>>();
-        private Thread th;
+
+        private IDictionary<string, FlowDocument> _messagesDictionary = new Dictionary<string, FlowDocument>();
+        private Thread th1, th2, th3;
+        private SynchronizationContext _ctx;
+        private readonly Listening _listener = new Listening();
+        private bool _disposed = false;
         [NotifyPropertyChangedInvocator]
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -291,7 +300,7 @@ namespace Client.ViewModel
                     Login = Const.User.Login,
                     Message = Message,
                     Recipient = Friend.Login,
-                    SendTime = new DateTimeOffset().LocalDateTime,
+                    SendTime = new DateTimeOffset(DateTime.Now),
                     Attachment = _attachment,
                 };
                 
@@ -304,11 +313,18 @@ namespace Client.ViewModel
                     var writer = scope.Resolve<IMessages>();
                     writer.SendMessage(message);
                 }
+                var paragraph1 = new Paragraph(new Run(message.SendTime.ToString()))
+                {
+                    TextAlignment = TextAlignment.Right,
+                    FontWeight = FontWeights.Bold
+                };
+                var paragraph2 = new Paragraph(new Run(message.Login + " wrote\n")) {FontWeight = FontWeights.Bold};
+                var paragraph3 = new Paragraph(new Run(message.Message)) { FontSize = paragraph1.FontSize + 3};
 
-                Conversation.Add(new MessageNotification() { 
-                    Attachment = message.Attachment, SendTime = message.SendTime,
-                    Message = message.Message, Recipient = message.Recipient, Sender = message.Login
-                });
+                _dialogueWindow.Document.Blocks.Add(paragraph1);
+                _dialogueWindow.Document.Blocks.Add(paragraph2);
+                _dialogueWindow.Document.Blocks.Add(paragraph3);
+                Message = null;
             }
             catch { }
 
@@ -430,6 +446,12 @@ namespace Client.ViewModel
 
         private void closeApplication()
         {
+            if (th1.IsAlive)
+                th1.Abort();
+            if (th2.IsAlive)
+                th2.Abort();
+            if (th3.IsAlive)
+                th3.Abort();
             Const.User.Status = Common.PresenceStatus.Offline;
             try
             {
@@ -444,7 +466,6 @@ namespace Client.ViewModel
                 }
             }
             catch { }
-            th.Abort();
             Application.Current.Shutdown();
         }
 
@@ -504,62 +525,125 @@ namespace Client.ViewModel
             catch { }
         }
 
-        void doListen()
+        void doListenMessages()
         {
-            var listener = new Listening();
-            while (th != null && th.IsAlive)
+            while (th1 != null && th1.IsAlive)
             {
-                var msg = listener.ListeningMessages();
+                var msg = _listener.ListeningMessages();
                 if (msg != null)
                 {
-                    Conversation.Add(new MessageNotification()
+                    try
                     {
-                        Message = msg.Message,
-                        Attachment = msg.Attachment,
-                        Sender = msg.Login,
-                        Recipient = Const.User.Login,
-                        SendTime = msg.SendTime
-                    });
-                    if (!string.IsNullOrEmpty(msg.Attachment.Name))
-                    {
-                        var data = Convert.FromBase64String(Encoding.UTF8.GetString(msg.Attachment.Data));
-                        var window = new SaveFileDialog
+                        _ctx.Post(_ =>
                         {
-                            Title = "Save Attachment",
-                            FileName = msg.Attachment.Name,
-                            Filter =
-                                @"(*" + Path.GetExtension(msg.Attachment.Name) + ")|(*." +
-                                Path.GetExtension(msg.Attachment.Name) + ")"
-                        };
-                        var t = window.ShowDialog();
-                        if (t == true)
-                            File.WriteAllBytes(window.FileName, data);
-                    }
-                }
+                            var paragraph1 = new Paragraph(new Run(msg.SendTime.ToString()))
+                            {
+                                TextAlignment = TextAlignment.Right,
+                                FontWeight = FontWeights.Bold
+                            };
+                            var paragraph2 = new Paragraph(new Run(msg.Login + " wrote\n"))
+                            {
+                                FontWeight = FontWeights.Bold
+                            };
+                            var paragraph3 = new Paragraph(new Run(msg.Message)) {FontSize = paragraph1.FontSize + 3};
 
-                var act = listener.ListeningActivity();
-                if (act != null)
-                {
-                    if (Friend != null)
-                    {
-                        if (act.IsWriting && Friend.Login.Equals(act.Login))
-                        {
-                            IsWriting = Visibility.Visible;
-                            WritingUser = act.Login;
-                        }
-                        else
-                            IsWriting = Visibility.Collapsed;
+                            _dialogueWindow.Document.Blocks.Add(paragraph1);
+                            _dialogueWindow.Document.Blocks.Add(paragraph2);
+                            _dialogueWindow.Document.Blocks.Add(paragraph3);
+                            if (!string.IsNullOrEmpty(msg.Attachment.Name))
+                            {
+                                var data = Convert.FromBase64String(Encoding.UTF8.GetString(msg.Attachment.Data));
+                                var window = new SaveFileDialog
+                                {
+                                    Title = "Save Attachment",
+                                    FileName = msg.Attachment.Name,
+                                    Filter =
+                                        @"(*" + Path.GetExtension(msg.Attachment.Name) + ")|(*." +
+                                        Path.GetExtension(msg.Attachment.Name) + ")"
+                                };
+                                var t = window.ShowDialog();
+                                if (t == true)
+                                    File.WriteAllBytes(window.FileName, data);
+                            }
+                        }, null);
                     }
-                }
-
-                var prs = listener.ListeningPresenceStatus();
-                if (prs != null)
-                {
-                    MessageBox.Show(prs.Login+ " "+prs.PresenceStatus);
+                    catch { }
                 }
             }
         }
 
+        void doPresenceStatusListen()
+        {
+            while (th2 != null & th2.IsAlive)
+            {
+                var prs = _listener.ListeningPresenceStatus();
+                if (prs != null)
+                {
+                    try
+                    {
+                        //MessageBox.Show(prs.Login + " " + prs.PresenceStatus);
+                    }
+                    catch { }
+                }
+            }
+        }
+
+        void doActivityListen()
+        {
+            while (th3 != null & th3.IsAlive)
+            {
+                var act = _listener.ListeningActivity();
+                if (act != null)
+                {
+                    try
+                    {
+                        if (Friend != null)
+                        {
+                            if (act.IsWriting && Friend.Login.Equals(act.Login))
+                            {
+                                IsWriting = Visibility.Visible;
+                                WritingUser = act.Login;
+                            }
+                            else
+                                IsWriting = Visibility.Collapsed;
+                        }
+                    }
+                    catch { }
+                }
+            }
+        }
+
+        //Implement IDisposable.
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+            if (disposing)
+            {
+                // Free other state (managed objects).
+            }
+            if(th1.IsAlive)
+                th1.Abort();
+            if (th2.IsAlive)
+                th2.Abort();
+            if (th3.IsAlive)
+                th3.Abort();
+            // Free your own state (unmanaged objects).
+            // Set large fields to null.
+            _disposed = true;
+        }
+
+        // Use C# destructor syntax for finalization code.
+        ~ChatViewModel()
+        {
+            // Simply call Dispose(false).
+            Dispose (false);
+        }
     }
 
     public class PresenceStatusView

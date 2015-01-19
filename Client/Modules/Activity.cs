@@ -26,11 +26,10 @@ namespace Client.Modules
             channel.BasicPublish(Const.ClientExchange, "Activity." + activityReq.Recipient, null, body);
         }
 
-        public ActivityResponse ActivityResponse(int timeout)
+        public ActivityResponse ActivityResponse()
         {
-            BasicDeliverEventArgs ea;
-            if (!consumer.Queue.Dequeue(timeout, out ea))
-                return null;
+            var ea = consumer.Queue.Dequeue();
+                //return null;
             var body = ea.Body;
             var message = body.DeserializeActivityReq();
             var activityResponse = new ActivityResponse

@@ -29,12 +29,10 @@ namespace Client.Modules
             channel.BasicPublish(Const.ClientExchange, routingKey, properties, body);
         }
         //every user has queue for message response
-        public MessageResponse ReceiveMessage(int timeout)
+        public MessageResponse ReceiveMessage()
         {
-            BasicDeliverEventArgs ea;
-            if (!consumer.Queue.Dequeue(timeout, out ea))
-                return null;
-            channel.BasicAck(ea.DeliveryTag, false);
+            var ea = consumer.Queue.Dequeue();
+                //return null;
             var body = ea.Body;
             var message = body.DeserializeMessageResponse();
             var response = new MessageResponse
@@ -46,6 +44,7 @@ namespace Client.Modules
                 SendTime = message.SendTime,
                 Status = Status.OK
             };
+            channel.BasicAck(ea.DeliveryTag, false);
             return response;
         }
 

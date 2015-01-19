@@ -96,11 +96,11 @@
                 </TransformGroup>
             </Button.RenderTransform>
         </Button>
-        <richTextBoxEmoticons:RichTextBoxExt Visibility="{Binding ChatSwitchMode, UpdateSourceTrigger=PropertyChanged}" Tag="CHAT" x:Name="rtxtDialogueWindow" IsReadOnly="True" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Left" Height="303" Margin="83,82,0,0" VerticalAlignment="Top" Width="434" BorderBrush="Black" Foreground="{Binding ElementName=cmbbFontColor, Path=Text}" FontSize="{Binding Text, ElementName=cmbbFontSize}" FontFamily="{Binding ElementName=cmbbFontType,Path=Text}" SelectionBrush="Black" BorderThickness="3" Background="#D8FFD6FF" AllowDrop="True" IsHitTestVisible="True" >
+        <richTextBoxEmoticons:RichTextBoxExt Visibility="{Binding ChatSwitchMode, UpdateSourceTrigger=PropertyChanged}" Tag="CHAT" x:Name="rtxtDialogueWindow" IsReadOnly="True" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Left" Height="303" Margin="83,82,0,0" VerticalAlignment="Top" Width="434" BorderBrush="Black" Foreground="{Binding ElementName=cmbbFontColor, Path=Text}" FontSize="{Binding Text, ElementName=cmbbFontSize}" FontFamily="{Binding ElementName=cmbbFontType,Path=Text}" SelectionBrush="Black" BorderThickness="3" Background="#D8FFD6FF" AllowDrop="True" IsHitTestVisible="True" ClipToBounds="True" >
             <richTextBoxEmoticons:RichTextBoxExt.Resources>
                 <Style TargetType="{x:Type Paragraph}">
                     <Setter Property="Margin" Value="0" />
-                    <Setter Property="Background" Value="White"/>
+                    <Setter Property="Background" Value="Transparent"/>
                 </Style>
             </richTextBoxEmoticons:RichTextBoxExt.Resources>
             <richTextBoxEmoticons:RichTextBoxExt.Emoticons>
@@ -110,7 +110,7 @@
                 <richTextBoxEmoticons:EmoticonMapper Text="&lt;3" Icon="Image/heart.png" />
                 <richTextBoxEmoticons:EmoticonMapper Text="&gt;:(" Icon="Image/mad-angry.png" />
                 <richTextBoxEmoticons:EmoticonMapper Text=":o" Icon="Image/surprised.png" />
-                <richTextBoxEmoticons:EmoticonMapper Text=":P " Icon="Image/tongue-out.png" />
+                <richTextBoxEmoticons:EmoticonMapper Text=":P" Icon="Image/tongue-out.png" />
                 <richTextBoxEmoticons:EmoticonMapper Text=":*" Icon="Image/kiss.png" />
                 <richTextBoxEmoticons:EmoticonMapper Text="😊" Icon="Image/ashamed.png" />
                 <richTextBoxEmoticons:EmoticonMapper Text="😨" Icon="Image/scared.png" />
@@ -353,7 +353,7 @@
         <Button x:Name="imSuprised" Command="{Binding AddEmoticon}" CommandParameter=":o"  BorderBrush="Transparent" Background="Transparent" HorizontalAlignment="Left" Height="21" Margin="125,366,0,0" VerticalAlignment="Top" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}">
             <Image Source="Image/surprised.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
         </Button>
-        <Button CommandParameter=":P" x:Name="imTongue" Command="{Binding AddEmoticon}" BorderBrush="Transparent" Background="Transparent" HorizontalAlignment="Left" Height="21" Margin="142,392,0,0" VerticalAlignment="Top" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}">
+        <Button x:Name="imTongue" Command="{Binding AddEmoticon}" CommandParameter=":P" BorderBrush="Transparent" Background="Transparent" HorizontalAlignment="Left" Height="21" Margin="142,392,0,0" VerticalAlignment="Top" Width="22" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}">
             <Image Source="Image/tongue-out.png" Visibility="{Binding EmoticonsVisibility, UpdateSourceTrigger=PropertyChanged}"/>
         </Button>
         <Menu Visibility="{Binding ChatSwitchMode, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="26" Margin="188,441,0,0" VerticalAlignment="Top" Width="31" FontFamily="Segoe UI Symbol">
@@ -490,7 +490,7 @@
         <Label Visibility="{Binding IsWriting, UpdateSourceTrigger=PropertyChanged}" Content="is writing" HorizontalAlignment="Left" Margin="257,56,0,0" VerticalAlignment="Top"/>
         <Label Visibility="{Binding IsWriting, UpdateSourceTrigger=PropertyChanged}" Content="{Binding WritingUser, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="173,56,0,0" VerticalAlignment="Top"/>
         <Label Content="{Binding AttachmentName, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="114,476,0,0" VerticalAlignment="Top" Foreground="White" RenderTransformOrigin="2.3,1.1"/>
-        <Button Command="{Binding DeleteAttachment}" x:Name="DeleteAttachmentButton" HorizontalAlignment="Left" Margin="85,471,0,0" VerticalAlignment="Top" Width="27" Height="15">
+        <Button Visibility="{Binding ChatSwitchMode, UpdateSourceTrigger=PropertyChanged}" Command="{Binding DeleteAttachment}" x:Name="DeleteAttachmentButton" HorizontalAlignment="Left" Margin="85,471,0,0" VerticalAlignment="Top" Width="27" Height="15">
             <Image Source="Image/cancel.png" Width="16" Height="10"/>
             <Button.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">

@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿using System.Linq.Expressions;
+using Autofac;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,39 +28,45 @@ namespace Client
         public PresenceStatusNotification ListeningPresenceStatus()
         {
             PresenceStatusNotification user;
-            //using (var scope = _container.BeginLifetimeScope())
+            try
             {
-                IPresenceStatus response = scope.Resolve<IPresenceStatus>();
-                user = response.ReceiveUserPresenceStatus(Timeout);
+                var response = scope.Resolve<IPresenceStatus>();
+                user = response.ReceiveUserPresenceStatus();
+                return user;
             }
-            return user;
+            catch { }
+            return null;
 
         }
 
         public MessageResponse ListeningMessages()
         {
             MessageResponse messageResponse;
-            //using (var scope = _container.BeginLifetimeScope())
+            try
             {
-                IMessages response = scope.Resolve<IMessages>();
-                messageResponse = response.ReceiveMessage(Timeout);
+                var response = scope.Resolve<IMessages>();
+                messageResponse = response.ReceiveMessage();
+                return messageResponse;
             }
-            return messageResponse;
+            catch { }
+            return null;
         }
 
         public ActivityResponse ListeningActivity()
         {
             ActivityResponse activityResponse;
-            //using (var scope = _container.BeginLifetimeScope())
+            try
             {
-                IActivity response = scope.Resolve<IActivity>();
-                activityResponse = response.ActivityResponse(Timeout);
+                var response = scope.Resolve<IActivity>();
+                activityResponse = response.ActivityResponse();
+                return activityResponse;
             }
-            return activityResponse;
+            catch { }
+            return null;
         }
 
         private IContainer _container;
-        private const int Timeout = 200;
+        private const int Timeout = 100;
         private ILifetimeScope scope;
     }
 }
