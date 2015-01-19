@@ -41,7 +41,7 @@ namespace Client.ViewModel
         public ObservableCollection<User> Friends { get; set; }
         public ObservableCollection<PresenceStatusView> PresenceStatuses { get; set; }
         
-        public ChatViewModel(RichTextBoxExt dialogueWindow, SynchronizationContext ctx)
+        public ChatViewModel()
         {
             ChangeFormVisibility = new DelegateCommand(doSelectForm);
             ViewEmoticons = new DelegateCommand(viewEmoticons);
@@ -58,8 +58,6 @@ namespace Client.ViewModel
             AddPresenceStatuses();      
             DownloadFriendsList();
             IsWriting = Visibility.Collapsed;
-            _dialogueWindow = dialogueWindow;
-            _ctx = ctx;
             th1 = new Thread(doListenMessages);
             th2 = new Thread(doPresenceStatusListen);
             th3 = new Thread(doActivityListen);
@@ -184,7 +182,7 @@ namespace Client.ViewModel
                 {
                     if (!_messagesDictionary.ContainsKey(Friend.Login))
                         _messagesDictionary.Add(Friend.Login, new FlowDocument());
-                    _dialogueWindow.Document = _messagesDictionary[Friend.Login];
+                    Conversation = _messagesDictionary[Friend.Login];
                 }
                 OnPropertyChanged();
                 RemoveFriend.RaiseCanExecuteChanged();
@@ -223,6 +221,16 @@ namespace Client.ViewModel
             }
         }
 
+        public FlowDocument Conversation
+        {
+            get { return _conversation; }
+            set
+            {
+                _conversation = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private Visibility _chatSwitchMode = Visibility.Visible;
@@ -233,7 +241,7 @@ namespace Client.ViewModel
         private string _friendLogin;
         private string _message, _writingUser;
         private User _friend;
-        private RichTextBoxExt _dialogueWindow;
+        private FlowDocument _conversation;
         private Attachment _attachment = new Attachment();
         private ICollection<User> _allUsersList = new List<User>();
 
@@ -321,9 +329,9 @@ namespace Client.ViewModel
                 var paragraph2 = new Paragraph(new Run(message.Login + " wrote\n")) {FontWeight = FontWeights.Bold};
                 var paragraph3 = new Paragraph(new Run(message.Message)) { FontSize = paragraph1.FontSize + 3};
 
-                _dialogueWindow.Document.Blocks.Add(paragraph1);
-                _dialogueWindow.Document.Blocks.Add(paragraph2);
-                _dialogueWindow.Document.Blocks.Add(paragraph3);
+                Conversation.Blocks.Add(paragraph1);
+                Conversation.Blocks.Add(paragraph2);
+                Conversation.Blocks.Add(paragraph3);
                 Message = null;
             }
             catch { }
@@ -547,9 +555,9 @@ namespace Client.ViewModel
                             };
                             var paragraph3 = new Paragraph(new Run(msg.Message)) {FontSize = paragraph1.FontSize + 3};
 
-                            _dialogueWindow.Document.Blocks.Add(paragraph1);
-                            _dialogueWindow.Document.Blocks.Add(paragraph2);
-                            _dialogueWindow.Document.Blocks.Add(paragraph3);
+                            Conversation.Blocks.Add(paragraph1);
+                            Conversation.Blocks.Add(paragraph2);
+                            Conversation.Blocks.Add(paragraph3);
                             if (!string.IsNullOrEmpty(msg.Attachment.Name))
                             {
                                 var data = Convert.FromBase64String(Encoding.UTF8.GetString(msg.Attachment.Data));

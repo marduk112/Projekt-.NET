@@ -23,9 +23,7 @@ namespace Client
         public Chat()
         {
             InitializeComponent();
-            rtxtDialogueWindow.Document.Blocks.Clear();
-            var ctx = SynchronizationContext.Current;
-            this.DataContext = new ChatViewModel(rtxtDialogueWindow, ctx);
+            this.DataContext = new ChatViewModel();
         }
 
         private void btnMinimize_Click(object sender, RoutedEventArgs e)

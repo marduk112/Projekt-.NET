@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Threading;
 
+//from www.codeproject.com
 namespace Client.RichTextBoxEmoticons
 {
     public class RichTextBoxExt : RichTextBox
@@ -17,6 +19,30 @@ namespace Client.RichTextBoxEmoticons
             Emoticons = new EmoticonCollection();
         }
 
+        public static readonly DependencyProperty DocumentProperty =
+        DependencyProperty.Register("Document", typeof(FlowDocument),
+        typeof(RichTextBoxExt), new FrameworkPropertyMetadata
+        (null, new PropertyChangedCallback(OnDocumentChanged)));
+
+        public new FlowDocument Document
+        {
+            get
+            {
+                return (FlowDocument)this.GetValue(DocumentProperty);
+            }
+
+            set
+            {
+                this.SetValue(DocumentProperty, value);
+            }
+        }
+
+        public static void OnDocumentChanged(DependencyObject obj,
+            DependencyPropertyChangedEventArgs args)
+        {
+            var rtb = (RichTextBox)obj;
+            rtb.Document = (FlowDocument)args.NewValue;
+        }
         /// <summary>
         /// Override to trigger the look up.
         /// </summary>
