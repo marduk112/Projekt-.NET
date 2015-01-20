@@ -244,10 +244,9 @@ namespace Client.ViewModel
         private FlowDocument _conversation;
         private Attachment _attachment = new Attachment();
         private ICollection<User> _allUsersList = new List<User>();
-
+        private SynchronizationContext _ctx = SynchronizationContext.Current;
         private IDictionary<string, FlowDocument> _messagesDictionary = new Dictionary<string, FlowDocument>();
         private Thread th1, th2, th3;
-        private SynchronizationContext _ctx;
         private readonly Listening _listener = new Listening();
         private bool _disposed = false;
         [NotifyPropertyChangedInvocator]
@@ -555,6 +554,19 @@ namespace Client.ViewModel
                             };
                             var paragraph3 = new Paragraph(new Run(msg.Message)) {FontSize = paragraph1.FontSize + 3};
 
+                            if (!_messagesDictionary.ContainsKey(msg.Login))
+                                _messagesDictionary.Add(msg.Login, new FlowDocument());
+                            if (!Friends.Any(user => user.Login.Equals(msg.Login)))
+                                Friends.Add(new User {Login = msg.Login, Status = _allUsersList.First(user => user.Login.Equals(msg.Login)).Status});
+                            if (Friend == null)
+                            {
+                                Friend = Friends.First(user => user.Login.Equals(msg.Login));
+                            }
+                            else if (!Friend.Login.Equals(msg.Login))
+                            {
+                                Friend = Friends.First(user => user.Login.Equals(msg.Login));
+                            }
+                            Conversation = _messagesDictionary[msg.Login];
                             Conversation.Blocks.Add(paragraph1);
                             Conversation.Blocks.Add(paragraph2);
                             Conversation.Blocks.Add(paragraph3);
