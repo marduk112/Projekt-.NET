@@ -25,4 +25,6 @@
     <system:String x:Key="Save">Zapisuj w archiwum rozmów</system:String>
     <system:String x:Key="ClearHistory">Wyczyść historię rozmowy</system:String>
     <system:String x:Key="PrintHistory">Drukuj historię rozmowy</system:String>
+    <system:String x:Key="Switch">Przełącz</system:String>
+    <system:String x:Key="Writing">Użytkownik pisze...</system:String>
 </ResourceDictionary>

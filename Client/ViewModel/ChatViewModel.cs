@@ -39,6 +39,7 @@ namespace Client.ViewModel
         public DelegateCommand SendMessage { get; private set; }
         public DelegateCommand RemoveFriend { get; private set; }
         public DelegateCommand DeleteAttachment { get; private set; }
+        public DelegateCommand Minimize { get; private set; }
         public ObservableCollection<User> Friends { get; set; }
         public ObservableCollection<PresenceStatusView> PresenceStatuses { get; set; }
         
@@ -57,6 +58,7 @@ namespace Client.ViewModel
             SendMessage = new DelegateCommand(sendMessage, canSendMessage);
             RemoveFriend = new DelegateCommand(removeFriend, canRemoveFriend);
             DeleteAttachment = new DelegateCommand(deleteAttachment, canDeleteAttachment);
+            Minimize = new DelegateCommand(Minimizing);
             AddPresenceStatuses();      
             DownloadFriendsList();
             IsWriting = Visibility.Collapsed;
@@ -67,6 +69,23 @@ namespace Client.ViewModel
             //th2.Start();
             th3.Start();
             
+        }
+
+        private void Minimizing()
+        {
+            State = WindowState.Minimized;
+        }
+
+        private WindowState _state;
+
+        public WindowState State
+        {
+            get { return _state; }
+            set
+            {
+                _state = value;
+                OnPropertyChanged("State");
+            }
         }
 
         public Visibility ChatSwitchMode 

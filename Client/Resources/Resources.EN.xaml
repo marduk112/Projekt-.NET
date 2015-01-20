@@ -25,4 +25,6 @@
     <system:String x:Key="Save">Save the chat history</system:String>
     <system:String x:Key="ClearHistory">Clear conversation history</system:String>
     <system:String x:Key="PrintHistory">Print conversation history</system:String>
+    <system:String x:Key="Switch">Switch</system:String>
+    <system:String x:Key="Writing">User is writing...</system:String>
 </ResourceDictionary>
