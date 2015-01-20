@@ -32,14 +32,18 @@ namespace Client.Modules
             var messageBytes = message.Serialize();
             var props = channel.CreateBasicProperties();
             props.SetPersistent(true);
+            channel.ConfirmSelect();
             channel.BasicPublish(Const.ClientExchange, "ChangeUserStatusServer", props, messageBytes);
+            channel.WaitForConfirmsOrDie();
+            channel.QueueDelete(queueName);
             //send presence status directly to users
             //channel.BasicPublish("UsersStatus", message.Login, null, messageBytes);
         }
 
-        public PresenceStatusNotification ReceiveUserPresenceStatus()
+        public PresenceStatusNotification ReceiveUserPresenceStatus(int timeout)
         {
             var ea = consumer.Queue.Dequeue();
+                //return null;
             channel.BasicAck(ea.DeliveryTag, false);
             var body = ea.Body;
             var message = body.DeserializePresenceStatusNotification();

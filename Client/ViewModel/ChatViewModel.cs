@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 using System.Web;
 using System.Windows;
 using System.Windows.Controls;
@@ -43,6 +44,7 @@ namespace Client.ViewModel
         
         public ChatViewModel()
         {
+            _listener = new Listening();
             ChangeFormVisibility = new DelegateCommand(doSelectForm);
             ViewEmoticons = new DelegateCommand(viewEmoticons);
             AddAttachment = new DelegateCommand(addAttachment);
@@ -58,12 +60,13 @@ namespace Client.ViewModel
             AddPresenceStatuses();      
             DownloadFriendsList();
             IsWriting = Visibility.Collapsed;
-            th1 = new Thread(doListenMessages);
-            th2 = new Thread(doPresenceStatusListen);
-            th3 = new Thread(doActivityListen);
+            th1 = new Thread(doListenMessages){IsBackground = true};
+            //th2 = new Thread(doPresenceStatusListen){IsBackground = true};
+            th3 = new Thread(doActivityListen) { IsBackground = true };
             th1.Start();
             //th2.Start();
             th3.Start();
+            
         }
 
         public Visibility ChatSwitchMode 
@@ -247,7 +250,7 @@ namespace Client.ViewModel
         private SynchronizationContext _ctx = SynchronizationContext.Current;
         private IDictionary<string, FlowDocument> _messagesDictionary = new Dictionary<string, FlowDocument>();
         private Thread th1, th2, th3;
-        private readonly Listening _listener = new Listening();
+        private readonly Listening _listener;
         private bool _disposed = false;
         [NotifyPropertyChangedInvocator]
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -453,12 +456,6 @@ namespace Client.ViewModel
 
         private void closeApplication()
         {
-            if (th1.IsAlive)
-                th1.Abort();
-            if (th2.IsAlive)
-                th2.Abort();
-            if (th3.IsAlive)
-                th3.Abort();
             Const.User.Status = Common.PresenceStatus.Offline;
             try
             {
@@ -537,11 +534,12 @@ namespace Client.ViewModel
             while (th1 != null && th1.IsAlive)
             {
                 var msg = _listener.ListeningMessages();
-                if (msg != null)
-                {
-                    try
+                if (msg == null) return;
+                //Task.Factory.StartNew(thread =>
+                //{
+                    _ctx.Post(_ =>
                     {
-                        _ctx.Post(_ =>
+                        try
                         {
                             var paragraph1 = new Paragraph(new Run(msg.SendTime.ToString()))
                             {
@@ -552,12 +550,19 @@ namespace Client.ViewModel
                             {
                                 FontWeight = FontWeights.Bold
                             };
-                            var paragraph3 = new Paragraph(new Run(msg.Message)) {FontSize = paragraph1.FontSize + 3};
+                            var paragraph3 = new Paragraph(new Run(msg.Message))
+                            {
+                                FontSize = paragraph1.FontSize + 3
+                            };
 
                             if (!_messagesDictionary.ContainsKey(msg.Login))
                                 _messagesDictionary.Add(msg.Login, new FlowDocument());
                             if (!Friends.Any(user => user.Login.Equals(msg.Login)))
-                                Friends.Add(new User {Login = msg.Login, Status = _allUsersList.First(user => user.Login.Equals(msg.Login)).Status});
+                                Friends.Add(new User
+                                {
+                                    Login = msg.Login,
+                                    Status = _allUsersList.First(user => user.Login.Equals(msg.Login)).Status
+                                });
                             if (Friend == null)
                             {
                                 Friend = Friends.First(user => user.Login.Equals(msg.Login));
@@ -570,25 +575,25 @@ namespace Client.ViewModel
                             Conversation.Blocks.Add(paragraph1);
                             Conversation.Blocks.Add(paragraph2);
                             Conversation.Blocks.Add(paragraph3);
-                            if (!string.IsNullOrEmpty(msg.Attachment.Name))
+                            if (string.IsNullOrEmpty(msg.Attachment.Name)) return;
+                            var data = Convert.FromBase64String(Encoding.UTF8.GetString(msg.Attachment.Data));
+                            var window = new SaveFileDialog
                             {
-                                var data = Convert.FromBase64String(Encoding.UTF8.GetString(msg.Attachment.Data));
-                                var window = new SaveFileDialog
-                                {
-                                    Title = "Save Attachment",
-                                    FileName = msg.Attachment.Name,
-                                    Filter =
-                                        @"(*" + Path.GetExtension(msg.Attachment.Name) + ")|(*." +
-                                        Path.GetExtension(msg.Attachment.Name) + ")"
-                                };
-                                var t = window.ShowDialog();
-                                if (t == true)
-                                    File.WriteAllBytes(window.FileName, data);
-                            }
-                        }, null);
-                    }
-                    catch { }
-                }
+                                Title = "Save Attachment",
+                                FileName = msg.Attachment.Name,
+                                Filter =
+                                    @"(*" + Path.GetExtension(msg.Attachment.Name) + ")|(*." +
+                                    Path.GetExtension(msg.Attachment.Name) + ")"
+                            };
+                            var t = window.ShowDialog();
+                            if (t == true)
+                                File.WriteAllBytes(window.FileName, data);
+                        }
+                        catch
+                        {
+                        }
+                    }, null);
+               // }, null);
             }
         }
 
@@ -597,14 +602,15 @@ namespace Client.ViewModel
             while (th2 != null & th2.IsAlive)
             {
                 var prs = _listener.ListeningPresenceStatus();
-                if (prs != null)
+                if (prs == null) return;
+                try
                 {
-                    try
+                    /*Task.Factory.StartNew(_ =>
                     {
                         //MessageBox.Show(prs.Login + " " + prs.PresenceStatus);
-                    }
-                    catch { }
+                    }, null);*/
                 }
+                catch { }
             }
         }
 
@@ -613,12 +619,13 @@ namespace Client.ViewModel
             while (th3 != null & th3.IsAlive)
             {
                 var act = _listener.ListeningActivity();
-                if (act != null)
-                {
-                    try
-                    {
-                        if (Friend != null)
+                if (act == null) return;
+                //Task.Factory.StartNew(_ =>
+                   // {
+                        try
                         {
+
+                            if (Friend == null) return;
                             if (act.IsWriting && Friend.Login.Equals(act.Login))
                             {
                                 IsWriting = Visibility.Visible;
@@ -627,9 +634,8 @@ namespace Client.ViewModel
                             else
                                 IsWriting = Visibility.Collapsed;
                         }
-                    }
-                    catch { }
-                }
+                        catch { }
+                   // }, null);
             }
         }
 
@@ -647,12 +653,6 @@ namespace Client.ViewModel
             {
                 // Free other state (managed objects).
             }
-            if(th1.IsAlive)
-                th1.Abort();
-            if (th2.IsAlive)
-                th2.Abort();
-            if (th3.IsAlive)
-                th3.Abort();
             // Free your own state (unmanaged objects).
             // Set large fields to null.
             _disposed = true;

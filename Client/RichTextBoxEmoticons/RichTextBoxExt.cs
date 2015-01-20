@@ -56,7 +56,7 @@ namespace Client.RichTextBoxEmoticons
                 _timer.Interval = TimeSpan.FromSeconds(0.5);
                 _timer.Tick += LookUp;
             }
-
+            ScrollToEnd();
             //Restart timer here...
             _timer.Stop();
             _timer.Start();

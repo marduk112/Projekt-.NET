@@ -26,10 +26,13 @@ namespace Client.Modules
             var properties = channel.CreateBasicProperties();
             properties.SetPersistent(true);
             var routingKey = Const.ServerMessageRequestRoute;
+            channel.ConfirmSelect();
             channel.BasicPublish(Const.ClientExchange, routingKey, properties, body);
+            channel.WaitForConfirmsOrDie();
+            channel.QueueDelete(queueName);
         }
         //every user has queue for message response
-        public MessageResponse ReceiveMessage()
+        public MessageResponse ReceiveMessage(int timeout)
         {
             var ea = consumer.Queue.Dequeue();
                 //return null;

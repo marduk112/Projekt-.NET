@@ -10,6 +10,6 @@ namespace Client.Interfaces
     public interface IMessages : IDisposable
     {
         void SendMessage(MessageReq message);
-        MessageResponse ReceiveMessage();
+        MessageResponse ReceiveMessage(int timeout);
     }
 }

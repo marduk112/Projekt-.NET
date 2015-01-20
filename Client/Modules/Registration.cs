@@ -47,6 +47,7 @@ namespace Client.Modules
                         var ea = consumer.Queue.Dequeue();
                         if (ea.BasicProperties.CorrelationId == corrId)
                         {
+                            channel.QueueDelete(replyQueueName);
                             return ea.Body.DeserializeCreateUserResponse();
                         }
                     }

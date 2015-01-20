@@ -96,7 +96,7 @@
                 </TransformGroup>
             </Button.RenderTransform>
         </Button>
-        <richTextBoxEmoticons:RichTextBoxExt Document="{Binding Conversation, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding ChatSwitchMode, UpdateSourceTrigger=PropertyChanged}" Tag="CHAT" x:Name="rtxtDialogueWindow" IsReadOnly="True" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Left" Height="303" Margin="83,82,0,0" VerticalAlignment="Top" Width="434" BorderBrush="Black" Foreground="{Binding ElementName=cmbbFontColor, Path=Text}" FontSize="{Binding Text, ElementName=cmbbFontSize}" FontFamily="{Binding ElementName=cmbbFontType,Path=Text}" SelectionBrush="Black" BorderThickness="3" Background="#D8FFD6FF" AllowDrop="True" IsHitTestVisible="True" ClipToBounds="True" >
+        <richTextBoxEmoticons:RichTextBoxExt Document="{Binding Conversation, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding ChatSwitchMode, UpdateSourceTrigger=PropertyChanged}" Tag="CHAT" x:Name="rtxtDialogueWindow" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Left" Height="303" Margin="83,82,0,0" VerticalAlignment="Top" Width="434" BorderBrush="Black" Foreground="{Binding ElementName=cmbbFontColor, Path=Text}" FontSize="{Binding Text, ElementName=cmbbFontSize}" FontFamily="{Binding ElementName=cmbbFontType,Path=Text}" SelectionBrush="Black" BorderThickness="3" Background="#D8FFD6FF" AllowDrop="False" IsHitTestVisible="True" ClipToBounds="True" IsUndoEnabled="False" ScrollViewer.CanContentScroll="True" IsReadOnly="True" AcceptsTab="True" >
             <richTextBoxEmoticons:RichTextBoxExt.Resources>
                 <Style TargetType="{x:Type Paragraph}">
                     <Setter Property="Margin" Value="0" />
@@ -117,7 +117,7 @@
             </richTextBoxEmoticons:RichTextBoxExt.Emoticons>
         </richTextBoxEmoticons:RichTextBoxExt>
         <TextBox Visibility="{Binding ChatSwitchMode, UpdateSourceTrigger=PropertyChanged}" x:Name="txtMessageWindow" Tag="CHAT" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Right" Height="43" Margin="0,392,156,0" VerticalAlignment="Top" Width="434" BorderBrush="Black" Background="#D8FFD6FF" Foreground="{Binding ElementName=cmbbFontColor, Path=Text}" FontSize="{Binding Text, ElementName=cmbbFontSize}" FontFamily="{Binding ElementName=cmbbFontType,Path=Text}" SelectionBrush="Black" BorderThickness="3"
-                 Text="{Binding Message, UpdateSourceTrigger=PropertyChanged}"/>
+                 Text="{Binding Message, UpdateSourceTrigger=PropertyChanged}" SpellCheck.IsEnabled="True"/>
 
         <Button x:Name="btnWindowSwitch" Content="Przełącz" 
                 HorizontalAlignment="Left" Margin="240,530,0,0" 
@@ -425,7 +425,7 @@
                  TextWrapping="Wrap" VerticalAlignment="Top" Width="214" BorderBrush="Black" 
                  Background="#D8FFD6FF" SelectionBrush="Black" BorderThickness="3" FontSize="14"
                  Tag="FRIEND_LIST" Visibility="{Binding ChatSwitchMode2, UpdateSourceTrigger=PropertyChanged}"
-                 Text="{Binding FriendLogin, UpdateSourceTrigger=PropertyChanged}"/>
+                 Text="{Binding FriendLogin, UpdateSourceTrigger=PropertyChanged}" SpellCheck.IsEnabled="True"/>
         <Button Name="btnFindUser" Content="{DynamicResource AddFriend}" 
                 HorizontalAlignment="Left" Height="22" Margin="339,169,0,0"                 
                 VerticalAlignment="Top" Width="143" FontFamily="MS Reference Sans Serif" 

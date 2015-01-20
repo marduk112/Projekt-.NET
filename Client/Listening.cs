@@ -12,7 +12,7 @@ using System.Threading;
 
 namespace Client
 {
-    public class Listening
+    public class Listening : IDisposable
     {
         public Listening()
         {
@@ -31,7 +31,7 @@ namespace Client
             try
             {
                 var response = scope.Resolve<IPresenceStatus>();
-                user = response.ReceiveUserPresenceStatus();
+                user = response.ReceiveUserPresenceStatus(Timeout);
                 return user;
             }
             catch { }
@@ -45,7 +45,7 @@ namespace Client
             try
             {
                 var response = scope.Resolve<IMessages>();
-                messageResponse = response.ReceiveMessage();
+                messageResponse = response.ReceiveMessage(Timeout);
                 return messageResponse;
             }
             catch { }
@@ -58,15 +58,46 @@ namespace Client
             try
             {
                 var response = scope.Resolve<IActivity>();
-                activityResponse = response.ActivityResponse();
+                activityResponse = response.ActivityResponse(Timeout);
                 return activityResponse;
             }
             catch { }
             return null;
         }
 
+        //Implement IDisposable.
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+            if (disposing)
+            {
+                // Free other state (managed objects).
+                _container.Dispose();
+                _container = null;
+            }
+            scope.Dispose();
+            scope = null;
+            // Free your own state (unmanaged objects).
+            // Set large fields to null.
+            _disposed = true;
+        }
+
+        // Use C# destructor syntax for finalization code.
+        ~Listening()
+        {
+            // Simply call Dispose(false).
+            Dispose (false);
+        }
+
         private IContainer _container;
-        private const int Timeout = 100;
+        private const int Timeout = 200;
+        private bool _disposed = false;
         private ILifetimeScope scope;
     }
 }

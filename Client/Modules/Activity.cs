@@ -23,10 +23,13 @@ namespace Client.Modules
         public void ActivityReq(ActivityReq activityReq)
         {
             var body = activityReq.Serialize();
+            channel.ConfirmSelect();
             channel.BasicPublish(Const.ClientExchange, "Activity." + activityReq.Recipient, null, body);
+            channel.WaitForConfirmsOrDie();
+            channel.QueueDelete(queueName);
         }
 
-        public ActivityResponse ActivityResponse()
+        public ActivityResponse ActivityResponse(int timeout)
         {
             var ea = consumer.Queue.Dequeue();
                 //return null;
