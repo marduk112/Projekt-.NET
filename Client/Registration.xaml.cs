@@ -31,32 +31,7 @@ namespace Client
             this.DataContext = new RegistrationViewModel();
         }
 
-        private void btnClose_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
-
-        private void btnMinimize_Click(object sender, RoutedEventArgs e)
-        {
-            this.WindowState = WindowState.Minimized;
-        }
-
-        private void Ellipse_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            DragMove();
-        }
-
-        private void Ellipse_MouseDown_1(object sender, MouseButtonEventArgs e)
-        {
-            DragMove();
-        }
-
-        private void Rectangle_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            DragMove();
-        }
-
-        private void LblName_MouseDown(object sender, MouseButtonEventArgs e)
+        private void Element_MouseDown(object sender, MouseButtonEventArgs e)
         {
             DragMove();
         }

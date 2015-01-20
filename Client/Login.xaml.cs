@@ -31,66 +31,14 @@ namespace Client
         public MainWindow()
         {
             InitializeComponent();
-            SetLanguageDictionary();
             this.DataContext = new LoginViewModel();
         }
 
-        private void SetLanguageDictionary()
-        {
-            var dict = new ResourceDictionary();
-            switch (Thread.CurrentThread.CurrentCulture.ToString())
-            {
-                case "pl":
-                    dict.Source = new Uri("..\\Resources\\Resources.xaml", UriKind.Relative);
-                    Application.Current.Resources.MergedDictionaries.Add(dict);
-                    break;
-                case "en":
-                    dict.Source = new Uri("..\\Resources\\Resources.EN.xaml", UriKind.Relative);
-                    Application.Current.Resources.MergedDictionaries.Add(dict);
-                    break;
-                default:
-                    dict.Source = new Uri("..\\Resources\\Resources.xaml", UriKind.Relative);
-                    Application.Current.Resources.MergedDictionaries.Add(dict);
-                    break;
-            }
-            this.Resources.MergedDictionaries.Add(dict);
-        }
-
-        private void btnClose_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
-
-        private void btnMinimize_Click(object sender, RoutedEventArgs e)
-        {
-            this.WindowState = WindowState.Minimized;
-        }
-
-        private void Ellipse_MouseDown(object sender, MouseButtonEventArgs e)
+        private void Element_MouseDown(object sender, MouseButtonEventArgs e)
         {
             DragMove();
         }
-
-        private void Ellipse_MouseDown_1(object sender, MouseButtonEventArgs e)
-        {
-            DragMove();
-        }
-
-        private void Rectangle_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            DragMove();
-        }
-
-        private void LblName_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            DragMove();
-        }
-
-        private void btnRegistry_Click(object sender, RoutedEventArgs e)
-        {
-            (new Registration()).Show();
-        }
-
+  
         private void btnSignIn_Click(object sender, RoutedEventArgs e)
         {
             //(new Contacts()).Show();
@@ -124,20 +72,6 @@ namespace Client
             }
             else
                 MessageBox.Show(response.Message);
-        }
-
-        private void btnPolish_Click(object sender, RoutedEventArgs e)
-        {
-            var cultureInfo = new System.Globalization.CultureInfo("pl");
-            Thread.CurrentThread.CurrentCulture = cultureInfo;
-            SetLanguageDictionary();
-        }
-
-        private void btnEnglish_Click(object sender, RoutedEventArgs e)
-        {
-            var cultureInfo = new System.Globalization.CultureInfo("en");
-            Thread.CurrentThread.CurrentCulture = cultureInfo;
-            SetLanguageDictionary();
         }
 
     }
