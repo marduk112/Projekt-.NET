@@ -99,6 +99,13 @@ namespace Common
                 return JsonSerializer.DeserializeFromStream<AddFriendReq>(stream);
             }
         }
+        public static PresenceStatusRequest DeserializePresenceStatusRequest(this byte[] data)
+        {
+            using (var stream = new MemoryStream(data))
+            {
+                return JsonSerializer.DeserializeFromStream<PresenceStatusRequest>(stream);
+            }
+        }
         public static DeleteFriendReq DeserializeDeleteFriendReq(this byte[] data)
         {
             using (var stream = new MemoryStream(data))

@@ -2,7 +2,7 @@
 {
     public static class Const
     {
-        public const string HostName = "127.0.0.1";
+        public const string HostName = "150.254.79.254";
         /// <summary>
         /// Was used to login and register users. Deprecated.
         /// </summary>

@@ -24,6 +24,7 @@ namespace Server.Modules
             services.Add(new AddFriendService());
             services.Add(new DeleteFriendService());
             services.Add(new MessageService());
+            services.Add(new PresenceStatusService());
 
             foreach (var service in services)
             {

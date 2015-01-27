@@ -108,6 +108,17 @@ namespace Common
         public DateTimeOffset SendTime { get; set; }
     }
 
+    public class PresenceStatusRequest : Request
+    {
+        public PresenceStatus PresenceStatus { get; set; }
+
+    }
+
+    public class PresenceStatusResponse : Response
+    {
+        
+    }
+
     public class PresenceStatusNotification : Notification
     {
         public string Login { get; set; }
